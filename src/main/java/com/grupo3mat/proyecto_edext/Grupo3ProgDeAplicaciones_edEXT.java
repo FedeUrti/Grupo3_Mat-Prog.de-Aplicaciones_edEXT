@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
 
-package com.grupo3.mat.grupo.prog.de.aplicaciones_edext;
+package com.grupo3mat.proyecto_edext;
 
 /**
  *
