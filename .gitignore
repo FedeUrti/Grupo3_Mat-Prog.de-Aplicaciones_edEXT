@@ -1,0 +1,10 @@
+# Archivos de compilación de Maven
+/target/
+
+# Archivos locales de NetBeans
+/nbproject/private/
+.nb-gradle/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
