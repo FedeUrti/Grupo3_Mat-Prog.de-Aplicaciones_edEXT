@@ -1,35 +1,104 @@
 package com.grupo3_mat.edEXT.Logica.Controladores;
 
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
+import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
+import com.grupo3_mat.edEXT.Logica.Datatypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
-import java.util.Date;
+import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorInstituto;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControladorCurso implements IControladorCurso {
 
     @Override
-    public void altaCurso(String nomInst, String cursoNom, String desc, int dur, int cantHoras, int creditos, String url, Date fecha) {
-        ManejadorCurso manejador = ManejadorCurso.getInstancia();
+    public void altaCurso(String nomInst, String cursoNom, String desc, int dur, int cantHoras, int creditos, String url, LocalDate fecha, List<String> previas) {
+        ManejadorCurso mc = ManejadorCurso.getInstancia();
+        ManejadorInstituto mi = ManejadorInstituto.getInstancia();
+        //Obtengo la instancia del manejador de curso y del instituto
+        if (mc.buscarCurso(cursoNom) != null) {
+            throw new IllegalArgumentException("El curso '" + cursoNom + "' ya existe.");
+        }
+        //Verifico que el curso ingresado no exista en los cursos ingresados.
+        Instituto inst = mi.buscarInstituto(nomInst);
+        if (inst == null) {
+            throw new IllegalArgumentException("El instituto '" + nomInst + "' no existe.");
+        }
+        //Crea un curso nuevo con los datos ingresado
+        Curso curso = new Curso(inst, cursoNom, desc, dur, cantHoras, creditos, url, fecha);
 
-        // 1. Validar si el curso ya existe para no duplicar
-        if (manejador.buscarCurso(cursoNom) != null) {
-            throw new IllegalArgumentException("El curso con nombre '" + cursoNom + "' ya se encuentra registrado.");
+        if (previas != null && !previas.isEmpty()) {
+            List<Curso> listaPrevias = new ArrayList<>();
+            for (String nomPrevia : previas) {
+                Curso cPrevia = mc.buscarCurso(nomPrevia);
+                if (cPrevia != null) {
+                    listaPrevias.add(cPrevia);
+                }
+            }
+            curso.setPrevias(listaPrevias);
         }
 
-        // 2. Crear la entidad
-        Curso curso = new Curso(nomInst, cursoNom, desc, dur, cantHoras, creditos, url, fecha);
+        mc.agregarCurso(curso);
+    }
 
-        // 3. Delegar la persistencia al manejador
-        manejador.agregarCurso(curso);
+    @Override
+    public List<String> listarCursosPorInstituto(String nomInst) 
+    {
+        ManejadorCurso mc = ManejadorCurso.getInstancia(); // Obtengo la instancia del manejador de curso
+        List<Curso> cursos = mc.listarCursosPorInstituto(nomInst);
+        List<String> nombres = new ArrayList<>();
+        for (Curso c : cursos) {
+            nombres.add(c.getNombre());
+        }
+        return nombres;
+    }
+
+    @Override
+    public DtCurso consultarCurso(String nombreCurso) //Consultar cursos 
+    {
+        //Obtengo las instancias de manejador curso y llamo a la funcion buscarCurso del manejador.
+        ManejadorCurso mc = ManejadorCurso.getInstancia();
+        Curso curso = mc.buscarCurso(nombreCurso);
+        //Si no encuentro un curso, tiro una excepcion que me dice que el curso NO existe                                            
+        if (curso == null) {
+            throw new IllegalArgumentException("El curso '" + nombreCurso + "' no existe.");
+        }
+        // Si el curso existe, en caso de tener listo las previas del mismo.
+        List<String> nomPrevias = new ArrayList<>();
+        for (Curso previa : curso.getPrevias()) {
+            nomPrevias.add(previa.getNombre());
+        }
+
+        // MOCK de ediciones y programas para testeo.
+        List<String> edicionesMock = List.of("Edicion 2026-1", "Edicion 2026-2");
+        List<String> programasMock = List.of("Programa Desarrollo Web");
+        //Retorno un Datatype de Curso con los datos del curso solicitado
+        return new DtCurso(
+                curso.getNombre(),
+                curso.getInstituto().getNombre(),
+                curso.getDescripcion(),
+                curso.getDuracion(),
+                curso.getCantHoras(),
+                curso.getCreditos(),
+                curso.getUrl(),
+                curso.getFecha(),
+                nomPrevias,
+                edicionesMock,
+                programasMock
+        );
     }
     
     @Override
-    public void consultarCurso() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void listarPrevias() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public List<String> listarCursos() //Lista de cursos segun su nombre
+    {
+        ManejadorCurso mc = ManejadorCurso.getInstancia();
+        List<Curso> cursos = mc.listarCursos();
+        List<String> nombres = new ArrayList<>();
+        for (Curso c : cursos) {
+            nombres.add(c.getNombre());
+        }
+        return nombres;
     }
 }
