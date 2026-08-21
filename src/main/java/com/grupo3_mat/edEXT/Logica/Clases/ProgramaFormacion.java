@@ -34,7 +34,7 @@ public class ProgramaFormacion {
     }
     
     public void agregarCurso(Curso c) {
-        this.cursos.put(c.nombre, c);
+        this.cursos.put(c.getNombre(), c);
     }
 
     
