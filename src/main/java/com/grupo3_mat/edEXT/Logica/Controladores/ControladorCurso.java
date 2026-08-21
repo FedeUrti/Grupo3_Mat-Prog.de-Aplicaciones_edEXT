@@ -17,16 +17,16 @@ public class ControladorCurso implements IControladorCurso {
     public void altaCurso(String nomInst, String cursoNom, String desc, int dur, int cantHoras, int creditos, String url, LocalDate fecha, List<String> previas) {
         ManejadorCurso mc = ManejadorCurso.getInstancia();
         ManejadorInstituto mi = ManejadorInstituto.getInstancia();
-
+        //Obtengo la instancia del manejador de curso y del instituto
         if (mc.buscarCurso(cursoNom) != null) {
             throw new IllegalArgumentException("El curso '" + cursoNom + "' ya existe.");
         }
-
+        //Verifico que el curso ingresado no exista en los cursos ingresados.
         Instituto inst = mi.buscarInstituto(nomInst);
         if (inst == null) {
             throw new IllegalArgumentException("El instituto '" + nomInst + "' no existe.");
         }
-
+        //Crea un curso nuevo con los datos ingresado
         Curso curso = new Curso(inst, cursoNom, desc, dur, cantHoras, creditos, url, fecha);
 
         if (previas != null && !previas.isEmpty()) {
@@ -56,7 +56,7 @@ public class ControladorCurso implements IControladorCurso {
     }
 
     @Override
-    public DtCurso consultarCurso(String nombreCurso) //Caso de uso Consultar cursos 
+    public DtCurso consultarCurso(String nombreCurso) //Consultar cursos 
     {
         //Obtengo las instancias de manejador curso y llamo a la funcion buscarCurso del manejador.
         ManejadorCurso mc = ManejadorCurso.getInstancia();
@@ -65,7 +65,7 @@ public class ControladorCurso implements IControladorCurso {
         if (curso == null) {
             throw new IllegalArgumentException("El curso '" + nombreCurso + "' no existe.");
         }
-        // Si el curso es real, en caso de tener listo las previas del mismo.
+        // Si el curso existe, en caso de tener listo las previas del mismo.
         List<String> nomPrevias = new ArrayList<>();
         for (Curso previa : curso.getPrevias()) {
             nomPrevias.add(previa.getNombre());
@@ -74,7 +74,7 @@ public class ControladorCurso implements IControladorCurso {
         // MOCK de ediciones y programas para testeo.
         List<String> edicionesMock = List.of("Edicion 2026-1", "Edicion 2026-2");
         List<String> programasMock = List.of("Programa Desarrollo Web");
-        //Retorno un Datatype de Curso con los datos  del solicitado
+        //Retorno un Datatype de Curso con los datos del curso solicitado
         return new DtCurso(
                 curso.getNombre(),
                 curso.getInstituto().getNombre(),
@@ -89,7 +89,7 @@ public class ControladorCurso implements IControladorCurso {
                 programasMock
         );
     }
-
+    
     @Override
     public List<String> listarCursos() //Lista de cursos segun su nombre
     {
