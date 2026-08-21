@@ -1,34 +1,41 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.grupo3_mat.edEXT.Logica.Clases;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import java.util.Date;
-import jakarta.persistence.Table;
 
-/**
- *
- * @author fede1
- */
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "Curso")
 public class Curso {
+
     @Id
-    String nombre;
-    String nomInst;
-    String descripcion;
-    int duracion;
-    int cantHoras;
-    int creditos;
-    String url;
-    Date fecha;
-    
-    public Curso(String nomInst, String nombre, String descripcion, int duracion, int cantHoras, int creditos, String url, Date fecha)
-    {
+    private String nombre;
+
+    @ManyToOne
+    @JoinColumn(name = "instituto_nombre")
+    private Instituto instituto;
+
+    private String descripcion;
+    private int duracion;
+    private int cantHoras;
+    private int creditos;
+    private String url;
+    private LocalDate fecha;
+
+    @ManyToMany
+    @JoinTable(
+        name = "Curso_Previas",
+        joinColumns = @JoinColumn(name = "curso_nombre"),
+        inverseJoinColumns = @JoinColumn(name = "previa_nombre")
+    )
+    private List<Curso> previas = new ArrayList<>();
+
+    public Curso() {}
+
+    public Curso(Instituto instituto, String nombre, String descripcion, int duracion, int cantHoras, int creditos, String url, LocalDate fecha) {
+        this.instituto = instituto;
         this.nombre = nombre;
-        this.nomInst = nomInst; 
         this.descripcion = descripcion;
         this.duracion = duracion;
         this.cantHoras = cantHoras;
@@ -36,4 +43,15 @@ public class Curso {
         this.url = url;
         this.fecha = fecha;
     }
+
+    public String getNombre() { return nombre; }
+    public Instituto getInstituto() { return instituto; }
+    public String getDescripcion() { return descripcion; }
+    public int getDuracion() { return duracion; }
+    public int getCantHoras() { return cantHoras; }
+    public int getCreditos() { return creditos; }
+    public String getUrl() { return url; }
+    public LocalDate getFecha() { return fecha; }
+    public List<Curso> getPrevias() { return previas; }
+    public void setPrevias(List<Curso> previas) { this.previas = previas; }
 }

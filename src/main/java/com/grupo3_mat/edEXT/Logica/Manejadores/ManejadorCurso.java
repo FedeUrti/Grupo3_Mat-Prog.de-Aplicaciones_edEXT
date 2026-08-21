@@ -47,45 +47,21 @@ public class ManejadorCurso {
         }
     }
 
+    public List<Curso> listarCursosPorInstituto(String nomInstituto) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT c FROM Curso c WHERE c.instituto.nombre = :inst", Curso.class)
+                    .setParameter("inst", nomInstituto)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Curso> listarCursos() {
         EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery("SELECT c FROM Curso c", Curso.class).getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    public void modificarCurso(Curso curso) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-            em.merge(curso);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    public void eliminarCurso(String nombre) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-            Curso curso = em.find(Curso.class, nombre);
-            if (curso != null) {
-                em.remove(curso);
-            }
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            throw e;
         } finally {
             em.close();
         }
