@@ -4,6 +4,9 @@
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
+import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+
 /**
  *
  * @author fede1
@@ -26,21 +29,85 @@ public class AltaInstitutoFrame extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        btnAceptar = new javax.swing.JButton();
+        labelInstiNom = new javax.swing.JLabel();
+        txtNombreInstituto = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+
+        btnAceptar.setText("Aceptar");
+        btnAceptar.addActionListener(this::btnAceptarActionPerformed);
+
+        labelInstiNom.setText("Nombre Instituto");
+
+        txtNombreInstituto.setText("UTEC");
+
+        jButton1.setText("Cancelar");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 394, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(60, 60, 60)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(84, 84, 84)
+                        .addComponent(btnAceptar))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(labelInstiNom)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtNombreInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(57, 57, 57)))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 274, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(74, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelInstiNom)
+                    .addComponent(txtNombreInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(48, 48, 48)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAceptar)
+                    .addComponent(jButton1))
+                .addGap(28, 28, 28))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
+        // TODO add your handling code here:
+        String nombreInst = txtNombreInstituto.getText().trim();
+
+        // 1. Validar que el campo no esté vacío
+        if (nombreInst.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Debe ingresar el nombre del instituto.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            // 2. Comunicar con la lógica mediante la Fábrica
+            IControladorInstituto ici = Fabrica.getInstance().getIControladorInstituto();
+            ici.altaInstituto(nombreInst);
+
+            // 3. Confirmar y limpiar campo
+            javax.swing.JOptionPane.showMessageDialog(this, "¡Instituto '" + nombreInst + "' registrado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            txtNombreInstituto.setText("");
+
+        } catch (IllegalArgumentException e) {
+            // Si el instituto ya existe en la base de datos, atrapa el mensaje lanzado por el controlador
+            javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error de negocio", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnAceptarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAceptar;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel labelInstiNom;
+    private javax.swing.JTextField txtNombreInstituto;
     // End of variables declaration//GEN-END:variables
 }
