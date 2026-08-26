@@ -1,11 +1,11 @@
 package com.grupo3_mat.edEXT.Logica.DataTypes;
 
 
-public class DtInstitutoa {
+public class DtInstituto {
 
     private String nombre;
 
-    public DtInstitutoa(String nombre) {
+    public DtInstituto(String nombre) {
         this.nombre = nombre;
     }
 
