@@ -10,7 +10,7 @@ import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
  * @author benja
  */
 public interface IControladorEdicion {
-    void altaEdicionCurso(String nombreCurso, DTEdicionCurso datosEdicion);
+    void altaEdicionCurso(String nombreCurso, DTEdicionCurso datosEdicion)throws Exception;
     void mostrarDetalleEdicion();
     void mostrarEdicionVigente();
     void inscribirEdicionCurso();
