@@ -2,7 +2,7 @@ package com.grupo3_mat.edEXT.Logica.Controladores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
-import com.grupo3_mat.edEXT.Logica.Datatypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtCursoa;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorInstituto;
@@ -56,7 +56,7 @@ public class ControladorCurso implements IControladorCurso {
     }
 
     @Override
-    public DtCurso consultarCurso(String nombreCurso) //Consultar cursos 
+    public DtCursoa consultarCurso(String nombreCurso) //Consultar cursos 
     {
         //Obtengo las instancias de manejador curso y llamo a la funcion buscarCurso del manejador.
         ManejadorCurso mc = ManejadorCurso.getInstancia();
@@ -75,7 +75,7 @@ public class ControladorCurso implements IControladorCurso {
         List<String> edicionesMock = List.of("Edicion 2026-1", "Edicion 2026-2");
         List<String> programasMock = List.of("Programa Desarrollo Web");
         //Retorno un Datatype de Curso con los datos del curso solicitado
-        return new DtCurso(
+        return new DtCursoa(
                 curso.getNombre(),
                 curso.getInstituto().getNombre(),
                 curso.getDescripcion(),

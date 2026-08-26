@@ -1,9 +1,9 @@
-package com.grupo3_mat.edEXT.Logica.Datatypes;
+package com.grupo3_mat.edEXT.Logica.DataTypes;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public class DtCurso {
+public class DtCursoa {
 
     private final String nombre;
     private final String nomInstituto;
@@ -17,7 +17,7 @@ public class DtCurso {
     private final List<String> ediciones;
     private final List<String> programas;
 
-    public DtCurso(String nombre, String nomInstituto, String descripcion, int duracion, int cantHoras, int creditos, String url, LocalDate fecha, List<String> previas, List<String> ediciones, List<String> programas) {
+    public DtCursoa(String nombre, String nomInstituto, String descripcion, int duracion, int cantHoras, int creditos, String url, LocalDate fecha, List<String> previas, List<String> ediciones, List<String> programas) {
         this.nombre = nombre;
         this.nomInstituto = nomInstituto;
         this.descripcion = descripcion;
