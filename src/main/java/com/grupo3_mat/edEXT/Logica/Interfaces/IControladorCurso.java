@@ -1,6 +1,6 @@
 package com.grupo3_mat.edEXT.Logica.Interfaces;
 
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.Datatypes.DtCurso;
 import java.time.LocalDate;
 import java.util.List;
 
