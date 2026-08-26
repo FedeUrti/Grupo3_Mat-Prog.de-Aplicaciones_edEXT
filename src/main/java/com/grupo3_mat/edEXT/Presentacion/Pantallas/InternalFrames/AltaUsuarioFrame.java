@@ -3,7 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
-
+import java.util.Date;
+import javax.swing.JOptionPane;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 /**
  *
  * @author Nacho Porcal
@@ -26,6 +30,7 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        bgTipoUsuario = new javax.swing.ButtonGroup();
         lblNombre = new javax.swing.JLabel();
         lblNickname = new javax.swing.JLabel();
         lblApellido = new javax.swing.JLabel();
@@ -40,6 +45,15 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         cbDia = new javax.swing.JComboBox<>();
         cbMes = new javax.swing.JComboBox<>();
         cbAnio = new javax.swing.JComboBox<>();
+        rbDocente = new javax.swing.JRadioButton();
+        lblTipoUsuario = new javax.swing.JLabel();
+        rbEstudiante = new javax.swing.JRadioButton();
+        cbInstituto = new javax.swing.JComboBox<>();
+        btnAccept = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
+        btnSeleccionarImagen = new javax.swing.JButton();
+        lblNombreImagen = new javax.swing.JLabel();
+        lblFotoPerfil = new javax.swing.JLabel();
 
         lblNombre.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblNombre.setText("Nombre:");
@@ -68,6 +82,32 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
 
         cbAnio.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1940", "1941", "1942", "1943", "1944", "1945", "1946", "1947", "1948", "1949", "1950", "1951", "1952", "1953", "1954", "1955", "1956", "1957", "1958", "1959", "1960", "1961", "1962", "1963", "1964", "1965", "1966", "1967", "1968", "1969", "1970", "1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983", "1984", "1985", "1986", "1987", "1988", "1989", "1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026" }));
 
+        bgTipoUsuario.add(rbDocente);
+        rbDocente.setText("Docente");
+        rbDocente.addActionListener(this::rbDocenteActionPerformed);
+
+        lblTipoUsuario.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblTipoUsuario.setText("Tipo Usuario:");
+
+        bgTipoUsuario.add(rbEstudiante);
+        rbEstudiante.setText("Estudiante");
+        rbEstudiante.addActionListener(this::rbEstudianteActionPerformed);
+
+        cbInstituto.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccionar Instituto" }));
+        cbInstituto.setEnabled(false);
+
+        btnAccept.setText("Aceptar");
+        btnAccept.addActionListener(this::btnAcceptActionPerformed);
+
+        btnCancelar.setText("Cancelar");
+
+        btnSeleccionarImagen.setText("Seleccionar Imagen");
+        btnSeleccionarImagen.addActionListener(this::btnSeleccionarImagenActionPerformed);
+
+        lblNombreImagen.setText("aaa");
+
+        lblFotoPerfil.setText("aaa");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -75,8 +115,6 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(44, 44, 44)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblNickname, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -94,15 +132,40 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
                             .addComponent(lblFechaNacimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(cbDia, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGap(40, 40, 40)
                             .addComponent(cbMes, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(39, 39, 39)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(cbAnio, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(lblCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
-                            .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(112, Short.MAX_VALUE))
+                            .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblTipoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(rbEstudiante)
+                        .addGap(18, 18, 18)
+                        .addComponent(rbDocente))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(101, 101, 101)
+                        .addComponent(btnAccept)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnCancelar))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnSeleccionarImagen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(lblInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(cbInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblNombreImagen)
+                            .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -130,31 +193,150 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
                     .addComponent(cbMes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cbAnio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(rbEstudiante)
+                        .addComponent(rbDocente))
+                    .addComponent(lblTipoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(119, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSeleccionarImagen)
+                    .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblNombreImagen)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAccept)
+                    .addComponent(btnCancelar))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void rbDocenteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbDocenteActionPerformed
+    cbInstituto.setEnabled(true);
+    }//GEN-LAST:event_rbDocenteActionPerformed
+
+    private void rbEstudianteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbEstudianteActionPerformed
+    cbInstituto.setEnabled(false);
+    }//GEN-LAST:event_rbEstudianteActionPerformed
+
+    private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed
+        // 1. Crear y configurar el selector de archivos (esto es igual que antes)
+    JFileChooser chooser = new JFileChooser();
+    FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes (JPG, PNG, JPEG)", "jpg", "png", "jpeg");
+    chooser.setFileFilter(filter);
+    
+    // 2. Abrir la ventana
+    int returnVal = chooser.showOpenDialog(this);
+    
+    // 3. Si el usuario seleccionó un archivo
+    if (returnVal == JFileChooser.APPROVE_OPTION) {
+        File archivo = chooser.getSelectedFile();
+        
+        // A. Mostramos el nombre en el label pequeño (lo que ya hacíamos)
+        lblNombreImagen.setText(archivo.getName());
+        
+        // B. ¡NUEVO! Cargamos y previsualizamos la imagen en grande
+        try {
+            // Leemos la imagen desde el archivo
+            ImageIcon originalIcon = new ImageIcon(archivo.getAbsolutePath());
+            
+            // Escalamos la imagen para que encaje perfectamente en el tamaño del label lblFotoPerfil
+            // sin deformarse (usando SCALE_SMOOTH para mejor calidad)
+            Image imagenEscalada = originalIcon.getImage().getScaledInstance(
+                lblFotoPerfil.getWidth(), 
+                lblFotoPerfil.getHeight(), 
+                Image.SCALE_SMOOTH
+            );
+            
+            // Creamos un nuevo icono con la imagen ya escalada
+            ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
+            
+            // Ponemos el icono en el label de previsualización
+            lblFotoPerfil.setIcon(iconoEscalado);
+            
+            // Quitamos el borde (si le pusiste uno) para que se vea solo la foto
+            lblFotoPerfil.setBorder(null);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar la imagen: " + e.getMessage());
+        }
+    }
+    }//GEN-LAST:event_btnSeleccionarImagenActionPerformed
+
+    private void btnAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptActionPerformed
+    String nick = txtNickname.getText().trim();
+    String nombre = txtNombre.getText().trim();
+    String apellido = txtApellido.getText().trim();
+    String email = txtCorreo.getText().trim();
+    
+    // Armar la fecha
+    int dia = (int) cbDia.getSelectedItem();
+    int mes = (int) cbMes.getSelectedItem();
+    int anio = (int) cbAnio.getSelectedItem();
+    Date fechaNac = new java.util.GregorianCalendar(anio, mes - 1, dia).getTime();
+    
+    try {
+        // 2. Evaluamos si es Docente o Estudiante
+        if (rbDocente.isSelected()) {
+            // Obtenemos el instituto seleccionado en el JComboBox
+            String nomInstituto = (String) cbInstituto.getSelectedItem();
+            
+            if (nomInstituto == null || nomInstituto.equals("Seleccionar Instituto...")) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto para el docente.");
+                return;
+            }
+            
+            // Invocamos el caso de uso para Docente
+            icu.altaDocente(nick, nombre, apellido, email, fechaNac, nomInstituto);
+            
+        } else {
+            // Invocamos el caso de uso para Estudiante
+            icu.altaEstudiante(nick, nombre, apellido, email, fechaNac);
+        }
+
+        JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.");
+        this.dispose(); // Cierra el cuadro de diálogo/frame interno
+
+     } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+     }
+
+    }//GEN-LAST:event_btnAcceptActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup bgTipoUsuario;
+    private javax.swing.JButton btnAccept;
     private javax.swing.JButton btnAceptar;
     private javax.swing.JButton btnAceptar1;
     private javax.swing.JButton btnAceptar2;
     private javax.swing.JButton btnAceptar3;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnSeleccionarImagen;
     private javax.swing.JComboBox<String> cbAnio;
     private javax.swing.JComboBox<String> cbDia;
+    private javax.swing.JComboBox<String> cbInstituto;
     private javax.swing.JComboBox<String> cbMes;
     private javax.swing.JLabel lblApellido;
     private javax.swing.JLabel lblCorreo;
     private javax.swing.JLabel lblFechaNacimiento;
+    private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JLabel lblImagen;
     private javax.swing.JLabel lblInstituto;
     private javax.swing.JLabel lblNickname;
     private javax.swing.JLabel lblNombre;
+    private javax.swing.JLabel lblNombreImagen;
+    private javax.swing.JLabel lblTipoUsuario;
+    private javax.swing.JRadioButton rbDocente;
+    private javax.swing.JRadioButton rbEstudiante;
     private javax.swing.JTextField txtApellido;
     private javax.swing.JTextField txtCorreo;
     private javax.swing.JTextField txtNickname;
