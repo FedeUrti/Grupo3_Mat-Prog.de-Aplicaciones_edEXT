@@ -2,7 +2,7 @@ package com.grupo3_mat.edEXT.Logica.Controladores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
-import com.grupo3_mat.edEXT.Logica.Datatypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorInstituto;
