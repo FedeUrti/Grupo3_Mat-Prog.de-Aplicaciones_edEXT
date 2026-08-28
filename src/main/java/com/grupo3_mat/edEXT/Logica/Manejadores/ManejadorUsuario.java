@@ -1,5 +1,7 @@
 package com.grupo3_mat.edEXT.Logica.Manejadores;
 
+import com.grupo3_mat.edEXT.Logica.Clases.Docente;
+import com.grupo3_mat.edEXT.Logica.Clases.Estudiante;
 import com.grupo3_mat.edEXT.Logica.Clases.Usuario;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -81,6 +83,24 @@ public class ManejadorUsuario {
         EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery("SELECT u FROM Usuario u", Usuario.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Docente> getDocentes() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT d FROM Docente d", Docente.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Estudiante> getEstudiantes() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT e FROM Estudiante e", Estudiante.class).getResultList();
         } finally {
             em.close();
         }

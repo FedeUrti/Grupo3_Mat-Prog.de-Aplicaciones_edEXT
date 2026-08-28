@@ -3,9 +3,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
+import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import java.awt.Image;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import java.io.File;
+import java.time.LocalDate;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 /**
@@ -13,6 +18,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Nacho Porcal
  */
 public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
+
+    private String imagenPath;
 
     /**
      * Creates new form AltaUsuario
@@ -228,87 +235,106 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_rbEstudianteActionPerformed
 
     private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed
-        // 1. Crear y configurar el selector de archivos (esto es igual que antes)
-    JFileChooser chooser = new JFileChooser();
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes (JPG, PNG, JPEG)", "jpg", "png", "jpeg");
-    chooser.setFileFilter(filter);
-    
-    // 2. Abrir la ventana
-    int returnVal = chooser.showOpenDialog(this);
-    
-    // 3. Si el usuario seleccionó un archivo
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-        File archivo = chooser.getSelectedFile();
-        
-        // A. Mostramos el nombre en el label pequeño (lo que ya hacíamos)
-        lblNombreImagen.setText(archivo.getName());
-        
-        // B. ¡NUEVO! Cargamos y previsualizamos la imagen en grande
-        try {
-            // Leemos la imagen desde el archivo
-            ImageIcon originalIcon = new ImageIcon(archivo.getAbsolutePath());
-            
-            // Escalamos la imagen para que encaje perfectamente en el tamaño del label lblFotoPerfil
-            // sin deformarse (usando SCALE_SMOOTH para mejor calidad)
-            Image imagenEscalada = originalIcon.getImage().getScaledInstance(
-                lblFotoPerfil.getWidth(), 
-                lblFotoPerfil.getHeight(), 
-                Image.SCALE_SMOOTH
-            );
-            
-            // Creamos un nuevo icono con la imagen ya escalada
-            ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
-            
-            // Ponemos el icono en el label de previsualización
-            lblFotoPerfil.setIcon(iconoEscalado);
-            
-            // Quitamos el borde (si le pusiste uno) para que se vea solo la foto
-            lblFotoPerfil.setBorder(null);
+// 1. Crear y configurar el selector de archivos
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes (JPG, PNG, JPEG)", "jpg", "png", "jpeg");
+        chooser.setFileFilter(filter);
 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar la imagen: " + e.getMessage());
+// 2. Abrir la ventana
+        int returnVal = chooser.showOpenDialog(this);
+
+// 3. Si el usuario seleccionó un archivo
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File archivo = chooser.getSelectedFile();
+
+            // ¡LO QUE FALTABA! Guardar la ruta absoluta para enviarla al ControladorUsuario
+            this.imagenPath = archivo.getAbsolutePath();
+
+            // A. Mostrar el nombre del archivo en el label pequeño
+            if (lblNombreImagen != null) {
+                lblNombreImagen.setText(archivo.getName());
+            }
+
+            // B. Cargar y previsualizar la imagen escalada
+            try {
+                ImageIcon originalIcon = new ImageIcon(archivo.getAbsolutePath());
+
+                // Medidas seguras por si el label todavía no se ha renderizado completamente
+                int ancho = (lblFotoPerfil.getWidth() > 0) ? lblFotoPerfil.getWidth() : 120;
+                int alto = (lblFotoPerfil.getHeight() > 0) ? lblFotoPerfil.getHeight() : 120;
+
+                Image imagenEscalada = originalIcon.getImage().getScaledInstance(
+                        ancho,
+                        alto,
+                        Image.SCALE_SMOOTH
+                );
+
+                lblFotoPerfil.setIcon(new ImageIcon(imagenEscalada));
+                lblFotoPerfil.setText(""); // Borra el texto inicial ("Foto", "Sin imagen", etc.)
+                lblFotoPerfil.setBorder(null);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al previsualizar la imagen: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
-    }
     }//GEN-LAST:event_btnSeleccionarImagenActionPerformed
 
     private void btnAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptActionPerformed
-    String nick = txtNickname.getText().trim();
-    String nombre = txtNombre.getText().trim();
-    String apellido = txtApellido.getText().trim();
-    String email = txtCorreo.getText().trim();
-    
-    // Armar la fecha
-    int dia = (int) cbDia.getSelectedItem();
-    int mes = (int) cbMes.getSelectedItem();
-    int anio = (int) cbAnio.getSelectedItem();
-    Date fechaNac = new java.util.GregorianCalendar(anio, mes - 1, dia).getTime();
-    
-    try {
-        // 2. Evaluamos si es Docente o Estudiante
-        if (rbDocente.isSelected()) {
-            // Obtenemos el instituto seleccionado en el JComboBox
-            String nomInstituto = (String) cbInstituto.getSelectedItem();
-            
-            if (nomInstituto == null || nomInstituto.equals("Seleccionar Instituto...")) {
-                JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto para el docente.");
-                return;
-            }
-            
-            // Invocamos el caso de uso para Docente
-            icu.altaDocente(nick, nombre, apellido, email, fechaNac, nomInstituto);
-            
-        } else {
-            // Invocamos el caso de uso para Estudiante
-            icu.altaEstudiante(nick, nombre, apellido, email, fechaNac);
+        // 1. Obtención de datos de texto
+        String nick = txtNickname.getText().trim();
+        String nombre = txtNombre.getText().trim();
+        String apellido = txtApellido.getText().trim();
+        String email = txtCorreo.getText().trim();
+
+        // Validación básica de campos vacíos
+        if (nick.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe completar todos los campos obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
-        JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.");
-        this.dispose(); // Cierra el cuadro de diálogo/frame interno
+        // 2. Determinar si es Docente u Estudiante y evaluar el instituto
+        String nomInstituto = null;
 
-     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-     }
+        if (rbDocente.isSelected()) {
+            nomInstituto = (String) cbInstituto.getSelectedItem();
 
+            if (nomInstituto == null || nomInstituto.trim().isEmpty() || nomInstituto.equals("Seleccionar Instituto...")) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto para el docente.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+
+        try {
+            // 3. Armar la fecha de nacimiento usando LocalDate
+            int dia = (int) cbDia.getSelectedItem();
+            int mes = (int) cbMes.getSelectedItem();
+            int anio = (int) cbAnio.getSelectedItem();
+            LocalDate fechaNacimiento = LocalDate.of(anio, mes, dia);
+
+            // 4. Obtener interfaz mediante la Fábrica e invocar el caso de uso
+            Fabrica fabrica = Fabrica.getInstancia();
+            IControladorUsuario icu = fabrica.getIControladorUsuario();
+
+            // Se pasa la variable imagenPath (si no seleccionó nada, va con null o vacía)
+            icu.altaUsuario(
+                    nick,
+                    nombre,
+                    apellido,
+                    email,
+                    fechaNacimiento,
+                    imagenPath,
+                    nomInstituto
+            );
+
+            // 5. Confirmación y cierre de ventana al tener éxito
+            JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose();
+
+        } catch (java.time.DateTimeException dte) {
+            JOptionPane.showMessageDialog(this, "La fecha ingresada no es válida (ej. 30 de Febrero).", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Alta", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnAcceptActionPerformed
 
 
