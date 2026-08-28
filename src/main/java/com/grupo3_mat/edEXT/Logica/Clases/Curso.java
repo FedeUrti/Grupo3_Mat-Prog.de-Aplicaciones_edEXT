@@ -30,7 +30,14 @@ public class Curso {
         inverseJoinColumns = @JoinColumn(name = "previa_nombre")
     )
     private List<Curso> previas = new ArrayList<>();
-
+    
+    @OneToMany(
+            mappedBy = "curso",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<EdicionCurso> ediciones = new ArrayList<>();
+    
     public Curso() {}
 
     public Curso(Instituto instituto, String nombre, String descripcion, int duracion, int cantHoras, int creditos, String url, LocalDate fecha) {
@@ -54,4 +61,8 @@ public class Curso {
     public LocalDate getFecha() { return fecha; }
     public List<Curso> getPrevias() { return previas; }
     public void setPrevias(List<Curso> previas) { this.previas = previas; }
+    
+    public void agregarEdicion(EdicionCurso edicion) {
+        this.ediciones.add(edicion);
+    }
 }
