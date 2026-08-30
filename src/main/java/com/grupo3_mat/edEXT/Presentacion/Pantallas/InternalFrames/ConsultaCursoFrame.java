@@ -4,6 +4,12 @@
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import java.util.List;
+
 /**
  *
  * @author fede1
@@ -15,8 +21,52 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
      */
     public ConsultaCursoFrame() {
         initComponents();
+        cargarInstitutos();
     }
-
+    private void cargarInstitutos() {
+        cbInstitutos.removeAllItems();
+        IControladorInstituto ici = Fabrica.getInstance().getIControladorInstituto();
+        List<String> institutos = ici.listarInstitutos();
+        for (String inst : institutos) {
+            cbInstitutos.addItem(inst);
+        }
+    }
+    private void limpiarDatosDerecha() {
+        lblNombre.setText("");
+        lblInstituto.setText("");
+        lblCargaHoraria.setText("");
+        lstEdiciones.setModel(new javax.swing.DefaultListModel<>());
+        lstProgramas.setModel(new javax.swing.DefaultListModel<>());
+    }
+    private void mostrarDatosCurso(String nombreCurso) {
+    try {
+        IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+        DtCurso dt = icc.consultarCurso(nombreCurso); //[cite: 3]
+        
+        // 1. Cargar Datos Básicos[cite: 1, 2]
+        lblNombre.setText(dt.getNombre());
+        lblInstituto.setText(dt.getNomInstituto());
+        lblCargaHoraria.setText(String.valueOf(dt.getCantHoras()));
+        
+        // 2. Cargar Lista de Ediciones[cite: 1, 2]
+        javax.swing.DefaultListModel<String> modEdiciones = new javax.swing.DefaultListModel<>();
+        for (String ed : dt.getEdiciones()) { 
+            modEdiciones.addElement(ed); 
+        }
+        lstEdiciones.setModel(modEdiciones);
+        
+        // 3. Cargar Lista de Programas de Formación[cite: 1, 2]
+        javax.swing.DefaultListModel<String> modProgramas = new javax.swing.DefaultListModel<>();
+        for (String prog : dt.getProgramas()) { 
+            modProgramas.addElement(prog); 
+        }
+        lstProgramas.setModel(modProgramas);
+        
+    } catch (Exception e) {
+        javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+}
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -26,21 +76,352 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel2 = new javax.swing.JLabel();
+        cbInstitutos = new javax.swing.JComboBox<>();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        lstCursos = new javax.swing.JList<>();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        lstEdiciones = new javax.swing.JList<>();
+        btnVerEC = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        lblNombre = new javax.swing.JLabel();
+        lblInstituto = new javax.swing.JLabel();
+        lblCargaHoraria = new javax.swing.JLabel();
+        valorCarga = new javax.swing.JLabel();
+        valorInstituto = new javax.swing.JLabel();
+        valorNombre = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        lstProgramas = new javax.swing.JList<>();
+        btnVerPF = new javax.swing.JButton();
+
+        setClosable(true);
+        setForeground(java.awt.Color.lightGray);
+        setMaximizable(true);
+        setResizable(true);
+
+        jLabel2.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
+        jLabel2.setText("Insitituto");
+
+        cbInstitutos.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        cbInstitutos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbInstitutos.addActionListener(this::cbInstitutosActionPerformed);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seleccione Curso", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Inter", 0, 18))); // NOI18N
+
+        lstCursos.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lstCursos.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        lstCursos.addListSelectionListener(this::lstCursosValueChanged);
+        jScrollPane1.setViewportView(lstCursos);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(jScrollPane1)
+                .addContainerGap())
+        );
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Informacion sobre el curso", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Inter", 0, 18))); // NOI18N
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Ediciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Inter", 0, 18))); // NOI18N
+
+        lstEdiciones.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane3.setViewportView(lstEdiciones);
+
+        btnVerEC.setText("Ver Edicion");
+        btnVerEC.addActionListener(this::btnVerECActionPerformed);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnVerEC, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 408, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnVerEC)
+                .addGap(142, 142, 142))
+        );
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Basicos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Inter", 0, 18))); // NOI18N
+
+        lblNombre.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblNombre.setText("Nombre");
+
+        lblInstituto.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblInstituto.setText("Instituto");
+
+        lblCargaHoraria.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblCargaHoraria.setText("Carga Horaria");
+
+        valorCarga.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        valorCarga.setText("\"\"");
+
+        valorInstituto.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        valorInstituto.setText("\"\"");
+
+        valorNombre.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        valorNombre.setText("\"\"");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblCargaHoraria)
+                    .addComponent(lblInstituto)
+                    .addComponent(lblNombre))
+                .addGap(99, 99, 99)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(valorNombre)
+                    .addComponent(valorCarga)
+                    .addComponent(valorInstituto))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(24, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(valorNombre)
+                        .addGap(18, 18, 18)
+                        .addComponent(valorInstituto)
+                        .addGap(18, 18, 18)
+                        .addComponent(valorCarga))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(lblNombre)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblInstituto)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblCargaHoraria)))
+                .addGap(18, 18, 18))
+        );
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Programas de Formacion", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Inter", 0, 18))); // NOI18N
+
+        lstProgramas.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane5.setViewportView(lstProgramas);
+
+        btnVerPF.setText("Ver Programa");
+        btnVerPF.addActionListener(this::btnVerPFActionPerformed);
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane5)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnVerPF, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(15, 15, 15))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap(19, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnVerPF)
+                .addGap(20, 20, 20))
+        );
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(31, 31, 31)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(38, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 394, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(283, 283, 283)
+                        .addComponent(jLabel2)
+                        .addGap(57, 57, 57)
+                        .addComponent(cbInstitutos, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 274, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(37, 37, 37)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(cbInstitutos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(43, 43, 43)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(11, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void cbInstitutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbInstitutosActionPerformed
+        // TODO add your handling code here:
+        String institutoSeleccionado = (String) cbInstitutos.getSelectedItem();
+        if (institutoSeleccionado == null) {
+            return;
+        }
+
+        try {
+            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+            List<String> cursos = icc.listarCursosPorInstituto(institutoSeleccionado); //[cite: 3]
+
+            // Llenar el JList de Cursos
+            javax.swing.DefaultListModel<String> modeloCursos = new javax.swing.DefaultListModel<>();
+            for (String curso : cursos) {
+                modeloCursos.addElement(curso);
+            }
+            lstCursos.setModel(modeloCursos);
+
+            limpiarDatosDerecha(); // Limpia el panel derecho si cambias de instituto
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    
+    }//GEN-LAST:event_cbInstitutosActionPerformed
+
+    private void lstCursosValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lstCursosValueChanged
+        // TODO add your handling code here:
+        // getValuelIsAdjusting evita que el evento se dispare dos veces al hacer clic
+        if (!evt.getValueIsAdjusting()) {
+            String cursoSeleccionado = lstCursos.getSelectedValue();
+            if (cursoSeleccionado != null) {
+                mostrarDatosCurso(cursoSeleccionado);
+            }
+        }
+    }//GEN-LAST:event_lstCursosValueChanged
+
+    private void btnVerECActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerECActionPerformed
+        // TODO add your handling code here:
+        String edicionSeleccionada = lstEdiciones.getSelectedValue();
+
+        if (edicionSeleccionada == null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccioná una edición de la lista.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Instanciás la ventana (ajustá el nombre según cómo le pusiste a tu clase)
+        ConsultaEdicionCursoFrame frameEdicion = new ConsultaEdicionCursoFrame();
+
+        // Lo agregás al contenedor principal (JDesktopPane) para que se vea dentro del sistema
+        this.getDesktopPane().add(frameEdicion);
+        frameEdicion.setVisible(true);
+        frameEdicion.toFront(); // Lo trae al frente por si quedó detrás de otra ventana
+
+        // Llamás a un método público del nuevo frame para pasarle el dato
+        frameEdicion.cargarDatosEdicion(edicionSeleccionada);
+    }//GEN-LAST:event_btnVerECActionPerformed
+
+    private void btnVerPFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerPFActionPerformed
+        // TODO add your handling code here:
+        String programaSeleccionado = lstProgramas.getSelectedValue();
+
+        if (programaSeleccionado == null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccioná un programa de la lista.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        ConsultaDeProgramaFrame framePrograma = new ConsultaDeProgramaFrame();
+
+        this.getDesktopPane().add(framePrograma);
+        framePrograma.setVisible(true);
+        framePrograma.toFront();
+
+        framePrograma.cargarDatosPrograma(programaSeleccionado);
+    }//GEN-LAST:event_btnVerPFActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnVerEC;
+    private javax.swing.JButton btnVerPF;
+    private javax.swing.JComboBox<String> cbInstitutos;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JLabel lblCargaHoraria;
+    private javax.swing.JLabel lblInstituto;
+    private javax.swing.JLabel lblNombre;
+    private javax.swing.JList<String> lstCursos;
+    private javax.swing.JList<String> lstEdiciones;
+    private javax.swing.JList<String> lstProgramas;
+    private javax.swing.JLabel valorCarga;
+    private javax.swing.JLabel valorInstituto;
+    private javax.swing.JLabel valorNombre;
     // End of variables declaration//GEN-END:variables
 }
