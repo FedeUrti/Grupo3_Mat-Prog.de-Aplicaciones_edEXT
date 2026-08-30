@@ -6,6 +6,7 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import java.util.List;
 
 /**
@@ -19,6 +20,19 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
      */
     public AltaCursoFrame() {
         initComponents();
+        cargarInstitutos();
+    }
+    private void cargarInstitutos() {
+        cbInstitutos.removeAllItems();
+        try {
+            IControladorInstituto ici = Fabrica.getInstance().getIControladorInstituto();
+            java.util.List<String> institutos = ici.listarInstitutos();
+            for (String inst : institutos) {
+                cbInstitutos.addItem(inst);
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar institutos: " + e.getMessage());
+        }
     }
 
     /**
@@ -234,40 +248,47 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     private void AltaCursoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AltaCursoButtonActionPerformed
         // TODO add your handling code here:
         try {
-            // 1. Obtener datos de la interfaz
             String nomInstituto = (String) cbInstitutos.getSelectedItem();
-            String nombreCurso = txtNombreCurso.getText();
-            String descripcion = txtDescripcion.getText();
+            if (nomInstituto == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-            // Convertir textos a números (manejando posibles errores de formato)
-            int duracion = Integer.parseInt(txtDuracion.getText());
-            int horas = Integer.parseInt(txtHoras.getText());
-            int creditos = Integer.parseInt(txtCreditos.getText());
+            String nombreCurso = txtNombreCurso.getText().trim();
+            String descripcion = txtDescripcion.getText().trim();
+            String url = txtUrl.getText().trim();
 
-            String url = txtUrl.getText();
+            int duracion = Integer.parseInt(txtDuracion.getText().trim());
+            int horas = Integer.parseInt(txtHoras.getText().trim());
+            int creditos = Integer.parseInt(txtCreditos.getText().trim());
 
-            // Asumiendo que tenés un componente de fecha que te devuelve LocalDate,
-            // o si es texto, lo parseás. Acá usamos la fecha actual por simplicidad:
-            java.time.LocalDate fechaRegistro = java.time.LocalDate.now();
+            // Parseo de la fecha ingresada por el usuario
+            String strFecha = jFormattedTextField2.getText().trim();
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            java.time.LocalDate fechaRegistro = java.time.LocalDate.parse(strFecha, formatter);
 
-            // Lista de previas (vacía por ahora para probar lo básico)
-            List<String> previas = new java.util.ArrayList<>();
+            // Lista vacía para obviar las previas por ahora
+            java.util.List<String> previas = new java.util.ArrayList<>();
 
-            // 2. Llamar al controlador a través de la fábrica
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
             icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas);
 
-            // 3. Mostrar éxito y limpiar campos
             javax.swing.JOptionPane.showMessageDialog(this, "¡Curso registrado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            // Limpiar campos
             txtNombreCurso.setText("");
             txtDescripcion.setText("");
-            // ... limpiar el resto ...
+            txtDuracion.setText("");
+            txtHoras.setText("");
+            txtCreditos.setText("");
+            txtUrl.setText("");
 
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Duración, horas y créditos deben ser números válidos.", "Error de Formato", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Duración, horas y créditos deben ser números.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (java.time.format.DateTimeParseException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "La fecha debe tener el formato dd/MM/yyyy.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException e) {
-            // Atrapa errores de la lógica (ej: "El curso ya existe")
-            javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Negocio", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_AltaCursoButtonActionPerformed
 
