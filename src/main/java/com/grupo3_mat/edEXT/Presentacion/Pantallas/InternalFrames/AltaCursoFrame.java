@@ -21,6 +21,9 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     public AltaCursoFrame() {
         initComponents();
         cargarInstitutos();
+        // Asignar la fecha de hoy con el formato dd/MM/yyyy por defecto
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        jFormattedTextField2.setText(java.time.LocalDate.now().format(fmt));
     }
     private void cargarInstitutos() {
         cbInstitutos.removeAllItems();

@@ -2,48 +2,35 @@ package com.grupo3_mat.edEXT.Logica.Clases;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "Estudiante")
 public class Estudiante extends Usuario {
 
-    // Colecciones para las inscripciones (se dejan comentadas hasta que tengas las clases)
-    @OneToMany(mappedBy = "estudiante")
-    private List<InscripcionEC> inscripcionesEdicion;
-    
-    // @OneToMany(mappedBy = "estudiante")
-    //private List<InscripcionPrograma> inscripcionesPrograma;
+    @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, orphanRemoval = true)
+    @MapKey(name = "id.edicionNombre")
+    private Map<String, InscripcionEC> inscripciones;
 
     // Constructor vacío requerido por JPA
     public Estudiante() {
         super();
+        this.inscripciones = new HashMap<>();
     }
 
-    // Constructor que concuerda con tu ControladorUsuario
+    // Constructor
     public Estudiante(String nickname, String nombre, String apellido, String correo, LocalDate fechaNacimiento, String imagenPath) {
         super(nickname, nombre, apellido, correo, fechaNacimiento, imagenPath);
-        this.inscripcionesEdicion = new ArrayList<>();
-        //this.inscripcionesPrograma = new ArrayList<>();
+        this.inscripciones = new HashMap<>();
     }
 
-    // Getters y setters para las listas cuando las incorpores
-    
-    public List<InscripcionEC> getInscripcionesEdicion() {
-        return inscripcionesEdicion;
+    // Getters y Setters
+    public Map<String, InscripcionEC> getInscripciones() {
+        return inscripciones;
     }
 
-    public void setInscripcionesEdicion(List<InscripcionEC> inscripcionesEdicion) {
-        this.inscripcionesEdicion = inscripcionesEdicion;
+    public void setInscripciones(Map<String, InscripcionEC> inscripciones) {
+        this.inscripciones = inscripciones;
     }
-
-    /*public List<InscripcionPrograma> getInscripcionesPrograma() {
-        return inscripcionesPrograma;
-    }
-
-    public void setInscripcionesPrograma(List<InscripcionPrograma> inscripcionesPrograma) {
-        this.inscripcionesPrograma = inscripcionesPrograma;
-    }*/
-    
 }

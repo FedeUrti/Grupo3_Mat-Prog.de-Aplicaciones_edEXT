@@ -10,18 +10,18 @@ import java.time.LocalDate; // Importación agregada
 @Table(name = "InscripcionEC")
 public class InscripcionEC {
 
-    /*@EmbeddedId
-    private InscripcionID id = new InscripcionID();
-*/
-    @ManyToOne
-    @MapsId("estudianteNickname")
-    @JoinColumn(name = "estudiante_nickname")
-    private Estudiante estudiante;
+    @EmbeddedId
+    private InscripcionECId id = new InscripcionECId();
 
     @ManyToOne
-    @MapsId("edicionNombre")
+    @MapsId("edicionNombre") // Apunta a edicionNombre en InscripcionECId
     @JoinColumn(name = "edicion_nombre")
     private EdicionCurso edicion;
+
+    @ManyToOne
+    @MapsId("estudianteNickname") // Apunta a estudianteNickname en InscripcionECId
+    @JoinColumn(name = "estudiante_nickname")
+    private Estudiante estudiante;
 
     private LocalDate fechaInscripcion;
 

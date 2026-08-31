@@ -32,13 +32,9 @@ public class EdicionCurso {
     )
     private List<Docente> docentes = new ArrayList<>();
     
-    @OneToMany( //Relacion con el tipo asociativo InscripcionEC
-            mappedBy = "edicion",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    @MapKey(name = "estudiante.nickname") //Guarda con la clave del Estuciante
-    private Map<String, InscripcionEC> inscripciones = new HashMap<>();
+    @OneToMany(mappedBy = "edicion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @MapKey(name = "id.estudianteNickname") // <-- Usar "id.estudianteNickname" en lugar de "estudiante.nickname"
+    private Map<String, InscripcionEC> inscripciones;
     
     private LocalDate fechaInicio;
     

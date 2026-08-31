@@ -305,17 +305,16 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         }
 
         try {
-            // 3. Armar la fecha de nacimiento usando LocalDate
-            int dia = (int) cbDia.getSelectedItem();
-            int mes = (int) cbMes.getSelectedItem();
-            int anio = (int) cbAnio.getSelectedItem();
+            // 3. Armar la fecha de nacimiento usando LocalDate convirtiendo el String a int
+            int dia = Integer.parseInt(cbDia.getSelectedItem().toString());
+            int mes = Integer.parseInt(cbMes.getSelectedItem().toString());
+            int anio = Integer.parseInt(cbAnio.getSelectedItem().toString());
             LocalDate fechaNacimiento = LocalDate.of(anio, mes, dia);
 
             // 4. Obtener interfaz mediante la Fábrica e invocar el caso de uso
             Fabrica fabrica = Fabrica.getInstance();
             IControladorUsuario icu = fabrica.getIControladorUsuario();
 
-            // Se pasa la variable imagenPath (si no seleccionó nada, va con null o vacía)
             icu.altaUsuario(
                     nick,
                     nombre,
@@ -332,6 +331,8 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
 
         } catch (java.time.DateTimeException dte) {
             JOptionPane.showMessageDialog(this, "La fecha ingresada no es válida (ej. 30 de Febrero).", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un día, mes y año válidos.", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Alta", JOptionPane.ERROR_MESSAGE);
         }
