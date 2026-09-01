@@ -1,4 +1,4 @@
-package com.grupo3_mat.edEXT.Logica.Datatypes;
+package com.grupo3_mat.edEXT.Logica.DataTypes;
 
 import java.time.LocalDate;
 import java.util.List;

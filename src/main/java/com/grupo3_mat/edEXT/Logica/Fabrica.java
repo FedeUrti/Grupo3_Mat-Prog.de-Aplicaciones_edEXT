@@ -13,7 +13,7 @@ public class Fabrica {
 
     private Fabrica() {}
 
-    public static Fabrica getInstancia() {
+    public static Fabrica getInstance() {
         if (instancia == null) {
             instancia = new Fabrica();
         }

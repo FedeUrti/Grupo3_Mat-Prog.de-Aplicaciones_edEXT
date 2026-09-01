@@ -13,9 +13,6 @@ public class Docente extends Usuario {
     @ManyToOne
     private Instituto instituto;
 
-    // Relación con los cursos registrados (se deja comentada hasta que tengas la clase Curso)
-    @OneToMany(mappedBy = "docente") 
-    private List<Curso> cursosRegistrados;
 
     // Constructor vacío requerido por JPA
     public Docente() {
@@ -26,7 +23,6 @@ public class Docente extends Usuario {
     public Docente(String nickname, String nombre, String apellido, String correo, LocalDate fechaNacimiento, String imagenPath, Instituto instituto) {
         super(nickname, nombre, apellido, correo, fechaNacimiento, imagenPath);
         this.instituto = instituto;
-        this.cursosRegistrados = new ArrayList<>(); // Inicializar cuando agregues la lista
     }
 
     public Instituto getInstituto() {
@@ -37,13 +33,13 @@ public class Docente extends Usuario {
         this.instituto = instituto;
     }
 
-    
+    /*
     public List<Curso> getCursosRegistrados() {
         return cursosRegistrados;
     }
 
     public void setCursosRegistrados(List<Curso> cursosRegistrados) {
         this.cursosRegistrados = cursosRegistrados;
-    }
+    }*/
    
 }

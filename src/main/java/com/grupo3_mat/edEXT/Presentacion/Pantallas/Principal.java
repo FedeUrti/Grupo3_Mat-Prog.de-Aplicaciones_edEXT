@@ -5,8 +5,10 @@
 package com.grupo3_mat.edEXT.Presentacion.Pantallas;
 
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaCursoFrame;
+import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaInstitutoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaUsuarioFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaUsuarioFrame;
+import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaCursoFrame;
 
 /**
  *
@@ -42,7 +44,7 @@ public class Principal extends javax.swing.JFrame {
         modificarDatosUsuarioMenuItem = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         AltaCursoMenuItem = new javax.swing.JMenuItem();
-        jMenuItem14 = new javax.swing.JMenuItem();
+        ConsultaCursoMenuItem = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenuItem10 = new javax.swing.JMenuItem();
         jMenuItem11 = new javax.swing.JMenuItem();
@@ -52,7 +54,7 @@ public class Principal extends javax.swing.JFrame {
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        AltaInstitutoMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -88,8 +90,9 @@ public class Principal extends javax.swing.JFrame {
         AltaCursoMenuItem.addActionListener(this::AltaCursoMenuItemActionPerformed);
         jMenu2.add(AltaCursoMenuItem);
 
-        jMenuItem14.setText("Consulta de Curso");
-        jMenu2.add(jMenuItem14);
+        ConsultaCursoMenuItem.setText("Consulta de Curso");
+        ConsultaCursoMenuItem.addActionListener(this::ConsultaCursoMenuItemActionPerformed);
+        jMenu2.add(ConsultaCursoMenuItem);
 
         jMenu4.setText("Ediciones");
 
@@ -121,8 +124,9 @@ public class Principal extends javax.swing.JFrame {
 
         jMenu3.setText("Institucion");
 
-        jMenuItem2.setText("Alta Instituto");
-        jMenu3.add(jMenuItem2);
+        AltaInstitutoMenuItem.setText("Alta Instituto");
+        AltaInstitutoMenuItem.addActionListener(this::AltaInstitutoMenuItemActionPerformed);
+        jMenu3.add(AltaInstitutoMenuItem);
 
         jMenuBar1.add(jMenu3);
 
@@ -202,6 +206,48 @@ public class Principal extends javax.swing.JFrame {
         desktopPane.repaint();
     }//GEN-LAST:event_consultaUsuarioMenuItemActionPerformed
 
+    private void AltaInstitutoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AltaInstitutoMenuItemActionPerformed
+        // TODO add your handling code here:
+        
+                // TODO add your handling code here:
+        AltaInstitutoFrame frame = new AltaInstitutoFrame();
+        frame.setResizable(true);
+        frame.setClosable(true);
+        frame.setIconifiable(true);
+        desktopPane.add(frame);
+        frame.setVisible(true);
+
+        try {
+            frame.setMaximum(false);
+        } catch (java.beans.PropertyVetoException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
+
+        desktopPane.revalidate();
+        desktopPane.repaint();
+        
+    }//GEN-LAST:event_AltaInstitutoMenuItemActionPerformed
+
+    private void ConsultaCursoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConsultaCursoMenuItemActionPerformed
+        // TODO add your handling code here:
+        ConsultaCursoFrame frame = new ConsultaCursoFrame();
+        frame.setResizable(true);
+        frame.setClosable(true);
+        frame.setIconifiable(true);
+        desktopPane.add(frame);
+        frame.setVisible(true);
+
+        try {
+            frame.setMaximum(false);
+        } catch (java.beans.PropertyVetoException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
+
+        desktopPane.revalidate();
+        desktopPane.repaint();
+
+    }//GEN-LAST:event_ConsultaCursoMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -229,6 +275,8 @@ public class Principal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem AltaCursoMenuItem;
+    private javax.swing.JMenuItem AltaInstitutoMenuItem;
+    private javax.swing.JMenuItem ConsultaCursoMenuItem;
     private javax.swing.JMenuItem altaUsuarioMenuItem;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JMenuItem consultaUsuarioMenuItem;
@@ -243,8 +291,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem12;
-    private javax.swing.JMenuItem jMenuItem14;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem modificarDatosUsuarioMenuItem;
