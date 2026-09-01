@@ -23,13 +23,8 @@ public class Curso {
     private String url;
     private LocalDate fecha;
 
-    @ManyToMany
-    @JoinTable(
-        name = "Curso_Previas",
-        joinColumns = @JoinColumn(name = "curso_nombre"),
-        inverseJoinColumns = @JoinColumn(name = "previa_nombre")
-    )
-    private List<Curso> previas = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER) // Agregá o cambiá el FetchType
+    private List<Curso> previas;
     
     @OneToMany(
             mappedBy = "curso",
@@ -61,6 +56,7 @@ public class Curso {
     public LocalDate getFecha() { return fecha; }
     public List<Curso> getPrevias() { return previas; }
     public void setPrevias(List<Curso> previas) { this.previas = previas; }
+    public List<EdicionCurso> getEdiciones() { return ediciones; }
     
     public void agregarEdicion(EdicionCurso edicion) {
         this.ediciones.add(edicion);

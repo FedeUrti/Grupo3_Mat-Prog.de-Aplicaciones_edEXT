@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.grupo3_mat.edEXT.Logica.Clases;
+
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDate; // Importación agregada
 /**
  *
  * @author benja
@@ -14,17 +11,17 @@ import java.time.LocalDate;
 public class InscripcionEC {
 
     @EmbeddedId
-    private InscripcionID id = new InscripcionID();
+    private InscripcionECId id = new InscripcionECId();
 
     @ManyToOne
-    @MapsId("estudianteNickname")
-    @JoinColumn(name = "estudiante_nickname")
-    private Estudiante estudiante;
-
-    @ManyToOne
-    @MapsId("edicionNombre")
+    @MapsId("edicionNombre") // Apunta a edicionNombre en InscripcionECId
     @JoinColumn(name = "edicion_nombre")
     private EdicionCurso edicion;
+
+    @ManyToOne
+    @MapsId("estudianteNickname") // Apunta a estudianteNickname en InscripcionECId
+    @JoinColumn(name = "estudiante_nickname")
+    private Estudiante estudiante;
 
     private LocalDate fechaInscripcion;
 
@@ -34,17 +31,32 @@ public class InscripcionEC {
         this.estudiante = estudiante;
         this.edicion = edicion;
         this.fechaInscripcion = LocalDate.now();
-        this.id = new InscripcionID(estudiante.getNickname(), edicion.getNombre());
+        //this.id = new InscripcionID(estudiante.getNickname(), edicion.getNombre());
     }
-}
 
     // Getters
-    public LocalDate getFechaInscripcion() {return fechaInscripcion;}
-    public Estudiante getEstudiante() {return estudiante;}
-    public EdicionCurso getEdicion() {return edicion;}
+    public LocalDate getFechaInscripcion() { 
+        return fechaInscripcion; 
+    }
     
-    //Setters
-    public void setFechaInscripcion(LocalDate fechaInscripcion) {this.fechaInscripcion = fechaInscripcion;}
-    public void setEstudiante(Estudiante estudiante) {this.estudiante = estudiante;}
-    public void setEdicion(EdicionCurso edicion) {this.edicion = edicion;}
+    public Estudiante getEstudiante() { 
+        return estudiante; 
+    }
+    
+    public EdicionCurso getEdicion() { 
+        return edicion; 
+    }
+
+    // Setters
+    public void setFechaInscripcion(LocalDate fechaInscripcion) { 
+        this.fechaInscripcion = fechaInscripcion; 
+    }
+    
+    public void setEstudiante(Estudiante estudiante) { 
+        this.estudiante = estudiante; 
+    }
+    
+    public void setEdicion(EdicionCurso edicion) { 
+        this.edicion = edicion; 
+    }
 }
