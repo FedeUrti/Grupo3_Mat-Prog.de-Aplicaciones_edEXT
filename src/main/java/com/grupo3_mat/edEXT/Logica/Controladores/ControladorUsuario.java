@@ -119,4 +119,21 @@ public class ControladorUsuario implements IControladorUsuario {
 
         mu.modificarUsuario(u);
     }
+    
+    @Override
+    public List<String> listarNicknamesDocentesPorInstituto(String nomInstituto) {
+        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
+        List<Usuario> usuarios = mu.getUsuarios();
+        List<String> docentes = new ArrayList<>();
+    
+        for (Usuario u : usuarios) {
+            if (u instanceof Docente) {
+                Docente d = (Docente) u;
+                if (d.getInstituto() != null && d.getInstituto().getNombre().equals(nomInstituto)) {
+                    docentes.add(d.getNickname());
+                }
+            }
+        }
+        return docentes;
+    }
 }

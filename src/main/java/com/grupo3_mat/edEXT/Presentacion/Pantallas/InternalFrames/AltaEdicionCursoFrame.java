@@ -18,7 +18,7 @@ import java.util.Date;
  *
  * @author benja
  */
-public class AltaEdicionCursoFrame extends javax.swing.JFrame {
+public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AltaEdicionCursoFrame.class.getName());
     
@@ -33,39 +33,56 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
      */
     public AltaEdicionCursoFrame() {
         initComponents();
-        
+    
         Fabrica fabrica = Fabrica.getInstance();
-    this.icCurso = fabrica.getIControladorCurso();
-    this.icInstituto = fabrica.getIControladorInstituto();
-    this.icEdicion = fabrica.getIControladorEdicion();
-    this.icUsuario = fabrica.getIControladorUsuario();
+        this.icCurso = fabrica.getIControladorCurso();
+        this.icInstituto = fabrica.getIControladorInstituto();
+        this.icEdicion = fabrica.getIControladorEdicion();
+        this.icUsuario = fabrica.getIControladorUsuario();
 
-    listModelDocentes = new DefaultListModel<>();
-    listDocentes.setModel(listModelDocentes);
+        listModelDocentes = new DefaultListModel<>();
+        listDocentes.setModel(listModelDocentes);
+        listDocentes.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-    spinnerFechaPublicacion.setEditor(new JSpinner.DateEditor(spinnerFechaPublicacion, "dd/MM/yyyy"));
-    spinnerFechaInicio.setEditor(new JSpinner.DateEditor(spinnerFechaInicio, "dd/MM/yyyy"));
-    spinnerFechaFin.setEditor(new JSpinner.DateEditor(spinnerFechaFin, "dd/MM/yyyy"));
+        spinnerFechaPublicacion.setEditor(new JSpinner.DateEditor(spinnerFechaPublicacion, "dd/MM/yyyy"));
+        spinnerFechaInicio.setEditor(new JSpinner.DateEditor(spinnerFechaInicio, "dd/MM/yyyy"));
+        spinnerFechaFin.setEditor(new JSpinner.DateEditor(spinnerFechaFin, "dd/MM/yyyy"));
 
-    cargarInstitutos();
-    alSeleccionarInstituto();
-    cargarDocentes();
+        cargarInstitutos();
     }
     
     //Auxiliares
     private void cargarInstitutos() {
+        cmbInstitutos.removeActionListener(this::cmbInstitutosActionPerformed);
         cmbInstitutos.removeAllItems();
+    
         List<String> insts = icInstituto.listarInstitutos();
-        for (String inst : insts) {
-            cmbInstitutos.addItem(inst);
+        if (insts != null) {
+            for (String inst : insts) {
+                cmbInstitutos.addItem(inst);
+            }
         }
+    
+        cmbInstitutos.setSelectedIndex(-1); // Sin selección previa
+        cmbInstitutos.addActionListener(this::cmbInstitutosActionPerformed);
+
+        // Estado inicial de controles dependientes
+        cmbCursos.removeAllItems();
+        cmbCursos.setEnabled(false);
+        listModelDocentes.clear();
     }
 
     private void cargarDocentes() {
         listModelDocentes.clear();
-        List<String> docentes = icUsuario.listarNicknamesUsuarios();
-        for (String doc : docentes) {
-            listModelDocentes.addElement(doc);
+        String instSeleccionado = (String) cmbInstitutos.getSelectedItem();
+
+        if (instSeleccionado != null) {
+            List<String> docentes = icUsuario.listarNicknamesDocentesPorInstituto(instSeleccionado);
+            if (docentes != null) {
+                for (String doc : docentes) {
+                    listModelDocentes.addElement(doc);
+                }
+            }
         }
     }
 
@@ -73,16 +90,30 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
     
-    private void alSeleccionarInstituto() { //Define las opciones de cmbCurso según el instituto
+    private void alSeleccionarInstituto() {
+        cmbCursos.removeActionListener(this::cmbCursosActionPerformed);
         cmbCursos.removeAllItems();
-    
+
         String instSeleccionado = (String) cmbInstitutos.getSelectedItem();
+
         if (instSeleccionado != null) {
             List<String> cursos = icCurso.listarCursosPorInstituto(instSeleccionado);
-            for (String c : cursos) {
-                cmbCursos.addItem(c);
+            if (cursos != null) {
+                for (String c : cursos) {
+                    cmbCursos.addItem(c);
+                }
             }
+            cmbCursos.setSelectedIndex(-1);
+            cmbCursos.setEnabled(true);
+
+            // Cargar los docentes pertenecientes a este instituto
+            cargarDocentes();
+        } else {
+            cmbCursos.setEnabled(false);
+            listModelDocentes.clear();
         }
+
+        cmbCursos.addActionListener(this::cmbCursosActionPerformed);
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -113,7 +144,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
         btnAceptar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Alta de Edición de Curso");
         setName("Alta de Edicioin de Curso"); // NOI18N
         setResizable(false);
@@ -149,11 +180,6 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
 
         txtCupo.setEnabled(false);
 
-        listDocentes.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         jScrollPane1.setViewportView(listDocentes);
 
         labelDocentes.setText("Docentes:");
@@ -248,7 +274,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
                         .addComponent(labelFechaFin)
                         .addGap(18, 18, 18)
                         .addComponent(spinnerFechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 91, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -313,7 +339,10 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
 
             // Docentes seleccionados
             List<String> docentesSeleccionados = listDocentes.getSelectedValuesList();
-
+            if (docentesSeleccionados.isEmpty()) {
+                throw new Exception("Debe seleccionar al menos un docente.");
+            }
+            
             // Construir DataType y llamar al Controlador
             DTEdicionCurso dtEdicion = new DTEdicionCurso(
                 nombreEdicion,
@@ -345,33 +374,8 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_cmbInstitutosActionPerformed
 
     private void cmbCursosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCursosActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_cmbCursosActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new AltaEdicionCursoFrame().setVisible(true));
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
