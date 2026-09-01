@@ -16,7 +16,7 @@ import java.util.Date;
  *
  * @author benja
  */
-public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
+public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ConsultaEdicionCursoFrame.class.getName());
 

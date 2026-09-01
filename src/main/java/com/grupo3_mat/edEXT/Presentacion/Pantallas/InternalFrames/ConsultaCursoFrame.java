@@ -9,6 +9,8 @@ import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -21,52 +23,74 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
      */
     public ConsultaCursoFrame() {
         initComponents();
+        limpiarTodo();
         cargarInstitutos();
     }
+
+    private void limpiarTodo() {
+        lstCursos.setModel(new DefaultListModel<>());
+        limpiarDatosDerecha();
+    }
+
     private void cargarInstitutos() {
         cbInstitutos.removeAllItems();
-        IControladorInstituto ici = Fabrica.getInstance().getIControladorInstituto();
-        List<String> institutos = ici.listarInstitutos();
-        for (String inst : institutos) {
-            cbInstitutos.addItem(inst);
+        cbInstitutos.addItem("Seleccionar Instituto");
+
+        try {
+            IControladorInstituto ici = Fabrica.getInstance().getIControladorInstituto();
+            List<String> institutos = ici.listarInstitutos();
+            for (String inst : institutos) {
+                cbInstitutos.addItem(inst);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar institutos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private void limpiarDatosDerecha() {
-        lblNombre.setText("");
-        lblInstituto.setText("");
-        lblCargaHoraria.setText("");
-        lstEdiciones.setModel(new javax.swing.DefaultListModel<>());
-        lstProgramas.setModel(new javax.swing.DefaultListModel<>());
+        valorNombre.setText("");
+        valorInstituto.setText("");
+        valorCarga.setText("");
+        lstEdiciones.setModel(new DefaultListModel<>());
+        lstProgramas.setModel(new DefaultListModel<>());
     }
+
     private void mostrarDatosCurso(String nombreCurso) {
-    try {
-        IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-        DtCurso dt = icc.consultarCurso(nombreCurso); //[cite: 3]
-        
-        // 1. Cargar Datos Básicos[cite: 1, 2]
-        lblNombre.setText(dt.getNombre());
-        lblInstituto.setText(dt.getNomInstituto());
-        lblCargaHoraria.setText(String.valueOf(dt.getCantHoras()));
-        
-        // 2. Cargar Lista de Ediciones[cite: 1, 2]
-        javax.swing.DefaultListModel<String> modEdiciones = new javax.swing.DefaultListModel<>();
-        for (String ed : dt.getEdiciones()) { 
-            modEdiciones.addElement(ed); 
+        try {
+            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+            DtCurso dt = icc.consultarCurso(nombreCurso);
+
+            if (dt == null) {
+                return;
+            }
+
+            // 1. Cargar Datos Básicos en las variables de valor
+            valorNombre.setText(dt.getNombre());
+            valorInstituto.setText(dt.getNomInstituto());
+            valorCarga.setText(String.valueOf(dt.getCantHoras()) + " hs");
+
+            // 2. Cargar Lista de Ediciones desde la Base de Datos
+            DefaultListModel<String> modEdiciones = new DefaultListModel<>();
+            if (dt.getEdiciones() != null) {
+                for (String ed : dt.getEdiciones()) {
+                    modEdiciones.addElement(ed);
+                }
+            }
+            lstEdiciones.setModel(modEdiciones);
+
+            // 3. Cargar Lista de Programas de Formación desde la Base de Datos
+            DefaultListModel<String> modProgramas = new DefaultListModel<>();
+            if (dt.getProgramas() != null) {
+                for (String prog : dt.getProgramas()) {
+                    modProgramas.addElement(prog);
+                }
+            }
+            lstProgramas.setModel(modProgramas);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al consultar curso: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        lstEdiciones.setModel(modEdiciones);
-        
-        // 3. Cargar Lista de Programas de Formación[cite: 1, 2]
-        javax.swing.DefaultListModel<String> modProgramas = new javax.swing.DefaultListModel<>();
-        for (String prog : dt.getProgramas()) { 
-            modProgramas.addElement(prog); 
-        }
-        lstProgramas.setModel(modProgramas);
-        
-    } catch (Exception e) {
-        javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
     }
-}
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -330,68 +354,61 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     private void cbInstitutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbInstitutosActionPerformed
         // TODO add your handling code here:
         String institutoSeleccionado = (String) cbInstitutos.getSelectedItem();
-        if (institutoSeleccionado == null) {
+        if (institutoSeleccionado == null || institutoSeleccionado.equals("Seleccionar Instituto")) {
+            lstCursos.setModel(new DefaultListModel<>());
+            limpiarDatosDerecha();
             return;
         }
 
         try {
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-            List<String> cursos = icc.listarCursosPorInstituto(institutoSeleccionado); //[cite: 3]
+            List<String> cursos = icc.listarCursosPorInstituto(institutoSeleccionado);
 
-            // Llenar el JList de Cursos
-            javax.swing.DefaultListModel<String> modeloCursos = new javax.swing.DefaultListModel<>();
+            DefaultListModel<String> modeloCursos = new DefaultListModel<>();
             for (String curso : cursos) {
                 modeloCursos.addElement(curso);
             }
             lstCursos.setModel(modeloCursos);
 
-            limpiarDatosDerecha(); // Limpia el panel derecho si cambias de instituto
+            limpiarDatosDerecha();
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al obtener cursos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    
     }//GEN-LAST:event_cbInstitutosActionPerformed
 
     private void lstCursosValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lstCursosValueChanged
-        // TODO add your handling code here:
-        // getValuelIsAdjusting evita que el evento se dispare dos veces al hacer clic
         if (!evt.getValueIsAdjusting()) {
             String cursoSeleccionado = lstCursos.getSelectedValue();
             if (cursoSeleccionado != null) {
                 mostrarDatosCurso(cursoSeleccionado);
+            } else {
+                limpiarDatosDerecha();
             }
         }
     }//GEN-LAST:event_lstCursosValueChanged
 
     private void btnVerECActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerECActionPerformed
-        // TODO add your handling code here:
         String edicionSeleccionada = lstEdiciones.getSelectedValue();
 
         if (edicionSeleccionada == null) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccioná una edición de la lista.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Por favor, seleccioná una edición de la lista.", "Atención", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        String instituto = (String)cbInstitutos.getSelectedItem();
-        String curso = (String)lstCursos.getSelectedValue();
-        String nombreEC = (String)lstEdiciones.getSelectedValue();
-        // Instanciás la ventana (ajustá el nombre según cómo le pusiste a tu clase)
-        ConsultaEdicionCursoFrame frameEdicion = new ConsultaEdicionCursoFrame(instituto,curso,nombreEC);
+        String instituto = (String) cbInstitutos.getSelectedItem();
+        String curso = lstCursos.getSelectedValue();
 
-        // Lo agregás al contenedor principal (JDesktopPane) para que se vea dentro del sistema
+        ConsultaEdicionCursoFrame frameEdicion = new ConsultaEdicionCursoFrame(instituto, curso, edicionSeleccionada);
+
         this.getDesktopPane().add(frameEdicion);
         frameEdicion.setVisible(true);
-        frameEdicion.toFront(); // Lo trae al frente por si quedó detrás de otra ventana
-
-        // Llamás a un método público del nuevo frame para pasarle el dato
-
+        frameEdicion.toFront();
     }//GEN-LAST:event_btnVerECActionPerformed
 
     private void btnVerPFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerPFActionPerformed
-        // TODO add your handling code here:
         String programaSeleccionado = lstProgramas.getSelectedValue();
 
         if (programaSeleccionado == null) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccioná un programa de la lista.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Por favor, seleccioná un programa de la lista.", "Atención", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
