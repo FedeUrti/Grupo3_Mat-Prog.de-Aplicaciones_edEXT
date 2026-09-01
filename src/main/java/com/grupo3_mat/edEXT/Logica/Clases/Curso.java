@@ -29,9 +29,12 @@ public class Curso {
     @OneToMany(
             mappedBy = "curso",
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
     )
-    private List<EdicionCurso> ediciones = new ArrayList<>();
+    private List<EdicionCurso> ediciones = new ArrayList();
+    @ManyToMany(mappedBy = "cursos", fetch = FetchType.EAGER)
+    private List<ProgramaFormacion> programas = new ArrayList<>();
     
     public Curso() {}
 
