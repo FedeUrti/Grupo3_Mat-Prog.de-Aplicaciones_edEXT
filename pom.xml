@@ -25,6 +25,17 @@
             <version>SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.lgooddatepicker</groupId>
+            <artifactId>LGoodDatePicker</artifactId>
+            <version>11.2.1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.toedter</groupId>
+            <artifactId>jcalendar</artifactId>
+            <version>1.4</version>
+        </dependency>
         <!-- API de Jakarta Persistence -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
