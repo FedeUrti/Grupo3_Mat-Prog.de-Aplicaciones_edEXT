@@ -56,6 +56,7 @@ public class Curso {
     public LocalDate getFecha() { return fecha; }
     public List<Curso> getPrevias() { return previas; }
     public void setPrevias(List<Curso> previas) { this.previas = previas; }
+    public List<EdicionCurso> getEdiciones() { return ediciones; }
     
     public void agregarEdicion(EdicionCurso edicion) {
         this.ediciones.add(edicion);
