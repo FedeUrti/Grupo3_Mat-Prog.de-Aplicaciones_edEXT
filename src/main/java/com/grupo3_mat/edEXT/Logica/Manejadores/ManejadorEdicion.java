@@ -5,9 +5,7 @@ package com.grupo3_mat.edEXT.Logica.Manejadores;
  * @author benja
  */
 import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.*;
 import java.util.List;
 
 public class ManejadorEdicion {

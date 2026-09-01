@@ -4,6 +4,12 @@
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <class>com.grupo3_mat.edEXT.Logica.Clases.Curso</class>
     <class>com.grupo3_mat.edEXT.Logica.Clases.Instituto</class>
+    <class>com.grupo3_mat.edEXT.Logica.Clases.Docente</class>
+    <class>com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso</class>
+    <class>com.grupo3_mat.edEXT.Logica.Clases.Estudiante</class>
+    <class>com.grupo3_mat.edEXT.Logica.Clases.InscripcionEC</class>
+    <class>com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion</class>
+    <class>com.grupo3_mat.edEXT.Logica.Clases.Usuario</class>
     <properties>
       <!-- Propiedades JDBC con jakarta.* -->
       <!-- Configuración de Hibernate 6 -->
