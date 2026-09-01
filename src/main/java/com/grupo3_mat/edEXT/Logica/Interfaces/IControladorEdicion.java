@@ -4,14 +4,15 @@
  */
 package com.grupo3_mat.edEXT.Logica.Interfaces;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
-
+import java.util.List;
 /**
  *
  * @author benja
  */
 public interface IControladorEdicion {
     void altaEdicionCurso(String nombreCurso, DTEdicionCurso datosEdicion)throws Exception;
-    void mostrarDetalleEdicion();
+    List<String> listarEdicionesPorCurso(String nombreCurso);
+    DTEdicionCurso mostrarDetalleEdicion(String nombreEdicion);
     void mostrarEdicionVigente();
     void inscribirEdicionCurso();
 }

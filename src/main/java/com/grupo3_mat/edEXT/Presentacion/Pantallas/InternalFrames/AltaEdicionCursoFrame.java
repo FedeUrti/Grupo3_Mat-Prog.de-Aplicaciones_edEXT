@@ -136,7 +136,6 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
         cmbCursos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         cmbCursos.addActionListener(this::cmbCursosActionPerformed);
 
-        txtNombreEdicion.setText("jTextField1");
         txtNombreEdicion.addActionListener(this::txtNombreEdicionActionPerformed);
 
         spinnerFechaPublicacion.setModel(new javax.swing.SpinnerDateModel());
@@ -148,7 +147,6 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
         chkTieneCupo.setText("Cupo (opcional):");
         chkTieneCupo.addActionListener(this::chkTieneCupoActionPerformed);
 
-        txtCupo.setText("jTextField1");
         txtCupo.setEnabled(false);
 
         listDocentes.setModel(new javax.swing.AbstractListModel<String>() {
