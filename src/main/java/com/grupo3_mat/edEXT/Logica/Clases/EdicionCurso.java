@@ -24,11 +24,11 @@ public class EdicionCurso {
     @JoinColumn(name = "curso_nombre")
     private Curso curso;
     
-    @ManyToMany  //Relación con Docente
+    @ManyToMany(fetch = FetchType.EAGER) // <-- Debe ir aquí
     @JoinTable(
-        name = "Docente_Participa_EdicionCurso",
-        joinColumns = @JoinColumn(name = "edicion_nombre"),
-        inverseJoinColumns = @JoinColumn(name = "docente_nickname")
+            name = "Docente_Participa_EdicionCurso",
+            joinColumns = @JoinColumn(name = "edicion_nombre"),
+            inverseJoinColumns = @JoinColumn(name = "docente_nickname")
     )
     private List<Docente> docentes = new ArrayList<>();
     
