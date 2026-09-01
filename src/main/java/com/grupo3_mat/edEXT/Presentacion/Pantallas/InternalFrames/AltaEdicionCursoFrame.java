@@ -284,6 +284,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
             }
 
             // Convertir fechas a LocalDate
+            LocalDate fechaPublicacion = convertirALocalDate((Date) spinnerFechaPublicacion.getValue());
             LocalDate fechaInicio = convertirALocalDate((Date) spinnerFechaInicio.getValue());
             LocalDate fechaFin = convertirALocalDate((Date) spinnerFechaFin.getValue());
 
@@ -319,7 +320,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
                 fechaInicio,
                 fechaFin,
                 cupo,
-                LocalDate.now(),
+                fechaPublicacion,
                 docentesSeleccionados
             );
 
