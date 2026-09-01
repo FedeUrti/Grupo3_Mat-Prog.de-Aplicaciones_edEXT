@@ -98,8 +98,6 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         lstProgramas = new javax.swing.JList<>();
         btnVerPF = new javax.swing.JButton();
 
-        setClosable(true);
-        setForeground(java.awt.Color.lightGray);
         setMaximizable(true);
         setResizable(true);
 
@@ -118,6 +116,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
+        lstCursos.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         lstCursos.addListSelectionListener(this::lstCursosValueChanged);
         jScrollPane1.setViewportView(lstCursos);
 
@@ -147,6 +146,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
+        lstEdiciones.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane3.setViewportView(lstEdiciones);
 
         btnVerEC.setText("Ver Edicion");
@@ -239,6 +239,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
+        lstProgramas.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane5.setViewportView(lstProgramas);
 
         btnVerPF.setText("Ver Programa");
@@ -370,9 +371,11 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccioná una edición de la lista.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
-
+        String instituto = (String)cbInstitutos.getSelectedItem();
+        String curso = (String)lstCursos.getSelectedValue();
+        String nombreEC = (String)lstEdiciones.getSelectedValue();
         // Instanciás la ventana (ajustá el nombre según cómo le pusiste a tu clase)
-        ConsultaEdicionCursoFrame frameEdicion = new ConsultaEdicionCursoFrame();
+        ConsultaEdicionCursoFrame frameEdicion = new ConsultaEdicionCursoFrame(instituto,curso,nombreEC);
 
         // Lo agregás al contenedor principal (JDesktopPane) para que se vea dentro del sistema
         this.getDesktopPane().add(frameEdicion);
@@ -380,7 +383,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         frameEdicion.toFront(); // Lo trae al frente por si quedó detrás de otra ventana
 
         // Llamás a un método público del nuevo frame para pasarle el dato
-        frameEdicion.cargarDatosEdicion(edicionSeleccionada);
+
     }//GEN-LAST:event_btnVerECActionPerformed
 
     private void btnVerPFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerPFActionPerformed
