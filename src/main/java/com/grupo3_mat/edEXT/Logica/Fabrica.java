@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.grupo3_mat.edEXT.Logica;
 
 import com.grupo3_mat.edEXT.Logica.Controladores.*;
@@ -7,8 +11,7 @@ public class Fabrica {
 
     private static Fabrica instancia = null;
 
-    private Fabrica() {
-    }
+    private Fabrica() {}
 
     public static Fabrica getInstance() {
         if (instancia == null) {
@@ -17,20 +20,23 @@ public class Fabrica {
         return instancia;
     }
 
-    // Un método por cada controlador de tu sistema
     public IControladorCurso getIControladorCurso() {
         return new ControladorCurso();
     }
-
+    
     public IControladorInstituto getIControladorInstituto() {
         return new ControladorInstituto();
     }
 
-    /*public IControladorUsuario getIControladorUsuario() {
+    public IControladorEdicion getIControladorEdicion() {
+        return new ControladorEdicion();
+    }
+
+    public IControladorUsuario getIControladorUsuario() {
         return new ControladorUsuario();
-    }*/
+    }
     
     public IControladorProgramaFormacion getIControladorProgramaFormacion() {
         return new ControladorProgramaFormacion();
-    }
+    }   
 }

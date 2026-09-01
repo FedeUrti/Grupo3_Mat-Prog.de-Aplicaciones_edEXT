@@ -3,10 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.grupo3_mat.edEXT.Logica.Clases;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 /**
  *
  * @author benja
@@ -18,6 +20,22 @@ public class EdicionCurso {
     @Id
     private String nombre;
     
+    @ManyToOne  //Relación con Curso
+    @JoinColumn(name = "curso_nombre")
+    private Curso curso;
+    
+    @ManyToMany  //Relación con Docente
+    @JoinTable(
+        name = "Docente_Participa_EdicionCurso",
+        joinColumns = @JoinColumn(name = "edicion_nombre"),
+        inverseJoinColumns = @JoinColumn(name = "docente_nickname")
+    )
+    private List<Docente> docentes = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "edicion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @MapKey(name = "id.estudianteNickname") // <-- Usar "id.estudianteNickname" en lugar de "estudiante.nickname"
+    private Map<String, InscripcionEC> inscripciones;
+    
     private LocalDate fechaInicio;
     
     private LocalDate fechaFin;
@@ -26,57 +44,49 @@ public class EdicionCurso {
     
     private LocalDate fechaPublicacion;
 
-    // Constructor por defecto (requerido por JPA/Hibernate según Gemini jaja lol)
+    // Constructor por defecto (requerido por JPA según Gemini jaja lol)
     public EdicionCurso() {
     }
 
     // Constructor completo
-    public EdicionCurso(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int cupo, LocalDate fechaPublicacion) {
+    public EdicionCurso(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int cupo, LocalDate fechaPublicacion, Curso curso) {
         this.nombre = nombre;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.cupo = cupo;
         this.fechaPublicacion = fechaPublicacion;
+        this.curso = curso;
     }
 
-    // Getters y Setters
-    public String getNombre() {
-        return nombre;
+    // Getters
+    public String getNombre() {return nombre;}
+    public LocalDate getFechaInicio() {return fechaInicio;}
+    public LocalDate getFechaFin() {return fechaFin;}
+    public int getCupo() {return cupo;}
+    public LocalDate getFechaPublicacion() {return fechaPublicacion;}
+    public Curso getCurso() {return curso;}
+    public List<Docente> getDocentes() {return docentes;}
+    public Map<String, InscripcionEC> getInscripciones() {return inscripciones;}
+    
+    //Setters
+    public void setNombre(String nombre) {this.nombre = nombre;}
+    public void setFechaInicio(LocalDate fechaInicio) {this.fechaInicio = fechaInicio;}
+    public void setFechaFin(LocalDate fechaFin) {this.fechaFin = fechaFin;}
+    public void setCupo(int cupo) {this.cupo = cupo;}
+    public void setFechaPublicacion(LocalDate fechaPublicacion) {this.fechaPublicacion = fechaPublicacion;}
+    public void setCurso(Curso curso) {this.curso = curso;}
+    public void setDocentes(List<Docente> docentes) {this.docentes = docentes;}
+    
+    //Auxiliares
+    public void agregarDocente(Docente docente) {this.docentes.add(docente);}
+    
+    public void agregarInscripcion(InscripcionEC inscripcion) {
+        String nicknameEstudiante = inscripcion.getEstudiante().getNickname();
+        this.inscripciones.put(nicknameEstudiante, inscripcion);
+        inscripcion.setEdicion(this);
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public LocalDate getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(LocalDate fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public int getCupo() {
-        return cupo;
-    }
-
-    public void setCupo(int cupo) {
-        this.cupo = cupo;
-    }
-
-    public LocalDate getFechaPublicacion() {
-        return fechaPublicacion;
-    }
-
-    public void setFechaPublicacion(LocalDate fechaPublicacion) {
-        this.fechaPublicacion = fechaPublicacion;
+    public boolean estaInscripto(String nicknameEstudiante) {
+        return this.inscripciones.containsKey(nicknameEstudiante);
     }
 }

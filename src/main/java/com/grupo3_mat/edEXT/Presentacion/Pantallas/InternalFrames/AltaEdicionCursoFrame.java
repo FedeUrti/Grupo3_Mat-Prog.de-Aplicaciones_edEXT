@@ -1,22 +1,89 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.edEXT.Logica.Fabrica;
+import javax.swing.*;
+import java.util.List;
+import java.time.*;
+import java.util.Date;
 /**
  *
- * @author fede1
+ * @author benja
  */
-public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
+public class AltaEdicionCursoFrame extends javax.swing.JFrame {
+    
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AltaEdicionCursoFrame.class.getName());
+    
+    private IControladorCurso icCurso;
+    private IControladorInstituto icInstituto;
+    private IControladorEdicion icEdicion;
+    private IControladorUsuario icUsuario;
 
+    private DefaultListModel<String> listModelDocentes;
     /**
      * Creates new form AltaEdicionCursoFrame
      */
     public AltaEdicionCursoFrame() {
         initComponents();
+        
+        Fabrica fabrica = Fabrica.getInstance();
+    this.icCurso = fabrica.getIControladorCurso();
+    this.icInstituto = fabrica.getIControladorInstituto();
+    this.icEdicion = fabrica.getIControladorEdicion();
+    this.icUsuario = fabrica.getIControladorUsuario();
+
+    listModelDocentes = new DefaultListModel<>();
+    listDocentes.setModel(listModelDocentes);
+
+    spinnerFechaPublicacion.setEditor(new JSpinner.DateEditor(spinnerFechaPublicacion, "dd/MM/yyyy"));
+    spinnerFechaInicio.setEditor(new JSpinner.DateEditor(spinnerFechaInicio, "dd/MM/yyyy"));
+    spinnerFechaFin.setEditor(new JSpinner.DateEditor(spinnerFechaFin, "dd/MM/yyyy"));
+
+    cargarInstitutos();
+    alSeleccionarInstituto();
+    cargarDocentes();
+    }
+    
+    //Auxiliares
+    private void cargarInstitutos() {
+        cmbInstitutos.removeAllItems();
+        List<String> insts = icInstituto.listarInstitutos();
+        for (String inst : insts) {
+            cmbInstitutos.addItem(inst);
+        }
     }
 
+    private void cargarDocentes() {
+        listModelDocentes.clear();
+        List<String> docentes = icUsuario.listarNicknamesUsuarios();
+        for (String doc : docentes) {
+            listModelDocentes.addElement(doc);
+        }
+    }
+
+    private LocalDate convertirALocalDate(Date date) {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+    
+    private void alSeleccionarInstituto() { //Define las opciones de cmbCurso según el instituto
+        cmbCursos.removeAllItems();
+    
+        String instSeleccionado = (String) cmbInstitutos.getSelectedItem();
+        if (instSeleccionado != null) {
+            List<String> cursos = icCurso.listarCursosPorInstituto(instSeleccionado);
+            for (String c : cursos) {
+                cmbCursos.addItem(c);
+            }
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -26,21 +93,305 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        labelInstituto = new javax.swing.JLabel();
+        labelCurso = new javax.swing.JLabel();
+        labelNombre = new javax.swing.JLabel();
+        labelFechaPublicacion = new javax.swing.JLabel();
+        labelFechaInicio = new javax.swing.JLabel();
+        labelFechaFin = new javax.swing.JLabel();
+        cmbInstitutos = new javax.swing.JComboBox<>();
+        cmbCursos = new javax.swing.JComboBox<>();
+        txtNombreEdicion = new javax.swing.JTextField();
+        spinnerFechaPublicacion = new javax.swing.JSpinner();
+        spinnerFechaInicio = new javax.swing.JSpinner();
+        spinnerFechaFin = new javax.swing.JSpinner();
+        chkTieneCupo = new javax.swing.JCheckBox();
+        txtCupo = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        listDocentes = new javax.swing.JList<>();
+        labelDocentes = new javax.swing.JLabel();
+        btnAceptar = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Alta de Edición de Curso");
+        setName("Alta de Edicioin de Curso"); // NOI18N
+        setResizable(false);
+
+        labelInstituto.setText("Instituto:");
+
+        labelCurso.setText("Curso:");
+
+        labelNombre.setText("Nombre:");
+
+        labelFechaPublicacion.setText("Fecha de publicación:");
+
+        labelFechaInicio.setText("Fecha de inicio:");
+
+        labelFechaFin.setText("Fecha de finalización:");
+
+        cmbInstitutos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbInstitutos.addActionListener(this::cmbInstitutosActionPerformed);
+
+        cmbCursos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbCursos.addActionListener(this::cmbCursosActionPerformed);
+
+        txtNombreEdicion.addActionListener(this::txtNombreEdicionActionPerformed);
+
+        spinnerFechaPublicacion.setModel(new javax.swing.SpinnerDateModel());
+
+        spinnerFechaInicio.setModel(new javax.swing.SpinnerDateModel());
+
+        spinnerFechaFin.setModel(new javax.swing.SpinnerDateModel());
+
+        chkTieneCupo.setText("Cupo (opcional):");
+        chkTieneCupo.addActionListener(this::chkTieneCupoActionPerformed);
+
+        txtCupo.setEnabled(false);
+
+        listDocentes.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(listDocentes);
+
+        labelDocentes.setText("Docentes:");
+
+        btnAceptar.setText("Aceptar");
+        btnAceptar.addActionListener(this::btnAceptarActionPerformed);
+
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(this::btnCancelarActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 394, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(102, 102, 102)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(labelInstituto)
+                            .addComponent(labelCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(67, 67, 67)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(cmbInstitutos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cmbCursos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtNombreEdicion, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(chkTieneCupo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtCupo, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(labelDocentes)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(76, 76, 76)
+                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(labelFechaPublicacion)
+                                .addComponent(labelFechaInicio)
+                                .addComponent(spinnerFechaPublicacion)
+                                .addComponent(spinnerFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(spinnerFechaFin, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                                .addComponent(labelFechaFin)))
+                        .addGap(154, 154, 154))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(177, 177, 177))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 274, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(71, 71, 71)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(labelInstituto)
+                            .addComponent(cmbInstitutos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(26, 26, 26)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(labelCurso)
+                            .addComponent(cmbCursos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(labelFechaPublicacion)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(spinnerFechaPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(31, 31, 31)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(labelNombre)
+                            .addComponent(txtNombreEdicion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(37, 37, 37)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(chkTieneCupo)
+                            .addComponent(txtCupo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(labelFechaInicio)
+                        .addGap(18, 18, 18)
+                        .addComponent(spinnerFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(38, 38, 38)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(labelDocentes)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(labelFechaFin)
+                        .addGap(18, 18, 18)
+                        .addComponent(spinnerFechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(42, 42, 42))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void txtNombreEdicionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreEdicionActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNombreEdicionActionPerformed
+
+    private void chkTieneCupoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTieneCupoActionPerformed
+        boolean seleccionado = chkTieneCupo.isSelected();
+        txtCupo.setEnabled(seleccionado);
+        if (!seleccionado) {
+            txtCupo.setText("");
+        }
+    }//GEN-LAST:event_chkTieneCupoActionPerformed
+
+    private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
+        try {
+            // Validaciones de UI
+            String nombreCurso = (String) cmbCursos.getSelectedItem();
+            if (nombreCurso == null) {
+                throw new Exception("Debe seleccionar un curso.");
+            }
+
+            String nombreEdicion = txtNombreEdicion.getText().trim();
+            if (nombreEdicion.isEmpty()) {
+                throw new Exception("Ingrese el nombre de la Edición.");
+            }
+
+            // Convertir fechas a LocalDate
+            LocalDate fechaPublicacion = convertirALocalDate((Date) spinnerFechaPublicacion.getValue());
+            LocalDate fechaInicio = convertirALocalDate((Date) spinnerFechaInicio.getValue());
+            LocalDate fechaFin = convertirALocalDate((Date) spinnerFechaFin.getValue());
+
+            if (fechaFin.isBefore(fechaInicio)) {
+                throw new Exception("La fecha de fin no puede ser anterior a la fecha de inicio.");
+            }
+
+            // Parseo de Cupo
+            int cupo = 0;
+
+            if (chkTieneCupo.isSelected()) {
+                String textoCupo = txtCupo.getText().trim();
+                if (textoCupo.isEmpty()) {
+                    throw new Exception("Ingrese o deshabilite el cupo.");
+                }
+    
+                try {
+                    cupo = Integer.parseInt(textoCupo);
+                    if (cupo <= 0) {
+                        throw new Exception("El cupo debe ser mayor a 0.");
+                    }
+                } catch (NumberFormatException e) {
+                    throw new Exception("El cupo debe ser un número entero válido.");
+                }
+            }
+
+            // Docentes seleccionados
+            List<String> docentesSeleccionados = listDocentes.getSelectedValuesList();
+
+            // Construir DataType y llamar al Controlador
+            DTEdicionCurso dtEdicion = new DTEdicionCurso(
+                nombreEdicion,
+                fechaInicio,
+                fechaFin,
+                cupo,
+                fechaPublicacion,
+                docentesSeleccionados
+            );
+
+            icEdicion.altaEdicionCurso(nombreCurso, dtEdicion);
+
+            // Éxito: Notificar y cerrar
+            JOptionPane.showMessageDialog(this, "La edición del curso se ha registrado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+
+        } catch (Exception e) {
+            // Captura de errores con diálogos
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error al Dar de Alta Edición", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnAceptarActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        dispose();
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void cmbInstitutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbInstitutosActionPerformed
+        alSeleccionarInstituto();
+    }//GEN-LAST:event_cmbInstitutosActionPerformed
+
+    private void cmbCursosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCursosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbCursosActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> new AltaEdicionCursoFrame().setVisible(true));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAceptar;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JCheckBox chkTieneCupo;
+    private javax.swing.JComboBox<String> cmbCursos;
+    private javax.swing.JComboBox<String> cmbInstitutos;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel labelCurso;
+    private javax.swing.JLabel labelDocentes;
+    private javax.swing.JLabel labelFechaFin;
+    private javax.swing.JLabel labelFechaInicio;
+    private javax.swing.JLabel labelFechaPublicacion;
+    private javax.swing.JLabel labelInstituto;
+    private javax.swing.JLabel labelNombre;
+    private javax.swing.JList<String> listDocentes;
+    private javax.swing.JSpinner spinnerFechaFin;
+    private javax.swing.JSpinner spinnerFechaInicio;
+    private javax.swing.JSpinner spinnerFechaPublicacion;
+    private javax.swing.JTextField txtCupo;
+    private javax.swing.JTextField txtNombreEdicion;
     // End of variables declaration//GEN-END:variables
 }

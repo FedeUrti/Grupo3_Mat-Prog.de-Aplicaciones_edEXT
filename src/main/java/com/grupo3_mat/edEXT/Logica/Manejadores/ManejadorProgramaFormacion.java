@@ -1,22 +1,17 @@
 package com.grupo3_mat.edEXT.Logica.Manejadores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
-/**
- *
- * @author ssant
- */
 public class ManejadorProgramaFormacion {
 
     private static ManejadorProgramaFormacion instancia = null;
-    private EntityManagerFactory emf;
 
     private ManejadorProgramaFormacion() {
-        this.emf = Persistence.createEntityManagerFactory("edEXT_PU");
     }
 
     public static ManejadorProgramaFormacion getInstancia() {
@@ -28,7 +23,7 @@ public class ManejadorProgramaFormacion {
 
     //Para guardar registros nuevos por primera vez
     public void agregarPrograma(ProgramaFormacion pf) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(pf);
@@ -40,7 +35,7 @@ public class ManejadorProgramaFormacion {
     
     //Para actualizar registros ya existentes en la BD
     public void modificarPrograma(ProgramaFormacion pf) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
             em.merge(pf);
@@ -51,7 +46,7 @@ public class ManejadorProgramaFormacion {
     }
 
     public ProgramaFormacion buscarPrograma(String nombre) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.find(ProgramaFormacion.class, nombre);
         } finally {
@@ -61,7 +56,7 @@ public class ManejadorProgramaFormacion {
         
 
     public List<ProgramaFormacion> getProgramas() {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT p FROM ProgramaFormacion p", ProgramaFormacion.class).getResultList();
         } finally {
