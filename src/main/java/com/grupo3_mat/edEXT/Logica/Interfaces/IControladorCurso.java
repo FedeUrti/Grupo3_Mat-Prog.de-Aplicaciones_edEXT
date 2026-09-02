@@ -9,4 +9,5 @@ public interface IControladorCurso {
     List<String> listarCursosPorInstituto(String nomInst);
     DtCurso consultarCurso(String nombreCurso);
     List<String> listarCursos();
+    String obtenerEdicionVigente(String nombreCurso, LocalDate fechaReferencia) throws Exception;
 }

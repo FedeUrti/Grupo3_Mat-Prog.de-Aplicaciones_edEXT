@@ -115,4 +115,18 @@ public class ControladorCurso implements IControladorCurso {
         }
         return nombres;
     }
+    
+    @Override
+    public String obtenerEdicionVigente(String nombreCurso, LocalDate fechaReferencia) throws Exception {
+        ManejadorCurso mc = ManejadorCurso.getInstancia();
+        Curso curso = mc.buscarCurso(nombreCurso);
+
+        if (curso == null) {
+            throw new Exception("El curso " + nombreCurso + " no existe.");
+        }
+
+        EdicionCurso edicionVigente = curso.obtenerProximaEdicion(fechaReferencia);
+
+        return (edicionVigente != null) ? edicionVigente.getNombre() : "";
+    }
 }
