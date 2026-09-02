@@ -4,6 +4,7 @@
  */
 package com.grupo3_mat.edEXT.Logica.Interfaces;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
+import java.time.LocalDate;
 import java.util.List;
 /**
  *
@@ -13,6 +14,5 @@ public interface IControladorEdicion {
     void altaEdicionCurso(String nombreCurso, DTEdicionCurso datosEdicion)throws Exception;
     List<String> listarEdicionesPorCurso(String nombreCurso);
     DTEdicionCurso mostrarDetalleEdicion(String nombreEdicion);
-    void mostrarEdicionVigente();
-    void inscribirEdicionCurso();
+    void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion) throws Exception;
 }

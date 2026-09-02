@@ -33,4 +33,11 @@ public class Estudiante extends Usuario {
     public void setInscripciones(Map<String, InscripcionEC> inscripciones) {
         this.inscripciones = inscripciones;
     }
+    
+    public void agregarInscripcion(InscripcionEC inscripcion) {
+        if (this.inscripciones != null && inscripcion != null && inscripcion.getEdicion() != null) {
+            String nombreEdicion = inscripcion.getEdicion().getNombre();
+            this.inscripciones.put(nombreEdicion, inscripcion);
+        }
+    }
 }

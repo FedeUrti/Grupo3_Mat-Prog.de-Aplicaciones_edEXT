@@ -28,4 +28,6 @@ public interface IControladorUsuario {
     void modificarDatosUsuario(String nickname, String nombre, String apellido, LocalDate fechaNac, String imagenPath) throws Exception;
     
     List<String> listarNicknamesDocentesPorInstituto(String nomInstituto);
+    
+    List<String> listarEstudiantes();
 }

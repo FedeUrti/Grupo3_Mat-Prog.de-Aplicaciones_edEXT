@@ -27,10 +27,10 @@ public class InscripcionEC {
 
     public InscripcionEC() {}
 
-    public InscripcionEC(Estudiante estudiante, EdicionCurso edicion) {
+    public InscripcionEC(Estudiante estudiante, EdicionCurso edicion, LocalDate fechaInscripcion) {
         this.estudiante = estudiante;
         this.edicion = edicion;
-        this.fechaInscripcion = LocalDate.now();
+        this.fechaInscripcion = fechaInscripcion;
         //this.id = new InscripcionID(estudiante.getNickname(), edicion.getNombre());
     }
 
