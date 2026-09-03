@@ -107,33 +107,36 @@ public class ControladorEdicion implements IControladorEdicion {
     
     @Override
     public void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion) throws Exception {
-        //Obtener y validar el estudiante
+        // Obtener y validar el estudiante
         ManejadorUsuario mu = ManejadorUsuario.getInstancia();
         Usuario usr = mu.buscarUsuarioPorNickname(nicknameEstudiante);
-        
+
         if (usr == null || !(usr instanceof Estudiante)) {
             throw new Exception("El usuario " + nicknameEstudiante + " no existe o no es un estudiante.");
         }
         Estudiante estudiante = (Estudiante) usr;
 
-        //Obtener la edición del curso
+        // Obtener la edición del curso
         ManejadorEdicion me = ManejadorEdicion.getInstancia();
         EdicionCurso edicion = me.buscarEdicion(nombreEdicion);
-        
+
         if (edicion == null) {
             throw new Exception("La edición " + nombreEdicion + " no existe.");
         }
 
-        //Validar si el estudiante ya está inscrito a la edición
+        // Validar si el estudiante ya está inscrito a la edición
         if (edicion.estaInscripto(estudiante.getNickname())) {
             throw new Exception("El estudiante ya se encuentra inscripto a esta edición.");
         }
 
-        //Crear la clase de asociación InscripcionEdicion
+        // Crear la clase de asociación InscripcionEC
         InscripcionEC inscripcion = new InscripcionEC(estudiante, edicion, fechaInscripcion);
 
-        //Vincular la inscripción con ambos lados de la relación
+        // Vincular la inscripción con ambos lados de la relación
         estudiante.agregarInscripcion(inscripcion);
         edicion.agregarInscripcion(inscripcion);
+
+        // PERSISTIR CAMBIOS EN LA BASE DE DATOS
+        mu.modificarUsuario(estudiante);
     }
 }
