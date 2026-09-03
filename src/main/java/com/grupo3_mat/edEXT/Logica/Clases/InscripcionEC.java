@@ -27,11 +27,12 @@ public class InscripcionEC {
 
     public InscripcionEC() {}
 
-    public InscripcionEC(Estudiante estudiante, EdicionCurso edicion) {
+    public InscripcionEC(Estudiante estudiante, EdicionCurso edicion, LocalDate fechaInscripcion) {
         this.estudiante = estudiante;
         this.edicion = edicion;
-        this.fechaInscripcion = LocalDate.now();
-        //this.id = new InscripcionID(estudiante.getNickname(), edicion.getNombre());
+        this.fechaInscripcion = fechaInscripcion;
+        // Asignar explícitamente la clave compuesta
+        this.id = new InscripcionECId(edicion.getNombre(), estudiante.getNickname());
     }
 
     // Getters

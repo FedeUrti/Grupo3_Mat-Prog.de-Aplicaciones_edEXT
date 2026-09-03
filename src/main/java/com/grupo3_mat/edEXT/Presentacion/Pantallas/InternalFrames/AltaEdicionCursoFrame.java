@@ -18,7 +18,7 @@ import java.util.Date;
  *
  * @author benja
  */
-public class AltaEdicionCursoFrame extends javax.swing.JFrame {
+public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AltaEdicionCursoFrame.class.getName());
     
@@ -33,56 +33,90 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
      */
     public AltaEdicionCursoFrame() {
         initComponents();
-        
+    
         Fabrica fabrica = Fabrica.getInstance();
-    this.icCurso = fabrica.getIControladorCurso();
-    this.icInstituto = fabrica.getIControladorInstituto();
-    this.icEdicion = fabrica.getIControladorEdicion();
-    this.icUsuario = fabrica.getIControladorUsuario();
+        this.icCurso = fabrica.getIControladorCurso();
+        this.icInstituto = fabrica.getIControladorInstituto();
+        this.icEdicion = fabrica.getIControladorEdicion();
+        this.icUsuario = fabrica.getIControladorUsuario();
 
-    listModelDocentes = new DefaultListModel<>();
-    listDocentes.setModel(listModelDocentes);
+        listModelDocentes = new DefaultListModel<>();
+        listDocentes.setModel(listModelDocentes);
+        listDocentes.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-    spinnerFechaPublicacion.setEditor(new JSpinner.DateEditor(spinnerFechaPublicacion, "dd/MM/yyyy"));
-    spinnerFechaInicio.setEditor(new JSpinner.DateEditor(spinnerFechaInicio, "dd/MM/yyyy"));
-    spinnerFechaFin.setEditor(new JSpinner.DateEditor(spinnerFechaFin, "dd/MM/yyyy"));
+        dateChooserFechaPublicacion.setDateFormatString("dd/MM/yyyy");
+        dateChooserFechaInicio.setDateFormatString("dd/MM/yyyy");
+        dateChooserFechaFin.setDateFormatString("dd/MM/yyyy");
 
-    cargarInstitutos();
-    alSeleccionarInstituto();
-    cargarDocentes();
+        cargarInstitutos();
     }
     
     //Auxiliares
     private void cargarInstitutos() {
+        cmbInstitutos.removeActionListener(this::cmbInstitutosActionPerformed);
         cmbInstitutos.removeAllItems();
+    
         List<String> insts = icInstituto.listarInstitutos();
-        for (String inst : insts) {
-            cmbInstitutos.addItem(inst);
+        if (insts != null) {
+            for (String inst : insts) {
+                cmbInstitutos.addItem(inst);
+            }
         }
+    
+        cmbInstitutos.setSelectedIndex(-1); // Sin selección previa
+        cmbInstitutos.addActionListener(this::cmbInstitutosActionPerformed);
+
+        // Estado inicial de controles dependientes
+        cmbCursos.removeAllItems();
+        cmbCursos.setEnabled(false);
+        listModelDocentes.clear();
     }
 
     private void cargarDocentes() {
         listModelDocentes.clear();
-        List<String> docentes = icUsuario.listarNicknamesUsuarios();
-        for (String doc : docentes) {
-            listModelDocentes.addElement(doc);
+        String instSeleccionado = (String) cmbInstitutos.getSelectedItem();
+
+        if (instSeleccionado != null) {
+            List<String> docentes = icUsuario.listarNicknamesDocentesPorInstituto(instSeleccionado);
+            if (docentes != null) {
+                for (String doc : docentes) {
+                    listModelDocentes.addElement(doc);
+                }
+            }
         }
     }
 
     private LocalDate convertirALocalDate(Date date) {
+        if (date == null) {
+            return null;
+        }
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
     
-    private void alSeleccionarInstituto() { //Define las opciones de cmbCurso según el instituto
+    private void alSeleccionarInstituto() {
+        cmbCursos.removeActionListener(this::cmbCursosActionPerformed);
         cmbCursos.removeAllItems();
-    
+
         String instSeleccionado = (String) cmbInstitutos.getSelectedItem();
+
         if (instSeleccionado != null) {
             List<String> cursos = icCurso.listarCursosPorInstituto(instSeleccionado);
-            for (String c : cursos) {
-                cmbCursos.addItem(c);
+            if (cursos != null) {
+                for (String c : cursos) {
+                    cmbCursos.addItem(c);
+                }
             }
+            cmbCursos.setSelectedIndex(-1);
+            cmbCursos.setEnabled(true);
+
+            // Cargar los docentes pertenecientes a este instituto
+            cargarDocentes();
+        } else {
+            cmbCursos.setEnabled(false);
+            listModelDocentes.clear();
         }
+
+        cmbCursos.addActionListener(this::cmbCursosActionPerformed);
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -102,9 +136,6 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
         cmbInstitutos = new javax.swing.JComboBox<>();
         cmbCursos = new javax.swing.JComboBox<>();
         txtNombreEdicion = new javax.swing.JTextField();
-        spinnerFechaPublicacion = new javax.swing.JSpinner();
-        spinnerFechaInicio = new javax.swing.JSpinner();
-        spinnerFechaFin = new javax.swing.JSpinner();
         chkTieneCupo = new javax.swing.JCheckBox();
         txtCupo = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -112,11 +143,12 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
         labelDocentes = new javax.swing.JLabel();
         btnAceptar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
+        dateChooserFechaPublicacion = new com.toedter.calendar.JDateChooser();
+        dateChooserFechaInicio = new com.toedter.calendar.JDateChooser();
+        dateChooserFechaFin = new com.toedter.calendar.JDateChooser();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Alta de Edición de Curso");
         setName("Alta de Edicioin de Curso"); // NOI18N
-        setResizable(false);
 
         labelInstituto.setText("Instituto:");
 
@@ -138,22 +170,11 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
 
         txtNombreEdicion.addActionListener(this::txtNombreEdicionActionPerformed);
 
-        spinnerFechaPublicacion.setModel(new javax.swing.SpinnerDateModel());
-
-        spinnerFechaInicio.setModel(new javax.swing.SpinnerDateModel());
-
-        spinnerFechaFin.setModel(new javax.swing.SpinnerDateModel());
-
         chkTieneCupo.setText("Cupo (opcional):");
         chkTieneCupo.addActionListener(this::chkTieneCupoActionPerformed);
 
         txtCupo.setEnabled(false);
 
-        listDocentes.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         jScrollPane1.setViewportView(listDocentes);
 
         labelDocentes.setText("Docentes:");
@@ -190,22 +211,20 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(76, 76, 76)
                         .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addGap(82, 82, 82)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(labelFechaPublicacion)
-                                .addComponent(labelFechaInicio)
-                                .addComponent(spinnerFechaPublicacion)
-                                .addComponent(spinnerFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(spinnerFechaFin, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
-                                .addComponent(labelFechaFin)))
-                        .addGap(154, 154, 154))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(177, 177, 177))))
+                        .addGap(177, 177, 177))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(labelFechaFin)
+                            .addComponent(dateChooserFechaInicio, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                            .addComponent(labelFechaPublicacion)
+                            .addComponent(labelFechaInicio)
+                            .addComponent(dateChooserFechaPublicacion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(dateChooserFechaFin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(174, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -223,9 +242,13 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(labelFechaPublicacion)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(spinnerFechaPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(dateChooserFechaPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(labelFechaInicio)
+                        .addGap(18, 18, 18)
+                        .addComponent(dateChooserFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(labelNombre)
@@ -233,11 +256,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
                         .addGap(37, 37, 37)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(chkTieneCupo)
-                            .addComponent(txtCupo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(labelFechaInicio)
-                        .addGap(18, 18, 18)
-                        .addComponent(spinnerFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(txtCupo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(38, 38, 38)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -247,8 +266,8 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(labelFechaFin)
                         .addGap(18, 18, 18)
-                        .addComponent(spinnerFechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
+                        .addComponent(dateChooserFechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 91, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -283,10 +302,26 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
                 throw new Exception("Ingrese el nombre de la Edición.");
             }
 
-            // Convertir fechas a LocalDate
-            LocalDate fechaPublicacion = convertirALocalDate((Date) spinnerFechaPublicacion.getValue());
-            LocalDate fechaInicio = convertirALocalDate((Date) spinnerFechaInicio.getValue());
-            LocalDate fechaFin = convertirALocalDate((Date) spinnerFechaFin.getValue());
+            // Obtener las fechas desde los JDateChooser
+            Date datePub = dateChooserFechaPublicacion.getDate();
+            Date dateIni = dateChooserFechaInicio.getDate();
+            Date dateFin = dateChooserFechaFin.getDate();
+
+            // Validar que no estén vacías
+            if (datePub == null){
+                throw new Exception("Ingrese una fecha de publicación.");
+            }
+            if(dateIni == null){
+                throw new Exception("Ingrese una fecha de inicio.");
+            }
+            if(dateFin == null){
+                throw new Exception("Ingrese una fecha de finalización.");
+            }
+
+            // Convertir a LocalDate
+            LocalDate fechaPublicacion = convertirALocalDate(datePub);
+            LocalDate fechaInicio = convertirALocalDate(dateIni);
+            LocalDate fechaFin = convertirALocalDate(dateFin);
 
             if (fechaFin.isBefore(fechaInicio)) {
                 throw new Exception("La fecha de fin no puede ser anterior a la fecha de inicio.");
@@ -313,7 +348,10 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
 
             // Docentes seleccionados
             List<String> docentesSeleccionados = listDocentes.getSelectedValuesList();
-
+            if (docentesSeleccionados.isEmpty()) {
+                throw new Exception("Debe seleccionar al menos un docente.");
+            }
+            
             // Construir DataType y llamar al Controlador
             DTEdicionCurso dtEdicion = new DTEdicionCurso(
                 nombreEdicion,
@@ -345,33 +383,8 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_cmbInstitutosActionPerformed
 
     private void cmbCursosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCursosActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_cmbCursosActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new AltaEdicionCursoFrame().setVisible(true));
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
@@ -379,6 +392,9 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox chkTieneCupo;
     private javax.swing.JComboBox<String> cmbCursos;
     private javax.swing.JComboBox<String> cmbInstitutos;
+    private com.toedter.calendar.JDateChooser dateChooserFechaFin;
+    private com.toedter.calendar.JDateChooser dateChooserFechaInicio;
+    private com.toedter.calendar.JDateChooser dateChooserFechaPublicacion;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelCurso;
     private javax.swing.JLabel labelDocentes;
@@ -388,9 +404,6 @@ public class AltaEdicionCursoFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelInstituto;
     private javax.swing.JLabel labelNombre;
     private javax.swing.JList<String> listDocentes;
-    private javax.swing.JSpinner spinnerFechaFin;
-    private javax.swing.JSpinner spinnerFechaInicio;
-    private javax.swing.JSpinner spinnerFechaPublicacion;
     private javax.swing.JTextField txtCupo;
     private javax.swing.JTextField txtNombreEdicion;
     // End of variables declaration//GEN-END:variables

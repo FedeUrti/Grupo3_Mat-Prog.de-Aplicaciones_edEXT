@@ -56,28 +56,34 @@ public class ControladorProgramaFormacion implements IControladorProgramaFormaci
         mpf.modificarPrograma(pf);
     }
 
+    //Devuelve la lista completa de programas registrados en el sistema
     @Override
     public List<ProgramaFormacion> listarProgramas() throws Exception {
         ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();
         return mpf.getProgramas(); 
     }
 
+    //Busca y devuelve un programa por su nombre
     @Override
     public ProgramaFormacion seleccionarPrograma(String nombre) throws Exception {
         ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();
         ProgramaFormacion pf = mpf.buscarPrograma(nombre);
         
+        //Si no encuentra el programa, tira error
         if(pf == null) {
             throw new Exception("El programa de formación seleccionado no existe.");
         }
         return pf;        
     }
 
+    
+    //Busca los datos de un curso especifico por su nombre
     @Override
     public Curso seleccionarCurso(String nombreCurso) throws Exception {
         ManejadorCurso mc = ManejadorCurso.getInstancia();
         Curso c = mc.buscarCurso(nombreCurso);
         
+        //Si no existe el curso, avisa con una excepcion 
         if( c == null) {
             throw new Exception("El curso seleccionado no existe.");
         }

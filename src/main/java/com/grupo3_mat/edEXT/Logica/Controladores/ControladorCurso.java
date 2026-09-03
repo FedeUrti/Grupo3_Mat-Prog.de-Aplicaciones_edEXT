@@ -1,6 +1,7 @@
 package com.grupo3_mat.edEXT.Logica.Controladores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
+import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
 import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
@@ -17,16 +18,16 @@ public class ControladorCurso implements IControladorCurso {
     public void altaCurso(String nomInst, String cursoNom, String desc, int dur, int cantHoras, int creditos, String url, LocalDate fecha, List<String> previas) {
         ManejadorCurso mc = ManejadorCurso.getInstancia();
         ManejadorInstituto mi = ManejadorInstituto.getInstancia();
-        //Obtengo la instancia del manejador de curso y del instituto
+
         if (mc.buscarCurso(cursoNom) != null) {
             throw new IllegalArgumentException("El curso '" + cursoNom + "' ya existe.");
         }
-        //Verifico que el curso ingresado no exista en los cursos ingresados.
+
         Instituto inst = mi.buscarInstituto(nomInst);
         if (inst == null) {
             throw new IllegalArgumentException("El instituto '" + nomInst + "' no existe.");
         }
-        //Crea un curso nuevo con los datos ingresado
+
         Curso curso = new Curso(inst, cursoNom, desc, dur, cantHoras, creditos, url, fecha);
 
         if (previas != null && !previas.isEmpty()) {
@@ -44,9 +45,8 @@ public class ControladorCurso implements IControladorCurso {
     }
 
     @Override
-    public List<String> listarCursosPorInstituto(String nomInst) 
-    {
-        ManejadorCurso mc = ManejadorCurso.getInstancia(); // Obtengo la instancia del manejador de curso
+    public List<String> listarCursosPorInstituto(String nomInst) {
+        ManejadorCurso mc = ManejadorCurso.getInstancia();
         List<Curso> cursos = mc.listarCursosPorInstituto(nomInst);
         List<String> nombres = new ArrayList<>();
         for (Curso c : cursos) {
@@ -56,25 +56,40 @@ public class ControladorCurso implements IControladorCurso {
     }
 
     @Override
-    public DtCurso consultarCurso(String nombreCurso) //Consultar cursos 
-    {
-        //Obtengo las instancias de manejador curso y llamo a la funcion buscarCurso del manejador.
+    public DtCurso consultarCurso(String nombreCurso) {
         ManejadorCurso mc = ManejadorCurso.getInstancia();
         Curso curso = mc.buscarCurso(nombreCurso);
-        //Si no encuentro un curso, tiro una excepcion que me dice que el curso NO existe                                            
+
         if (curso == null) {
             throw new IllegalArgumentException("El curso '" + nombreCurso + "' no existe.");
         }
-        // Si el curso existe, en caso de tener listo las previas del mismo.
+
+        // 1. Obtener nombres de las previas
         List<String> nomPrevias = new ArrayList<>();
-        for (Curso previa : curso.getPrevias()) {
-            nomPrevias.add(previa.getNombre());
+        if (curso.getPrevias() != null) {
+            for (Curso previa : curso.getPrevias()) {
+                nomPrevias.add(previa.getNombre());
+            }
         }
 
-        // MOCK de ediciones y programas para testeo.
-        List<String> edicionesMock = List.of("Edicion 2026-1", "Edicion 2026-2");
-        List<String> programasMock = List.of("Programa Desarrollo Web");
-        //Retorno un Datatype de Curso con los datos del curso solicitado
+        // 2. Obtener nombres de las EDICIONES REALES desde la entidad Curso
+        List<String> nomEdiciones = new ArrayList<>();
+        if (curso.getEdiciones() != null) {
+            for (EdicionCurso edicion : curso.getEdiciones()) {
+                nomEdiciones.add(edicion.getNombre());
+            }
+        }
+
+        // 3. Obtener nombres de los PROGRAMAS (Descomentar si agregás la relación en la entidad Curso)
+        List<String> nomProgramas = new ArrayList<>();
+        /*
+        if (curso.getProgramas() != null) {
+            for (ProgramaFormacion pf : curso.getProgramas()) {
+                nomProgramas.add(pf.getNombre());
+            }
+        }
+        */
+
         return new DtCurso(
                 curso.getNombre(),
                 curso.getInstituto().getNombre(),
@@ -85,14 +100,13 @@ public class ControladorCurso implements IControladorCurso {
                 curso.getUrl(),
                 curso.getFecha(),
                 nomPrevias,
-                edicionesMock,
-                programasMock
+                nomEdiciones,
+                nomProgramas
         );
     }
-    
+
     @Override
-    public List<String> listarCursos() //Lista de cursos segun su nombre
-    {
+    public List<String> listarCursos() {
         ManejadorCurso mc = ManejadorCurso.getInstancia();
         List<Curso> cursos = mc.listarCursos();
         List<String> nombres = new ArrayList<>();
@@ -100,5 +114,19 @@ public class ControladorCurso implements IControladorCurso {
             nombres.add(c.getNombre());
         }
         return nombres;
+    }
+    
+    @Override
+    public String obtenerEdicionVigente(String nombreCurso, LocalDate fechaReferencia) throws Exception {
+        ManejadorCurso mc = ManejadorCurso.getInstancia();
+        Curso curso = mc.buscarCurso(nombreCurso);
+
+        if (curso == null) {
+            throw new Exception("El curso " + nombreCurso + " no existe.");
+        }
+
+        EdicionCurso edicionVigente = curso.obtenerProximaEdicion(fechaReferencia);
+
+        return (edicionVigente != null) ? edicionVigente.getNombre() : "";
     }
 }

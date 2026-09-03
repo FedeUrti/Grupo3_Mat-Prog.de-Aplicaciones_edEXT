@@ -10,16 +10,12 @@ import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import javax.swing.*;
 import java.util.List;
-import java.time.*;
-import java.util.Date;
 /**
  *
  * @author benja
  */
-public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
+public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ConsultaEdicionCursoFrame.class.getName());
-
     private IControladorInstituto icInstituto;
     private IControladorCurso icCurso;
     private IControladorEdicion icEdicion;
@@ -44,25 +40,28 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
         cargarInstitutos();
     }
     
-    //Para invocar desde consulta curso
+    // Para invocar desde consulta curso
     public ConsultaEdicionCursoFrame(String nombreInstituto, String nombreCurso, String nombreEdicion) {
-        this(); // Reutiliza la inicialización completa y carga inicial
+        this(); // Inicializa componentes y carga la lista de institutos
 
-        // Aplica la selección bloqueando eventos para que no se llamen en bucle
+        // Desactivar listeners para que no se disparen eventos en cadena durante la carga
         cmbInstitutos.removeActionListener(this::cmbInstitutosActionPerformed);
         cmbCursos.removeActionListener(this::cmbCursosActionPerformed);
         cmbEdiciones.removeActionListener(this::cmbEdicionesActionPerformed);
 
+        // 1. Seleccionar instituto y cargar sus cursos
         cmbInstitutos.setSelectedItem(nombreInstituto);
-        alSeleccionarInstituto(); // Poblar cursos del instituto
-        
-        cmbCursos.setSelectedItem(nombreCurso);
-        alSeleccionarCurso(); // Poblar ediciones del curso
-        
-        cmbEdiciones.setSelectedItem(nombreEdicion);
-        alSeleccionarEdicion(); // Muestra el detalle
+        alSeleccionarInstituto();
 
-        // Volver a poner los listeners
+        // 2. Seleccionar curso y cargar sus ediciones
+        cmbCursos.setSelectedItem(nombreCurso);
+        alSeleccionarCurso();
+
+        // 3. Seleccionar edición y cargar detalle
+        cmbEdiciones.setSelectedItem(nombreEdicion);
+        alSeleccionarEdicion();
+
+        // Reactivar listeners para la interacción del usuario
         cmbInstitutos.addActionListener(this::cmbInstitutosActionPerformed);
         cmbCursos.addActionListener(this::cmbCursosActionPerformed);
         cmbEdiciones.addActionListener(this::cmbEdicionesActionPerformed);
@@ -82,6 +81,8 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
         
         cmbInstitutos.setSelectedIndex(-1); // Inicia sin selección si se prefiere
         cmbInstitutos.addActionListener(this::cmbInstitutosActionPerformed);
+        cmbCursos.setEnabled(false);
+        cmbEdiciones.setEnabled(false);
         limpiarCampos();
     }
 
@@ -90,8 +91,9 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
         cmbCursos.removeActionListener(this::cmbCursosActionPerformed);
         cmbCursos.removeAllItems();
         limpiarCampos();
-    
+
         String instSeleccionado = (String) cmbInstitutos.getSelectedItem();
+    
         if (instSeleccionado != null) {
             List<String> cursos = icCurso.listarCursosPorInstituto(instSeleccionado);
             if (cursos != null) {
@@ -99,8 +101,16 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
                     cmbCursos.addItem(c);
                 }
             }
+            cmbCursos.setSelectedIndex(-1);
+            cmbCursos.setEnabled(true); // <--- Habilitamos si hay selección
+        } else {
+            cmbCursos.setEnabled(false); // <--- Si no hay instituto, deshabilitamos
         }
-        cmbCursos.setSelectedIndex(-1);
+
+        // Como cambió el instituto, el combo de ediciones debe quedar deshabilitado y limpio
+        cmbEdiciones.removeAllItems();
+        cmbEdiciones.setEnabled(false);
+
         cmbCursos.addActionListener(this::cmbCursosActionPerformed);
     }
 
@@ -111,6 +121,7 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
         limpiarCampos();
 
         String cursoSeleccionado = (String) cmbCursos.getSelectedItem();
+    
         if (cursoSeleccionado != null) {
             List<String> ediciones = icEdicion.listarEdicionesPorCurso(cursoSeleccionado);
             if (ediciones != null) {
@@ -118,8 +129,12 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
                     cmbEdiciones.addItem(ed);
                 }
             }
+            cmbEdiciones.setSelectedIndex(-1);
+            cmbEdiciones.setEnabled(true); // <--- Habilitamos si hay selección
+        } else {
+            cmbEdiciones.setEnabled(false); // <--- Si no hay curso, deshabilitamos
         }
-        cmbEdiciones.setSelectedIndex(-1);
+
         cmbEdiciones.addActionListener(this::cmbEdicionesActionPerformed);
     }
 
@@ -128,9 +143,8 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
         limpiarCampos();
 
         String nombreEdicion = (String) cmbEdiciones.getSelectedItem();
-        String nombreCurso = (String) cmbCursos.getSelectedItem();
 
-        if (nombreEdicion != null && nombreCurso != null) {
+        if (nombreEdicion != null) {
             DTEdicionCurso dt = icEdicion.mostrarDetalleEdicion(nombreEdicion);
 
             if (dt != null) {
@@ -142,7 +156,7 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
                 if (dt.getCupo() > 0) {
                     txtCupo.setText(String.valueOf(dt.getCupo()));
                 } else {
-                    txtCupo.setText("Sin cupo");
+                    txtCupo.setText("Sin límite de cupo.");
                 }
 
                 listModelDocentes.clear();
@@ -195,7 +209,7 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
         txtCupo = new javax.swing.JTextField();
         btnCerrar = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Consulta de Edición de Curso");
         setResizable(false);
 
@@ -226,11 +240,6 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
 
         labelDocentes.setText("Docentes:");
 
-        listDocentes.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         jScrollPane1.setViewportView(listDocentes);
 
         txtNombreEdicion.setEditable(false);
@@ -341,7 +350,7 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
                         .addComponent(labelDocentes)))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
                 .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26))
         );
@@ -364,31 +373,6 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JFrame {
     private void cmbCursosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCursosActionPerformed
         alSeleccionarCurso();
     }//GEN-LAST:event_cmbCursosActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new ConsultaEdicionCursoFrame().setVisible(true));
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCerrar;

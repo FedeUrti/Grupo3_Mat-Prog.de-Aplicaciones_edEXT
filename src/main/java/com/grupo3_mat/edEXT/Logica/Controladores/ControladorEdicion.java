@@ -3,7 +3,10 @@ package com.grupo3_mat.edEXT.Logica.Controladores;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
+import com.grupo3_mat.edEXT.Logica.Clases.Usuario;
 import com.grupo3_mat.edEXT.Logica.Clases.Docente;
+import com.grupo3_mat.edEXT.Logica.Clases.Estudiante;
+import com.grupo3_mat.edEXT.Logica.Clases.InscripcionEC;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorEdicion;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorUsuario;
@@ -101,14 +104,39 @@ public class ControladorEdicion implements IControladorEdicion {
             nombresDocentes
         );
     }
-
-    @Override
-    public void mostrarEdicionVigente() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
     
     @Override
-    public void inscribirEdicionCurso() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion) throws Exception {
+        // Obtener y validar el estudiante
+        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
+        Usuario usr = mu.buscarUsuarioPorNickname(nicknameEstudiante);
+
+        if (usr == null || !(usr instanceof Estudiante)) {
+            throw new Exception("El usuario " + nicknameEstudiante + " no existe o no es un estudiante.");
+        }
+        Estudiante estudiante = (Estudiante) usr;
+
+        // Obtener la edición del curso
+        ManejadorEdicion me = ManejadorEdicion.getInstancia();
+        EdicionCurso edicion = me.buscarEdicion(nombreEdicion);
+
+        if (edicion == null) {
+            throw new Exception("La edición " + nombreEdicion + " no existe.");
+        }
+
+        // Validar si el estudiante ya está inscrito a la edición
+        if (edicion.estaInscripto(estudiante.getNickname())) {
+            throw new Exception("El estudiante ya se encuentra inscripto a esta edición.");
+        }
+
+        // Crear la clase de asociación InscripcionEC
+        InscripcionEC inscripcion = new InscripcionEC(estudiante, edicion, fechaInscripcion);
+
+        // Vincular la inscripción con ambos lados de la relación
+        estudiante.agregarInscripcion(inscripcion);
+        edicion.agregarInscripcion(inscripcion);
+
+        // PERSISTIR CAMBIOS EN LA BASE DE DATOS
+        mu.modificarUsuario(estudiante);
     }
 }
