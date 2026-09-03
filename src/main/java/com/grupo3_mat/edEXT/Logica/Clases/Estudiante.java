@@ -9,9 +9,9 @@ import java.util.Map;
 @Table(name = "Estudiante")
 public class Estudiante extends Usuario {
 
-    @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @MapKey(name = "id.edicionNombre")
-    private Map<String, InscripcionEC> inscripciones;
+    private Map<String, InscripcionEC> inscripciones = new HashMap<>();
 
     // Constructor vacío requerido por JPA
     public Estudiante() {

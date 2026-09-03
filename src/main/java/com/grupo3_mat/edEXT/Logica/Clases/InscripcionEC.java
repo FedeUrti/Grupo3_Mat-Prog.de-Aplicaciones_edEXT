@@ -31,7 +31,8 @@ public class InscripcionEC {
         this.estudiante = estudiante;
         this.edicion = edicion;
         this.fechaInscripcion = fechaInscripcion;
-        //this.id = new InscripcionID(estudiante.getNickname(), edicion.getNombre());
+        // Asignar explícitamente la clave compuesta
+        this.id = new InscripcionECId(edicion.getNombre(), estudiante.getNickname());
     }
 
     // Getters

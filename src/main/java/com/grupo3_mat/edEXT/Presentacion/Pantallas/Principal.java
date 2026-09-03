@@ -11,6 +11,7 @@ import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaUsuarioFra
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaUsuarioFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaCursoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaEdicionCursoFrame;
+import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.InscripcionEdicionCursoFrame;
 
 /**
  *
@@ -50,7 +51,7 @@ public class Principal extends javax.swing.JFrame {
         jMenu4 = new javax.swing.JMenu();
         AltaECmenuItem = new javax.swing.JMenuItem();
         consultaECmenuItem = new javax.swing.JMenuItem();
-        jMenuItem12 = new javax.swing.JMenuItem();
+        InscripcionECmenuItem = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -106,8 +107,9 @@ public class Principal extends javax.swing.JFrame {
         consultaECmenuItem.addActionListener(this::consultaECmenuItemActionPerformed);
         jMenu4.add(consultaECmenuItem);
 
-        jMenuItem12.setText("Inscripción a edición");
-        jMenu4.add(jMenuItem12);
+        InscripcionECmenuItem.setText("Inscripción a edición");
+        InscripcionECmenuItem.addActionListener(this::InscripcionECmenuItemActionPerformed);
+        jMenu4.add(InscripcionECmenuItem);
 
         jMenu2.add(jMenu4);
 
@@ -292,6 +294,27 @@ public class Principal extends javax.swing.JFrame {
         desktopPane.repaint();
     }//GEN-LAST:event_consultaECmenuItemActionPerformed
 
+    private void InscripcionECmenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InscripcionECmenuItemActionPerformed
+        // TODO add your handling code here:
+        // TODO add your handling code here:
+        // TODO add your handling code here:
+        InscripcionEdicionCursoFrame frame = new InscripcionEdicionCursoFrame();
+        frame.setResizable(false);
+        frame.setClosable(true);
+        frame.setIconifiable(true);
+        desktopPane.add(frame);
+        frame.setVisible(true);
+
+        try {
+            frame.setMaximum(false);
+        } catch (java.beans.PropertyVetoException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
+
+        desktopPane.revalidate();
+        desktopPane.repaint();
+    }//GEN-LAST:event_InscripcionECmenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -322,6 +345,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem AltaECmenuItem;
     private javax.swing.JMenuItem AltaInstitutoMenuItem;
     private javax.swing.JMenuItem ConsultaCursoMenuItem;
+    private javax.swing.JMenuItem InscripcionECmenuItem;
     private javax.swing.JMenuItem altaUsuarioMenuItem;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JMenuItem consultaECmenuItem;
@@ -334,7 +358,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem12;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem modificarDatosUsuarioMenuItem;
