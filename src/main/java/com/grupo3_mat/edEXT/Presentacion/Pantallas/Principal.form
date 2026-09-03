@@ -76,10 +76,13 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="consultaECmenuItemActionPerformed"/>
                   </Events>
                 </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem12">
+                <MenuItem class="javax.swing.JMenuItem" name="InscripcionECmenuItem">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Inscripci&#xf3;n a edici&#xf3;n"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="InscripcionECmenuItemActionPerformed"/>
+                  </Events>
                 </MenuItem>
               </SubComponents>
             </Menu>

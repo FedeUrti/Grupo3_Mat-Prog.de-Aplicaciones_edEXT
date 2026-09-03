@@ -32,9 +32,9 @@ public class EdicionCurso {
     )
     private List<Docente> docentes = new ArrayList<>();
     
-    @OneToMany(mappedBy = "edicion", cascade = CascadeType.ALL, orphanRemoval = true)
-    @MapKey(name = "id.estudianteNickname") // <-- Usar "id.estudianteNickname" en lugar de "estudiante.nickname"
-    private Map<String, InscripcionEC> inscripciones;
+    @OneToMany(mappedBy = "edicion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @MapKey(name = "id.estudianteNickname")
+    private Map<String, InscripcionEC> inscripciones = new HashMap<>(); // <-- Agregar = new HashMap<>()
     
     private LocalDate fechaInicio;
     
