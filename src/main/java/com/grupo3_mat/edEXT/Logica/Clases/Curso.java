@@ -29,9 +29,12 @@ public class Curso {
     @OneToMany(
             mappedBy = "curso",
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
     )
-    private List<EdicionCurso> ediciones = new ArrayList<>();
+    private List<EdicionCurso> ediciones = new ArrayList();
+    @ManyToMany(mappedBy = "cursos", fetch = FetchType.EAGER)
+    private List<ProgramaFormacion> programas = new ArrayList<>();
     
     public Curso() {}
 
@@ -60,5 +63,27 @@ public class Curso {
     
     public void agregarEdicion(EdicionCurso edicion) {
         this.ediciones.add(edicion);
+    }
+    
+    public EdicionCurso obtenerProximaEdicion(LocalDate fechaRef) {
+        if (this.ediciones == null || this.ediciones.isEmpty() || fechaRef == null) {
+            return null;
+        }
+        
+        EdicionCurso proximaEdicion = null;
+        for (EdicionCurso ed : this.ediciones) {
+            LocalDate fechaInicioEd = ed.getFechaInicio();
+
+            // Verificar que la edición empiece en o después de la fecha de referencia
+            if (fechaInicioEd != null && !fechaInicioEd.isBefore(fechaRef)) {
+            
+                // Si es la primera edición futura encontrada o si su fecha de inicio 
+                // es más cercana/inmediata que la registrada previamente
+                if (proximaEdicion == null || fechaInicioEd.isBefore(proximaEdicion.getFechaInicio())) {
+                    proximaEdicion = ed;
+                }
+            }
+        }
+        return proximaEdicion;
     }
 }

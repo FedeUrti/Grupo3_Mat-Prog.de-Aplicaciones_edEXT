@@ -5,6 +5,8 @@
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import java.util.List;
 import java.awt.Image;
 import java.util.Date;
 import javax.swing.JOptionPane;
@@ -26,8 +28,24 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
      */
     public AltaUsuarioFrame() {
         initComponents();
+        cargarInstitutos();
     }
+    private void cargarInstitutos() {
+        cbInstituto.removeAllItems();
+        cbInstituto.addItem("Seleccionar Instituto");
 
+        try {
+            Fabrica fabrica = Fabrica.getInstance();
+            IControladorInstituto ici = fabrica.getIControladorInstituto();
+            List<String> institutos = ici.listarInstitutos();
+
+            for (String inst : institutos) {
+                cbInstituto.addItem(inst);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los institutos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -234,7 +252,8 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_rbDocenteActionPerformed
 
     private void rbEstudianteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbEstudianteActionPerformed
-    cbInstituto.setEnabled(false);
+        cbInstituto.setEnabled(false);
+        cbInstituto.setSelectedIndex(0);
     }//GEN-LAST:event_rbEstudianteActionPerformed
 
     private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed

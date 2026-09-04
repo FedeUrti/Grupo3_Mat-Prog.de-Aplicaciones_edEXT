@@ -59,6 +59,7 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
         listCursos = new javax.swing.JList<>();
         btnCerrar = new javax.swing.JButton();
 
+        setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
@@ -77,6 +78,11 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel2.setText("Cursos del Programa:");
 
+        listCursos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                listCursosMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(listCursos);
 
         btnCerrar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -155,6 +161,23 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
         this.dispose();
     }//GEN-LAST:event_btnCerrarActionPerformed
+
+    private void listCursosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listCursosMouseClicked
+        if (evt.getClickCount() == 1) {
+            String cursoSeleccionado = listCursos.getSelectedValue();
+            
+            if(cursoSeleccionado != null) {
+                try {
+                    ConsultaCursoFrame consultaCurso = new ConsultaCursoFrame();
+                    this.getDesktopPane().add(consultaCurso);
+                    consultaCurso.setVisible(true);
+                    consultaCurso.toFront();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error al abrir la consulta del curso: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } 
+    }//GEN-LAST:event_listCursosMouseClicked
 
     void cargarDatosPrograma(String programaSeleccionado) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
