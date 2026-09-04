@@ -3,25 +3,32 @@ package com.grupo3_mat.edEXT.Logica.Clases;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToMany;
+import java.io.Serializable;
+import jakarta.persistence.*;
 
-/**
- *
- * @author ssant
- */
 @Entity
 @Table(name = "ProgramaFormacion")
 public class ProgramaFormacion {
     @Id
     private String nombre;
     private String descripcion;
+    
+    @Temporal(TemporalType.DATE)
     private Date fechaInicio;
+    
+    @Temporal(TemporalType.DATE)
     private Date fechaFin;
+    
+    @Temporal(TemporalType.DATE)
     private Date fechaAlta;
-    @ManyToMany
+    
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+        name = "programa_curso", // Nombre de la tabla intermedia en MySQL
+        joinColumns = @JoinColumn(name = "programa_nombre"), // Columna para la FK de programa
+        inverseJoinColumns = @JoinColumn(name = "curso_nombre") // Columna para la FK de curso
+    )
+    
     private Map<String, Curso> cursos;
     
     public ProgramaFormacion(String nombre, String descripcion, Date fechaInicio, Date fechaFin, Date fechaAlta){

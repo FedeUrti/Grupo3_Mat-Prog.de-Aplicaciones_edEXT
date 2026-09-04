@@ -4,11 +4,14 @@
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas;
 
+import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AgregarCursoAProgramaFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaCursoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaInstitutoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaUsuarioFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaUsuarioFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaCursoFrame;
+import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaDeProgramaFrame;
+import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.CrearProgramaFrame;
 
 /**
  *
@@ -110,12 +113,15 @@ public class Principal extends javax.swing.JFrame {
         jMenu5.setText("Programas");
 
         jMenuItem1.setText("Crear Programa");
+        jMenuItem1.addActionListener(this::CrearProgramaMenuItemActionPerformed);
         jMenu5.add(jMenuItem1);
 
         jMenuItem4.setText("Agregar Curso a Programa");
+        jMenuItem4.addActionListener(this::AgregarCursoAProgramaMenuItemActionPerformed);
         jMenu5.add(jMenuItem4);
 
         jMenuItem5.setText("Consulta de Programa");
+        jMenuItem5.addActionListener(this::ConsultaDeProgramaMenuItemActionPerformed);
         jMenu5.add(jMenuItem5);
 
         jMenu2.add(jMenu5);
@@ -247,6 +253,24 @@ public class Principal extends javax.swing.JFrame {
         desktopPane.repaint();
 
     }//GEN-LAST:event_ConsultaCursoMenuItemActionPerformed
+
+    private void CrearProgramaMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CrearProgramaMenuItemActionPerformed
+        CrearProgramaFrame frame = new CrearProgramaFrame();
+        desktopPane.add(frame);
+        frame.setVisible(true);
+    }//GEN-LAST:event_CrearProgramaMenuItemActionPerformed
+
+    private void AgregarCursoAProgramaMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AgregarCursoAProgramaMenuItemActionPerformed
+        AgregarCursoAProgramaFrame frame = new AgregarCursoAProgramaFrame();
+        desktopPane.add(frame);
+        frame.setVisible(true);
+    }//GEN-LAST:event_AgregarCursoAProgramaMenuItemActionPerformed
+
+    private void ConsultaDeProgramaMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConsultaDeProgramaMenuItemActionPerformed
+        ConsultaDeProgramaFrame frame = new ConsultaDeProgramaFrame();
+        desktopPane.add(frame);
+        frame.setVisible(true);
+    }//GEN-LAST:event_ConsultaDeProgramaMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
