@@ -4,6 +4,14 @@
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
+import com.grupo3_mat.edEXT.Logica.Clases.Curso;
+import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
+import java.util.List;
+import javax.swing.*;
+
 /**
  *
  * @author fede1
@@ -12,10 +20,42 @@ public class AgregarCursoAProgramaFrame extends javax.swing.JInternalFrame {
 
     /**
      * Creates new form AgregarCursoAProgramaFrame
+     * @throws java.lang.Exception
      */
     public AgregarCursoAProgramaFrame() {
         initComponents();
+        
+        try {
+        cargarDatos();
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al inicializar la pantalla: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }
+    
+private void cargarDatos() throws Exception {
+    try {
+        // Limpia items previos
+        cmbProgramas.removeAllItems();
+        cmbCursos.removeAllItems();
+        
+        // 1. Cargar lista de progrmas desde el Conrolador
+        IControladorProgramaFormacion icpf = Fabrica.getInstance().getIControladorProgramaFormacion();
+        List<ProgramaFormacion> programas = icpf.listarProgramas();
+        for (ProgramaFormacion p : programas) {
+            cmbProgramas.addItem(p.getNombre());
+        }
+        
+        // 2. Cargar lista de cursos desde el Controlador de cursos
+        IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+        List<String> cursos = icc.listarCursos();
+        for (String nombreCurso : cursos) {
+            cmbCursos.addItem(nombreCurso);
+        }
+        
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error al cargar las listas: " + ex.getMessage(), "Error de carga", JOptionPane.ERROR_MESSAGE);
+    }
+} 
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -26,21 +66,123 @@ public class AgregarCursoAProgramaFrame extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        cmbProgramas = new javax.swing.JComboBox<>();
+        jLabel3 = new javax.swing.JLabel();
+        cmbCursos = new javax.swing.JComboBox<>();
+        btnAceptar = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
+
+        setClosable(true);
+        setIconifiable(true);
+        setMaximizable(true);
+        setResizable(true);
+        setTitle("Agregar Curso a Programa");
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel1.setText("Seleccione el programa y curso a asociar:");
+
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel2.setText("Programa:");
+
+        cmbProgramas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel3.setText("Curso:");
+
+        btnAceptar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnAceptar.setText("Aceptar");
+        btnAceptar.addActionListener(this::btnAceptarActionPerformed);
+
+        btnCancelar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(this::btnCancelarActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 394, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(146, 146, 146))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cmbProgramas, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(34, 34, 34)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cmbCursos, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 274, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(jLabel1)
+                .addGap(21, 21, 21)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(cmbProgramas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(cmbCursos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(38, 38, 38)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(42, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
+        try {
+            String nombrePrograma = (String) cmbProgramas.getSelectedItem();
+            String nombreCurso = (String) cmbCursos.getSelectedItem();
+            
+            //Validar la selección
+            if(nombrePrograma == null || nombreCurso == null) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un programa y un curso.", "Selección inválida", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            //Invocar el controlador para persistir en la tabla intermedia
+            IControladorProgramaFormacion icpf = Fabrica.getInstance().getIControladorProgramaFormacion();
+            icpf.agregarCursoAPrograma(nombrePrograma, nombreCurso);
+            
+            //Notificación de exito
+            JOptionPane.showMessageDialog(this, "El curso '" + nombreCurso + "' fue agregado con éxito al programa '" + nombrePrograma + "'.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose();
+            
+        } catch (Exception ex) {
+            //Captura excepcions (por ejemplo si el curso ya pertenece al programa)
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error al asociar.", JOptionPane.ERROR_MESSAGE);
+        } 
+            
+    }//GEN-LAST:event_btnAceptarActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAceptar;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JComboBox<String> cmbCursos;
+    private javax.swing.JComboBox<String> cmbProgramas;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     // End of variables declaration//GEN-END:variables
 }

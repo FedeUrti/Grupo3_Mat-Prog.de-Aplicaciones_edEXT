@@ -3,6 +3,7 @@ package com.grupo3_mat.edEXT.Logica.Controladores;
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
 import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
+import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
@@ -56,52 +57,51 @@ public class ControladorCurso implements IControladorCurso {
     }
 
     @Override
-    public DtCurso consultarCurso(String nombreCurso) {
+    public DtCurso consultarCurso(String nombreCurso) throws Exception {
         ManejadorCurso mc = ManejadorCurso.getInstancia();
         Curso curso = mc.buscarCurso(nombreCurso);
 
         if (curso == null) {
-            throw new IllegalArgumentException("El curso '" + nombreCurso + "' no existe.");
+            throw new Exception("No existe el curso especificado.");
         }
 
-        // 1. Obtener nombres de las previas
-        List<String> nomPrevias = new ArrayList<>();
-        if (curso.getPrevias() != null) {
-            for (Curso previa : curso.getPrevias()) {
-                nomPrevias.add(previa.getNombre());
-            }
-        }
-
-        // 2. Obtener nombres de las EDICIONES REALES desde la entidad Curso
-        List<String> nomEdiciones = new ArrayList<>();
+        // 1. Obtener nombres de las ediciones
+        List<String> ediciones = new ArrayList<>();
         if (curso.getEdiciones() != null) {
-            for (EdicionCurso edicion : curso.getEdiciones()) {
-                nomEdiciones.add(edicion.getNombre());
+            for (EdicionCurso ed : curso.getEdiciones()) {
+                ediciones.add(ed.getNombre());
             }
         }
 
-        // 3. Obtener nombres de los PROGRAMAS (Descomentar si agregás la relación en la entidad Curso)
-        List<String> nomProgramas = new ArrayList<>();
-        /*
+        // 2. Obtener nombres de los programas de formación asociados
+        List<String> programas = new ArrayList<>();
         if (curso.getProgramas() != null) {
             for (ProgramaFormacion pf : curso.getProgramas()) {
-                nomProgramas.add(pf.getNombre());
+                programas.add(pf.getNombre());
             }
         }
-        */
 
+        // 3. Obtener nombres de las previas
+        List<String> previas = new ArrayList<>();
+        if (curso.getPrevias() != null) {
+            for (Curso p : curso.getPrevias()) {
+                previas.add(p.getNombre());
+            }
+        }
+
+        // 4. Retornar el DtCurso con todos sus datos sincronizados
         return new DtCurso(
                 curso.getNombre(),
-                curso.getInstituto().getNombre(),
                 curso.getDescripcion(),
                 curso.getDuracion(),
                 curso.getCantHoras(),
                 curso.getCreditos(),
                 curso.getUrl(),
                 curso.getFecha(),
-                nomPrevias,
-                nomEdiciones,
-                nomProgramas
+                curso.getInstituto() != null ? curso.getInstituto().getNombre() : "",
+                previas,
+                ediciones,
+                programas
         );
     }
 
