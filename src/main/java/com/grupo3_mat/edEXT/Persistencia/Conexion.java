@@ -10,7 +10,7 @@ public class Conexion {
     private static EntityManagerFactory emf = null;
 
     private Conexion() {
-        emf = Persistence.createEntityManagerFactory("edEXTPU");
+        emf = Persistence.createEntityManagerFactory("edEXT_PU");
     }
 
     public static Conexion getInstancia() {

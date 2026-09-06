@@ -8,86 +8,59 @@ import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorProgramaFormacion;
 import java.util.Date;
 import java.util.List;
 
-/**
- *
- * @author ssant
- */
 public class ControladorProgramaFormacion implements IControladorProgramaFormacion {
     
     @Override
     public void crearProgramaFormacion(String nombre, String descripcion, Date fechaInicio, Date fechaFin, Date fechaAlta) throws Exception {
-    ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();
-    
-    //1. Validar que no exista un programa con e mismo nombre
-    if (mpf.buscarPrograma(nombre) != null) {
-        throw new Exception("Ya existe un programa de formación con el nombre: " + nombre);
+        ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();
+        
+        // 1. Validar que no exista un programa con el mismo nombre
+        if (mpf.buscarPrograma(nombre) != null) {
+            throw new Exception("Ya existe un programa de formación con el nombre: " + nombre);
+        }
+        
+        // 2. Instanciar la entidad
+        ProgramaFormacion pf = new ProgramaFormacion(nombre, descripcion, fechaInicio, fechaFin, fechaAlta);
+        
+        // 3. Permitir que el manejador lo persista
+        mpf.agregarPrograma(pf);
     }
-    
-    //2. Instanciar la entidad
-    ProgramaFormacion pf = new ProgramaFormacion(nombre, descripcion, fechaInicio, fechaFin, fechaAlta);
-    
-    
-    //3. Permitir que el manejador lo persista
-    mpf.agregarPrograma(pf);
-}
 
-    
     @Override
     public void agregarCursoAPrograma(String nombrePrograma, String nombreCurso) throws Exception {   
         ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();
-        ManejadorCurso mc = ManejadorCurso.getInstancia();
-        
-        //1. Verificar que el programa existe
-        ProgramaFormacion pf = mpf.buscarPrograma(nombrePrograma);
-        if (pf == null) {
-            throw new Exception("No existe el programa de formación ingresado.");
-        }
-        
-        //2.  Verificar que el curso existe
-        Curso c = mc.buscarCurso(nombreCurso);
-        if(c == null) {
-            throw new Exception("No existe el curso ingresado.");
-        }
-        
-        //3. Asocio el curso al programa
-        pf.agregarCurso(c);
-        
-        //4. Actualizo el estado en la BD
-        mpf.modificarPrograma(pf);
+        // Delegamos la asociación completa al manejador para que se ejecute en una sola transacción
+        mpf.agregarCursoAPrograma(nombrePrograma, nombreCurso);
     }
 
-    //Devuelve la lista completa de programas registrados en el sistema
+    // Devuelve la lista completa de programas registrados en el sistema
     @Override
     public List<ProgramaFormacion> listarProgramas() throws Exception {
         ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();
         return mpf.getProgramas(); 
     }
 
-    //Busca y devuelve un programa por su nombre
+    // Busca y devuelve un programa por su nombre
     @Override
     public ProgramaFormacion seleccionarPrograma(String nombre) throws Exception {
         ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();
         ProgramaFormacion pf = mpf.buscarPrograma(nombre);
         
-        //Si no encuentra el programa, tira error
-        if(pf == null) {
+        if (pf == null) {
             throw new Exception("El programa de formación seleccionado no existe.");
         }
         return pf;        
     }
 
-    
-    //Busca los datos de un curso especifico por su nombre
+    // Busca los datos de un curso específico por su nombre
     @Override
     public Curso seleccionarCurso(String nombreCurso) throws Exception {
         ManejadorCurso mc = ManejadorCurso.getInstancia();
         Curso c = mc.buscarCurso(nombreCurso);
         
-        //Si no existe el curso, avisa con una excepcion 
-        if( c == null) {
+        if (c == null) {
             throw new Exception("El curso seleccionado no existe.");
         }
         return c;
     }
-    
 }

@@ -161,15 +161,13 @@ public class Principal extends javax.swing.JFrame {
     private void AltaCursoMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AltaCursoMenuItemActionPerformed
         // TODO add your handling code here:
         AltaCursoFrame frame = new AltaCursoFrame();
-        frame.setResizable(true);
         frame.setClosable(true);
-        frame.setMaximizable(true);
         frame.setIconifiable(true);
         desktopPane.add(frame);
         frame.setVisible(true);
 
         try {
-            frame.setMaximum(true);
+            frame.setMaximum(false);
         } catch (java.beans.PropertyVetoException ex) {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
@@ -181,9 +179,7 @@ public class Principal extends javax.swing.JFrame {
     private void altaUsuarioMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_altaUsuarioMenuItemActionPerformed
         // TODO add your handling code here:
         AltaUsuarioFrame frame = new AltaUsuarioFrame();
-        frame.setResizable(true);
         frame.setClosable(true);
-        frame.setMaximizable(true);
         frame.setIconifiable(true);
         desktopPane.add(frame);
         frame.setVisible(true);

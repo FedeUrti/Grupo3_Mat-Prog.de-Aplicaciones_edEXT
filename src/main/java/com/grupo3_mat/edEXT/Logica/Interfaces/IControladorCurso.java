@@ -7,7 +7,7 @@ import java.util.List;
 public interface IControladorCurso {
     void altaCurso(String nomInst, String cursoNom, String desc, int dur, int cantHoras, int creditos, String url, LocalDate fecha, List<String> previas);
     List<String> listarCursosPorInstituto(String nomInst);
-    DtCurso consultarCurso(String nombreCurso);
+    DtCurso consultarCurso(String nombreCurso) throws Exception;
     List<String> listarCursos();
     String obtenerEdicionVigente(String nombreCurso, LocalDate fechaReferencia) throws Exception;
 }

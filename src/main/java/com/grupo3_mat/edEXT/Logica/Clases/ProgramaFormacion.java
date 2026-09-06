@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "ProgramaFormacion")
-public class ProgramaFormacion {
+public class ProgramaFormacion implements Serializable {
     @Id
     private String nombre;
     private String descripcion;
@@ -21,16 +21,19 @@ public class ProgramaFormacion {
     
     @Temporal(TemporalType.DATE)
     private Date fechaAlta;
-    
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+
+// Quitamos PERSIST para evitar conflictos de claves duplicadas en la BD
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(
-        name = "programa_curso", // Nombre de la tabla intermedia en MySQL
-        joinColumns = @JoinColumn(name = "programa_nombre"), // Columna para la FK de programa
-        inverseJoinColumns = @JoinColumn(name = "curso_nombre") // Columna para la FK de curso
+            name = "programa_curso",
+            joinColumns = @JoinColumn(name = "programa_nombre"),
+            inverseJoinColumns = @JoinColumn(name = "curso_nombre")
     )
-    
-    private Map<String, Curso> cursos;
-    
+    @MapKey(name = "nombre")
+    private Map<String, Curso> cursos = new HashMap<>();
+
+    public ProgramaFormacion(){}
+
     public ProgramaFormacion(String nombre, String descripcion, Date fechaInicio, Date fechaFin, Date fechaAlta){
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -44,7 +47,6 @@ public class ProgramaFormacion {
         this.cursos.put(c.getNombre(), c);
     }
 
-    
     public String getNombre() {
         return nombre;
     }
@@ -92,5 +94,4 @@ public class ProgramaFormacion {
     public void setCursos(Map<String, Curso> cursos) {
         this.cursos = cursos;
     }
-    
 }
