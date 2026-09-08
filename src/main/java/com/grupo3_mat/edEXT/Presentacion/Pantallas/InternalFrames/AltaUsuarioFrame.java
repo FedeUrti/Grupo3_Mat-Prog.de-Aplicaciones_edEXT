@@ -238,11 +238,29 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
 
     private void rbDocenteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbDocenteActionPerformed
     cbInstituto.setEnabled(true);
+
+        // Si no ha subido una imagen personalizada, carga el placeholder de Docente
+        if (this.imagenPath == null || this.imagenPath.trim().isEmpty()) {
+            com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes.cargarImagenEnLabel(
+                    null,
+                    lblFotoPerfil,
+                    true // esDocente = true
+            );
+        }
     }//GEN-LAST:event_rbDocenteActionPerformed
 
     private void rbEstudianteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbEstudianteActionPerformed
         cbInstituto.setEnabled(false);
         cbInstituto.setSelectedIndex(0);
+
+        // Si no ha subido una imagen personalizada, carga el placeholder de Estudiante
+        if (this.imagenPath == null || this.imagenPath.trim().isEmpty()) {
+            com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes.cargarImagenEnLabel(
+                    null,
+                    lblFotoPerfil,
+                    false // esDocente = false
+            );
+        }
     }//GEN-LAST:event_rbEstudianteActionPerformed
 
     private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed
@@ -292,6 +310,7 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnSeleccionarImagenActionPerformed
 
     private void btnAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptActionPerformed
+
         // 1. Obtención de datos de texto
         String nick = txtNickname.getText().trim();
         String nombre = txtNombre.getText().trim();
@@ -310,32 +329,31 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         if (rbDocente.isSelected()) {
             nomInstituto = (String) cbInstituto.getSelectedItem();
 
-            if (nomInstituto == null || nomInstituto.trim().isEmpty() || nomInstituto.equals("Seleccionar Instituto...")) {
+            if (nomInstituto == null || nomInstituto.trim().isEmpty() || nomInstituto.equals("Seleccionar Instituto")) {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto para el docente.", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 return;
             }
         }
 
         try {
-            // 3. Armar la fecha de nacimiento usando LocalDate convirtiendo el String a int
-            //int dia = Integer.parseInt(cbDia.getSelectedItem().toString());
-            //int mes = Integer.parseInt(cbMes.getSelectedItem().toString());
-            //int anio = Integer.parseInt(cbAnio.getSelectedItem().toString());
-            //LocalDate fechaNacimiento = LocalDate.of(anio, mes, dia);
-            
-                        // Obtener las fechas desde los JDateChooser
             Date FechaNac = jdFecha.getDate();
 
-            // Validar que no estén vacías
-            if (FechaNac == null){
+            if (FechaNac == null) {
                 throw new Exception("Ingrese una fecha de nacimiento.");
             }
 
-            
-            // Convertir a LocalDate
             LocalDate fechaNacimiento = convertirALocalDate(FechaNac);
 
-            // 4. Obtener interfaz mediante la Fábrica e invocar el caso de uso
+            // 3. Procesar y guardar la imagen localmente si fue seleccionada
+            String nombreImagenGuardada = null;
+            if (this.imagenPath != null && !this.imagenPath.trim().isEmpty()) {
+                File archivoOrigen = new File(this.imagenPath);
+                if (archivoOrigen.exists()) {
+                    nombreImagenGuardada = com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes.guardarImagenLocal(archivoOrigen, nick);
+                }
+            }
+
+            // 4. Invocar controlador pasando el nombre del archivo copiado
             Fabrica fabrica = Fabrica.getInstance();
             IControladorUsuario icu = fabrica.getIControladorUsuario();
 
@@ -345,18 +363,15 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
                     apellido,
                     email,
                     fechaNacimiento,
-                    imagenPath,
+                    nombreImagenGuardada, // Guarda el nombre relativo (ej: "nacho_171500293.jpg")
                     nomInstituto
             );
 
-            // 5. Confirmación y cierre de ventana al tener éxito
             JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             this.dispose();
 
         } catch (java.time.DateTimeException dte) {
-            JOptionPane.showMessageDialog(this, "La fecha ingresada no es válida (ej. 30 de Febrero).", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
-        } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un día, mes y año válidos.", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "La fecha ingresada no es válida.", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Alta", JOptionPane.ERROR_MESSAGE);
         }

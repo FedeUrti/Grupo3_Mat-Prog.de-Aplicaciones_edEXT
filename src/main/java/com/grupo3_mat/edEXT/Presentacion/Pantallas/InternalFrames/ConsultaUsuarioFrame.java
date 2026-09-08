@@ -72,30 +72,38 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
     private void mostrarDatosUsuario(String nombreUsuario) {
         try {
             IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
-            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
             DtUsuario dt = icu.obtenerInfoUsuario(nombreUsuario);
 
             if (dt == null) {
                 return;
             }
 
-            // Cargar Datos Básicos
+            // 1. Cargar Datos Básicos de Texto
             lblValorNickname.setText(dt.getNickname());
             lblValorNombre.setText(dt.getNombre());
             lblValorApellido.setText(dt.getApellido());
             lblValorCorreo.setText(dt.getCorreo());
             lblValorFechaNac.setText(dt.getFechaNacimiento() != null ? dt.getFechaNacimiento().toString() : "");
 
+            // 2. Determinar tipo de usuario
+            boolean esDocente = (dt instanceof DtDocente);
+
+            // 3. Cargar la imagen utilizando getImagePath() y diferenciando el placeholder por tipo
+            com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes.cargarImagenEnLabel(
+                    dt.getImagenPath(),
+                    lblImg,
+                    esDocente
+            );
+
             DefaultListModel<String> modCursos = new DefaultListModel<>();
             DefaultListModel<String> modEdiciones = new DefaultListModel<>();
             DefaultListModel<String> modProgramas = new DefaultListModel<>();
 
-            if (dt instanceof DtDocente) {
+            if (esDocente) {
                 DtDocente docente = (DtDocente) dt;
                 lblValorTipoUsuario.setText("Docente (" + docente.getInstituto() + ")");
                 jPanel4.setVisible(true);
 
-                // 1. Obtener de la BD las ediciones en las que participa el docente
                 IControladorEdicion ice = Fabrica.getInstance().getIControladorEdicion();
                 List<String> edicionesDocente = ice.listarEdicionesDeDocente(docente.getNickname());
 
@@ -103,7 +111,6 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
                     for (String edicion : edicionesDocente) {
                         modEdiciones.addElement(edicion);
 
-                        // 2. Obtener el nombre del Curso al que pertenece la edición (evitando duplicados)
                         String nombreCurso = ice.obtenerCursoDeEdicion(edicion);
                         if (nombreCurso != null && !modCursos.contains(nombreCurso)) {
                             modCursos.addElement(nombreCurso);
@@ -118,7 +125,7 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
                 DtEstudiante estudiante = (DtEstudiante) dt;
                 lblValorTipoUsuario.setText("Estudiante");
 
-                jPanel4.setVisible(false); // Ocultar panel de Cursos para Estudiante
+                jPanel4.setVisible(false);
 
                 if (estudiante.getEdicionesInscripto() != null) {
                     for (String ed : estudiante.getEdicionesInscripto()) {
@@ -195,6 +202,8 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
         lblValorCorreo = new javax.swing.JLabel();
         lblValorFechaNac = new javax.swing.JLabel();
         lblValorTipoUsuario = new javax.swing.JLabel();
+        lblImgPerfil = new javax.swing.JLabel();
+        lblImg = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         lstCursos = new javax.swing.JList<>();
@@ -237,41 +246,46 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Basicos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 18))); // NOI18N
 
-        lblNickname.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblNickname.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblNickname.setText("Nickname:");
 
-        lblNombre.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblNombre.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblNombre.setText("Nombre:");
 
-        lblApellido.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblApellido.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblApellido.setText("Apellido:");
 
-        lblCorreo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblCorreo.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblCorreo.setText("Correo:");
 
-        lblFechaNac.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblFechaNac.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblFechaNac.setText("Fecha Nac:");
 
-        lblTipoUsuario.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblTipoUsuario.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblTipoUsuario.setText("Tipo Usuario:");
 
-        lblValorNickname.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblValorNickname.setText("\"\"");
+        lblValorNickname.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblValorNickname.setText(".");
 
-        lblValorApellido.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblValorApellido.setText("\"\"");
+        lblValorApellido.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblValorApellido.setText(".");
 
-        lblValorNombre.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblValorNombre.setText("\"\"");
+        lblValorNombre.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblValorNombre.setText(".");
 
-        lblValorCorreo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblValorCorreo.setText("\"\"");
+        lblValorCorreo.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblValorCorreo.setText(".");
 
-        lblValorFechaNac.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblValorFechaNac.setText("\"\"");
+        lblValorFechaNac.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblValorFechaNac.setText(".");
 
-        lblValorTipoUsuario.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblValorTipoUsuario.setText("\"\"");
+        lblValorTipoUsuario.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblValorTipoUsuario.setText(".");
+
+        lblImgPerfil.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblImgPerfil.setText("Imagen de perfil");
+
+        lblImg.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -279,61 +293,72 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(33, 33, 33)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(lblTipoUsuario)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblValorTipoUsuario))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addComponent(lblFechaNac)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblValorFechaNac))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(lblValorNickname))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(lblTipoUsuario)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                        .addComponent(lblValorTipoUsuario))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
                         .addComponent(lblCorreo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblValorCorreo))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(lblValorFechaNac))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
                         .addComponent(lblApellido)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblValorApellido))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addComponent(lblNombre)
+                        .addComponent(lblValorCorreo))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblNombre)
+                            .addComponent(lblNickname))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblValorNombre))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addComponent(lblNickname)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblValorNickname)))
-                .addGap(128, 128, 128))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblValorNombre, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblValorApellido, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblImgPerfil, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblImg, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(48, 48, 48))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblNickname)
-                    .addComponent(lblValorNickname))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblNombre)
-                    .addComponent(lblValorNombre))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblApellido)
-                    .addComponent(lblValorApellido))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblCorreo)
-                    .addComponent(lblValorCorreo))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblFechaNac)
-                    .addComponent(lblValorFechaNac))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblTipoUsuario)
-                    .addComponent(lblValorTipoUsuario))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblNickname)
+                            .addComponent(lblValorNombre))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblNombre)
+                            .addComponent(lblValorApellido))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblApellido)
+                            .addComponent(lblValorCorreo))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblCorreo)
+                            .addComponent(lblValorFechaNac))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblValorNickname)
+                            .addComponent(lblFechaNac))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblValorTipoUsuario)
+                            .addComponent(lblTipoUsuario)))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lblImgPerfil)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblImg, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(102, Short.MAX_VALUE))
         );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Cursos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 18))); // NOI18N
@@ -392,7 +417,7 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 410, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -442,18 +467,21 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(157, 157, 157))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(12, 12, 12)
+                .addGap(24, 24, 24)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -535,6 +563,8 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel lblApellido;
     private javax.swing.JLabel lblCorreo;
     private javax.swing.JLabel lblFechaNac;
+    private javax.swing.JLabel lblImg;
+    private javax.swing.JLabel lblImgPerfil;
     private javax.swing.JLabel lblNickname;
     private javax.swing.JLabel lblNombre;
     private javax.swing.JLabel lblTipoUsuario;
