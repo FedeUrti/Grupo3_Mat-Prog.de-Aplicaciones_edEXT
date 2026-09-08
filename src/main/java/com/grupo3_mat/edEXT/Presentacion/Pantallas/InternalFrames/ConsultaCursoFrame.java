@@ -124,6 +124,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
 
         setMaximizable(true);
         setResizable(true);
+        setTitle("Consultar Curso");
 
         jLabel2.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
         jLabel2.setText("Insitituto");

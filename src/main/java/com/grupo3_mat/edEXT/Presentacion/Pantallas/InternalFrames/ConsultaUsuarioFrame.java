@@ -208,6 +208,8 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
         lstEdiciones = new javax.swing.JList<>();
         btnVerProgramas = new javax.swing.JButton();
 
+        setTitle("Consultar Usuario");
+
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seleccione Usuario", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 18))); // NOI18N
 
         lstSeleccioneUsuario.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -344,7 +346,6 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
         jScrollPane2.setViewportView(lstCursos);
 
         btnVerCursos.setText("Ver Cursos");
-        btnVerCursos.setActionCommand("Ver Cursos");
         btnVerCursos.addActionListener(this::btnVerCursosActionPerformed);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -378,7 +379,6 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
         jScrollPane4.setViewportView(lstEdiciones1);
 
         btnVerEdiciones.setText("Ver Ediciones");
-        btnVerEdiciones.setActionCommand("Ver Ediciones");
         btnVerEdiciones.addActionListener(this::btnVerEdicionesActionPerformed);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
@@ -412,7 +412,6 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
         jScrollPane3.setViewportView(lstEdiciones);
 
         btnVerProgramas.setText("Ver Programas");
-        btnVerProgramas.setActionCommand("Ver Programas");
         btnVerProgramas.addActionListener(this::btnVerProgramasActionPerformed);
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);

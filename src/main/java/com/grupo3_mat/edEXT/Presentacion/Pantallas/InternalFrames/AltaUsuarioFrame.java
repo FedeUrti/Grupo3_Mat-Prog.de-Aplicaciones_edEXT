@@ -86,7 +86,7 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         lblFotoPerfil = new javax.swing.JLabel();
         jdFecha = new com.toedter.calendar.JDateChooser();
 
-        setTitle("AltaUsuario");
+        setTitle("Alta de Usuario");
 
         lblNombre.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblNombre.setText("Nombre:");

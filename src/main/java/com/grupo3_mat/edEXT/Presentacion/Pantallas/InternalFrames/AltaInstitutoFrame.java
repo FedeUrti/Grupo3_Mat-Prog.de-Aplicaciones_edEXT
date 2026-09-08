@@ -34,6 +34,8 @@ public class AltaInstitutoFrame extends javax.swing.JInternalFrame {
         txtNombreInstituto = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
 
+        setTitle("Alta de Instituto");
+
         btnAceptar.setText("Aceptar");
         btnAceptar.addActionListener(this::btnAceptarActionPerformed);
 
