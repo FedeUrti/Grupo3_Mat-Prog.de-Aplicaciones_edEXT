@@ -4,6 +4,18 @@
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
+import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+
 /**
  *
  * @author fede1
@@ -15,8 +27,134 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
      */
     public ConsultaUsuarioFrame() {
         initComponents();
+        cargarUsuarios();
+        lstSeleccioneUsuario.addListSelectionListener((ListSelectionEvent e) -> {
+            if (!e.getValueIsAdjusting()) {
+                String usuarioSeleccionado = lstSeleccioneUsuario.getSelectedValue();
+                if (usuarioSeleccionado != null) {
+                    mostrarDatosUsuario(usuarioSeleccionado);
+                }
+            }
+        });
+        lstCursos.addListSelectionListener((ListSelectionEvent e) -> {
+            if (!e.getValueIsAdjusting()) {
+                String cursoSeleccionado = lstCursos.getSelectedValue();
+                if (cursoSeleccionado != null) {
+                    cargarDetallesCursoDocente(cursoSeleccionado);
+                }
+            }
+        });
     }
 
+    /**
+     * Carga la lista inicial de todos los nicknames de usuarios registrados.
+     */
+    private void cargarUsuarios() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        try {
+            IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
+            List<String> usuarios = icu.listarNicknamesUsuarios();
+            if (usuarios != null) {
+                for (String nick : usuarios) {
+                    model.addElement(nick);
+                }
+            }
+            lstSeleccioneUsuario.setModel(model);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar la lista de usuarios: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    /**
+     * Obtiene los datos del usuario seleccionado y actualiza los componentes de
+     * la interfaz.
+     */
+    private void mostrarDatosUsuario(String nombreUsuario) {
+        try {
+            IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
+            DtUsuario dt = icu.obtenerInfoUsuario(nombreUsuario);
+
+            if (dt == null) {
+                return;
+            }
+
+            // 1. Cargar Datos Básicos del Usuario
+            lblValorNickname.setText(dt.getNickname());
+            lblValorNombre.setText(dt.getNombre());
+            lblValorApellido.setText(dt.getApellido());
+            lblValorCorreo.setText(dt.getCorreo());
+            lblValorFechaNac.setText(dt.getFechaNacimiento() != null ? dt.getFechaNacimiento().toString() : "");
+
+            DefaultListModel<String> modCursos = new DefaultListModel<>();
+            DefaultListModel<String> modEdiciones = new DefaultListModel<>();
+            DefaultListModel<String> modProgramas = new DefaultListModel<>();
+
+            // 2. Distinguir según el tipo de usuario (Docente o Estudiante)
+            if (dt instanceof DtDocente) {
+                DtDocente docente = (DtDocente) dt;
+                lblValorTipoUsuario.setText("Docente (" + docente.getInstituto() + ")");
+
+                // Cargar Cursos registrados por el Docente
+                if (docente.getCursosRegistrados() != null) {
+                    for (String curso : docente.getCursosRegistrados()) {
+                        modCursos.addElement(curso);
+                    }
+                }
+            } else if (dt instanceof DtEstudiante) {
+                DtEstudiante estudiante = (DtEstudiante) dt;
+                lblValorTipoUsuario.setText("Estudiante");
+
+                // Cargar Ediciones a las que está inscripto el Estudiante
+                if (estudiante.getEdicionesInscripto() != null) {
+                    for (String ed : estudiante.getEdicionesInscripto()) {
+                        modEdiciones.addElement(ed);
+                    }
+                }
+
+                // Cargar Programas de Formación a los que está inscripto el Estudiante
+                if (estudiante.getProgramasInscripto() != null) {
+                    for (String prog : estudiante.getProgramasInscripto()) {
+                        modProgramas.addElement(prog);
+                    }
+                }
+            }
+
+            // 3. Asignar los modelos a las JList correspondientes
+            lstCursos.setModel(modCursos);
+            lstEdiciones1.setModel(modEdiciones); // Lista de Ediciones (jPanel5)
+            lstEdiciones.setModel(modProgramas);  // Lista de Programas de Formación (jPanel6)
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al consultar usuario: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    /* Consulta el curso seleccionado por el Docente y carga sus ediciones y programas asociado
+     */
+    private void cargarDetallesCursoDocente(String nombreCurso) {
+        try {
+            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+            DtCurso dtCurso = icc.consultarCurso(nombreCurso);
+
+            if (dtCurso != null) {
+                DefaultListModel<String> modEdiciones = new DefaultListModel<>();
+                if (dtCurso.getEdiciones() != null) {
+                    for (String ed : dtCurso.getEdiciones()) {
+                        modEdiciones.addElement(ed);
+                    }
+                }
+                lstEdiciones1.setModel(modEdiciones);
+
+                DefaultListModel<String> modProgramas = new DefaultListModel<>();
+                if (dtCurso.getProgramas() != null) {
+                    for (String prog : dtCurso.getProgramas()) {
+                        modProgramas.addElement(prog);
+                    }
+                }
+                lstEdiciones.setModel(modProgramas);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al consultar detalles del curso: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -337,14 +475,33 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
 
     private void btnVerCursosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerCursosActionPerformed
         // TODO add your handling code here:
+        String cursoSeleccionado = lstCursos.getSelectedValue();
+        if (cursoSeleccionado == null) {
+            JOptionPane.showMessageDialog(this, "Seleccione un curso de la lista.", "Atención", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(this, "Consultando detalles del curso: " + cursoSeleccionado, "Consulta de Curso", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnVerCursosActionPerformed
 
     private void btnVerProgramasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerProgramasActionPerformed
         // TODO add your handling code here:
+        String programaSeleccionado = lstEdiciones.getSelectedValue();
+        if (programaSeleccionado == null) {
+            JOptionPane.showMessageDialog(this, "Seleccione un programa de formación de la lista.", "Atención", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(this, "Consultando detalles del programa: " + programaSeleccionado, "Consulta de Programa de Formación", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnVerProgramasActionPerformed
 
     private void btnVerEdicionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerEdicionesActionPerformed
         // TODO add your handling code here:
+        String edicionSeleccionada = lstEdiciones1.getSelectedValue();
+        if (edicionSeleccionada == null) {
+            JOptionPane.showMessageDialog(this, "Seleccione una edición de la lista.", "Atención", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(this, "Consultando detalles de la edición: " + edicionSeleccionada, "Consulta de Edición", JOptionPane.INFORMATION_MESSAGE);
+  //GEN-FIRST:event_btnVerEdicionesActionPerformed
     }//GEN-LAST:event_btnVerEdicionesActionPerformed
 
 
