@@ -110,25 +110,29 @@ public class ControladorEdicion implements IControladorEdicion {
         // Obtener y validar el estudiante
         ManejadorUsuario mu = ManejadorUsuario.getInstancia();
         Usuario usr = mu.buscarUsuarioPorNickname(nicknameEstudiante);
-
+        
+        // Obtener la edición del curso
+        ManejadorEdicion me = ManejadorEdicion.getInstancia();
+        EdicionCurso edicion = me.buscarEdicion(nombreEdicion);
+        
+        if (!edicion.tieneCupoDisponible()) {
+            throw new Exception("La edición " + edicion.getNombre() + " no tiene cupos disponibles.");
+        }
+        
         if (usr == null || !(usr instanceof Estudiante)) {
             throw new Exception("El usuario " + nicknameEstudiante + " no existe o no es un estudiante.");
         }
         Estudiante estudiante = (Estudiante) usr;
-
-        // Obtener la edición del curso
-        ManejadorEdicion me = ManejadorEdicion.getInstancia();
-        EdicionCurso edicion = me.buscarEdicion(nombreEdicion);
-
+        
         if (edicion == null) {
             throw new Exception("La edición " + nombreEdicion + " no existe.");
         }
-
+        
         // Validar si el estudiante ya está inscrito a la edición
         if (edicion.estaInscripto(estudiante.getNickname())) {
             throw new Exception("El estudiante ya se encuentra inscripto a esta edición.");
         }
-
+        
         // Crear la clase de asociación InscripcionEC
         InscripcionEC inscripcion = new InscripcionEC(estudiante, edicion, fechaInscripcion);
 

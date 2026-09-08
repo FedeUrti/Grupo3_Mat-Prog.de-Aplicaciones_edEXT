@@ -89,4 +89,11 @@ public class EdicionCurso {
     public boolean estaInscripto(String nicknameEstudiante) {
         return this.inscripciones.containsKey(nicknameEstudiante);
     }
+    
+    public boolean tieneCupoDisponible() {
+        if (this.cupo <= 0) {
+            return true; // No hay límite
+        }
+        return this.inscripciones.size() < this.cupo; // Comparar inscriptos con la capacidad del cupo
+    }
 }
