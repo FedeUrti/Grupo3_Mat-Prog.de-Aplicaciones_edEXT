@@ -21,13 +21,29 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     public AltaCursoFrame() {
         initComponents();
         cargarInstitutos();
-        // Asignar la fecha de hoy con el formato dd/MM/yyyy por defecto
+        cargarCursosPrevios(); // <-- Cargar cursos en jComboBox1
+
+        // Configuración de fecha por defecto
         jFecha.setDateFormatString("dd/MM/yyyy");
-
-        // 2. Asignar la fecha de hoy por defecto
         jFecha.setDate(new java.util.Date());
-    }
 
+        // Estado inicial del selector de previas
+        jComboBox1.setEnabled(jCheckBox1.isSelected());
+    }
+    private void cargarCursosPrevios() {
+        jComboBox1.removeAllItems();
+        try {
+            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+            List<String> cursos = icc.listarCursos();
+
+            // Si no hay cursos cargados en el sistema, el ComboBox queda vacío
+            for (String curso : cursos) {
+                jComboBox1.addItem(curso);
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar los cursos previos: " + e.getMessage());
+        }
+    }
     private void cargarInstitutos() {
         cbInstitutos.removeAllItems();
         try {
@@ -332,9 +348,18 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
                     .atZone(java.time.ZoneId.systemDefault())
                     .toLocalDate();
 
-            // Lista vacía para obviar las previas por ahora
             java.util.List<String> previas = new java.util.ArrayList<>();
+            if (jCheckBox1.isSelected()) {
+                String previaSeleccionada = (String) jComboBox1.getSelectedItem();
+                if (previaSeleccionada != null) {
+                    previas.add(previaSeleccionada);
+                } else {
+                    javax.swing.JOptionPane.showMessageDialog(this, "No hay cursos registrados para seleccionar como previa.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
 
+            // 4. Alta del curso llamando al controlador
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
             icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas);
 
@@ -347,6 +372,9 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             txtHoras.setText("");
             txtCreditos.setText("");
             txtUrl.setText("");
+            jCheckBox1.setSelected(false);
+            jComboBox1.setEnabled(false);
+            cargarCursosPrevios(); // Recargar la lista para que incluya el nuevo curso recién registrado
 
         } catch (NumberFormatException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Duración, horas y créditos deben ser números.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
@@ -363,6 +391,7 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         // TODO add your handling code here:
+        jComboBox1.setEnabled(jCheckBox1.isSelected());
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
 
