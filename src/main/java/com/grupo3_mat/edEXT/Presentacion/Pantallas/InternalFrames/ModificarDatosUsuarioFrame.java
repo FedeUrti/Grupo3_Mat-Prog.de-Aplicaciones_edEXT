@@ -38,6 +38,8 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
         lblImagen = new javax.swing.JLabel();
         btnSeleccionarImagen = new javax.swing.JButton();
 
+        setTitle("Modificar usuario");
+
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seleccione Usuario", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 18))); // NOI18N
 
         lstSeleccioneUsuario.setModel(new javax.swing.AbstractListModel<String>() {
