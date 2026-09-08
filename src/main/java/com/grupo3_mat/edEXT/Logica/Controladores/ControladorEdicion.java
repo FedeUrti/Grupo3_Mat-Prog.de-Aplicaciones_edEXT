@@ -139,4 +139,27 @@ public class ControladorEdicion implements IControladorEdicion {
         // PERSISTIR CAMBIOS EN LA BASE DE DATOS
         mu.modificarUsuario(estudiante);
     }
+    @Override
+    public List<String> listarEdicionesDeDocente(String nicknameDocente) {
+        ManejadorEdicion me = ManejadorEdicion.getInstancia();
+        List<EdicionCurso> ediciones = me.buscarEdicionesPorDocente(nicknameDocente);
+
+        List<String> resultado = new ArrayList<>();
+        if (ediciones != null) {
+            for (EdicionCurso ed : ediciones) {
+                resultado.add(ed.getNombre());
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public String obtenerCursoDeEdicion(String nombreEdicion) {
+        ManejadorEdicion me = ManejadorEdicion.getInstancia();
+        EdicionCurso edicion = me.buscarEdicion(nombreEdicion);
+        if (edicion != null && edicion.getCurso() != null) {
+            return edicion.getCurso().getNombre();
+        }
+        return null;
+    }
 }

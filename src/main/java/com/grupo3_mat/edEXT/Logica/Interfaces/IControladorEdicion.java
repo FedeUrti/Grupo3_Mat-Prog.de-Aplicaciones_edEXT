@@ -15,4 +15,6 @@ public interface IControladorEdicion {
     List<String> listarEdicionesPorCurso(String nombreCurso);
     DTEdicionCurso mostrarDetalleEdicion(String nombreEdicion);
     void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion) throws Exception;
+    public String obtenerCursoDeEdicion(String nombreEdicion);
+    public List<String> listarEdicionesDeDocente(String nicknameDocente);
 }

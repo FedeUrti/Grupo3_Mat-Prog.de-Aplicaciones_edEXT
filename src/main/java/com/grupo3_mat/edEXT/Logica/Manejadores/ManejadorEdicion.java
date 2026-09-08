@@ -48,7 +48,18 @@ public class ManejadorEdicion {
             em.close();
         }
     }
-
+    public List<EdicionCurso> buscarEdicionesPorDocente(String nicknameDocente) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT e FROM EdicionCurso e JOIN e.docentes d WHERE d.nickname = :nick",
+                    EdicionCurso.class)
+                    .setParameter("nick", nicknameDocente)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
     public List<EdicionCurso> listarEdiciones() {
         EntityManager em = emf.createEntityManager();
         try {
