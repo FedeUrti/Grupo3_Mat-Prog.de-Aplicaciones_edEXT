@@ -175,18 +175,14 @@ public class Principal extends javax.swing.JFrame {
     private void altaUsuarioMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_altaUsuarioMenuItemActionPerformed
         // TODO add your handling code here:
         AltaUsuarioFrame frame = new AltaUsuarioFrame();
-        frame.setResizable(true);
         frame.setClosable(true);
-        frame.setMaximizable(true);
         frame.setIconifiable(true);
+        frame.setResizable(false);
+        
         desktopPane.add(frame);
+        frame.pack();
+        frame.setSize(480,531);
         frame.setVisible(true);
-
-        try {
-            frame.setMaximum(true);
-        } catch (java.beans.PropertyVetoException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
 
         desktopPane.revalidate();
         desktopPane.repaint();
