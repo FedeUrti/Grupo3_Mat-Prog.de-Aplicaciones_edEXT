@@ -15,6 +15,7 @@ import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaDeProg
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.CrearProgramaFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaEdicionCursoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.InscripcionEdicionCursoFrame;
+import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ModificarDatosUsuarioFrame;
 
 /**
  *
@@ -86,6 +87,7 @@ public class Principal extends javax.swing.JFrame {
         jMenu1.add(consultaUsuarioMenuItem);
 
         modificarDatosUsuarioMenuItem.setText("Modificar Datos de Usuario");
+        modificarDatosUsuarioMenuItem.addActionListener(this::modificarDatosUsuarioMenuItemActionPerformed);
         jMenu1.add(modificarDatosUsuarioMenuItem);
 
         jMenuBar1.add(jMenu1);
@@ -332,6 +334,21 @@ public class Principal extends javax.swing.JFrame {
         desktopPane.revalidate();
         desktopPane.repaint();
     }//GEN-LAST:event_InscripcionECmenuItemActionPerformed
+
+    private void modificarDatosUsuarioMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modificarDatosUsuarioMenuItemActionPerformed
+        // TODO add your handling code here:
+        // TODO add your handling code here:
+        ModificarDatosUsuarioFrame frame = new ModificarDatosUsuarioFrame();
+        frame.setClosable(true);
+        frame.setIconifiable(true);
+        frame.setResizable(false);
+
+        desktopPane.add(frame);
+        frame.setVisible(true);
+
+        desktopPane.revalidate();
+        desktopPane.repaint();
+    }//GEN-LAST:event_modificarDatosUsuarioMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
