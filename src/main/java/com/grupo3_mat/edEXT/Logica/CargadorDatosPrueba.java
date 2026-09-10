@@ -127,7 +127,7 @@ public class CargadorDatosPrueba {
                 + "bien inicia su trabajo en el desarrollo de bicicletas accesibles para\n"
                 + "personas en situación de discapacidad motriz a partir de bicicletas\n"
                 + "abandonadas, se propuso diseñar otras herramientas para fomentar\n"
-                + "la accesibilidad.", 10, 60, 4, "https://eva.fing.edu.uy/course/view.php?id 783#section-2", LocalDate.of(2024, 6, 25), previasC1);
+                + "la accesibilidad.", 10, 60, 4, "https://eva.fing.edu.uy/course/view.php?id783#section-2", LocalDate.of(2024, 6, 25), previasC1);
         ctrl.altaCurso("IMPII", "Extensionismo Industrial", "El proyecto tiene como objetivo desarrollar intervenciones\n"
                 + "curriculares en pequeños emprendimientos productivos de\n"
                 + "diferentes sectores de la industria nacional.La metodologías de\n"
