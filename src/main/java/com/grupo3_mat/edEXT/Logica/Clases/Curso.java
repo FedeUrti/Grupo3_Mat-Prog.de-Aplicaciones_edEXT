@@ -17,6 +17,8 @@ public class Curso {
     @JoinColumn(name = "instituto_nombre")
     private Instituto instituto;
 
+    @Lob
+    @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
     private int duracion;
     private int cantHoras;

@@ -99,20 +99,14 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
 
         jLabel2.setText("Nombre");
 
-        txtDuracion.setText("Mucho tiempo");
-
         jLabel4.setText("Duración");
-
-        txtHoras.setText("2000");
 
         txtDescripcion.setColumns(20);
         txtDescripcion.setRows(5);
-        txtDescripcion.setText("Una materia muy jodida");
         jScrollPane1.setViewportView(txtDescripcion);
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        txtUrl.setText("https://ProgramacionDeAplicaciomes.edu.uy");
         txtUrl.setToolTipText("Aqui van URLs ejemplo : https://example.com");
 
         cbInstitutos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -131,11 +125,9 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
 
         jLabel8.setText("Fecha de Alta");
 
-        txtCreditos.setText("100");
+        txtCreditos.addActionListener(this::txtCreditosActionPerformed);
 
         jLabel3.setText("Descripción");
-
-        txtNombreCurso.setText("Programacion de Aplicaciones");
 
         jLayeredPane2.setLayer(jLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane2.setLayer(txtDuracion, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -298,12 +290,13 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(8, 8, 8)
-                .addComponent(jLayeredPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(231, 231, 231)
-                .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addComponent(jLayeredPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(231, 231, 231)
+                        .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -393,6 +386,10 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         jComboBox1.setEnabled(jCheckBox1.isSelected());
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void txtCreditosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCreditosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCreditosActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
