@@ -100,6 +100,7 @@ public class ControladorEdicion implements IControladorEdicion {
             edicion.getFechaInicio(),
             edicion.getFechaFin(),
             edicion.getCupo(),
+            edicion.getCupoDisponible(),
             edicion.getFechaPublicacion(),
             nombresDocentes
         );

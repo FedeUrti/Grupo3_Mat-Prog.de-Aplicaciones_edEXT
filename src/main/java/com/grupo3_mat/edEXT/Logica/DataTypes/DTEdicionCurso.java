@@ -9,26 +9,18 @@ public class DTEdicionCurso {
     private final LocalDate fechaInicio;
     private final LocalDate fechaFin;
     private final int cupo;
+    private final int cupoDisponible;
     private final LocalDate fechaPublicacion;
     private final List<String> docentes; // Lista con los nicknames de docentes
 
     // Constructor completo (para Consulta)
-    public DTEdicionCurso(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int cupo, LocalDate fechaPublicacion, List<String> docentes) {
+    public DTEdicionCurso(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int cupo, int cupoDisponible, LocalDate fechaPublicacion, List<String> docentes) {
         this.nombre = nombre;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.cupo = cupo;
+        this.cupoDisponible = cupoDisponible;
         this.fechaPublicacion = fechaPublicacion;
-        this.docentes = docentes;
-    }
-
-    // Constructor para Alta (asigna la fecha actual automáticamente)
-    public DTEdicionCurso(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int cupo, List<String> docentes) {
-        this.nombre = nombre;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.cupo = cupo;
-        this.fechaPublicacion = LocalDate.now();
         this.docentes = docentes;
     }
         
@@ -46,6 +38,10 @@ public class DTEdicionCurso {
 
     public int getCupo() {
         return cupo;
+    }
+    
+    public int getCupoDisponible() {
+        return cupoDisponible;
     }
 
     public LocalDate getFechaPublicacion() {
