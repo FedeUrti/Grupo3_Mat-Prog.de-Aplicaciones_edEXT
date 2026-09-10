@@ -6,6 +6,7 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import java.util.List;
@@ -39,6 +40,40 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(this, "Error al cargar programas: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);          
         }
             
+    }
+    public void cargarDatosPrograma(String nombrePrograma) {
+        if (nombrePrograma == null || nombrePrograma.isEmpty()) {
+            return;
+        }
+
+        // Seleccionar en el ComboBox
+        cmbProgramas.setSelectedItem(nombrePrograma);
+
+        try {
+            IControladorProgramaFormacion icpf = Fabrica.getInstance().getIControladorProgramaFormacion();
+            DTProgramaFormacion dt = icpf.consultarPrograma(nombrePrograma);
+
+            if (dt != null) {
+                // Desplegar información detallada en el TextArea
+                txtDetalles.setText(
+                        "Nombre: " + dt.getNombre() + "\n"
+                        + "Descripción: " + dt.getDescripcion() + "\n"
+                        + "Fecha Inicio: " + (dt.getFechaInicio() != null ? dt.getFechaInicio().toString() : "") + "\n"
+                        + "Fecha Fin: " + (dt.getFechaFin() != null ? dt.getFechaFin().toString() : "")
+                );
+
+                // Cargar los cursos del programa en el JList
+                DefaultListModel<String> model = new DefaultListModel<>();
+                if (dt.getCursos() != null) {
+                    for (String curso : dt.getCursos()) {
+                        model.addElement(curso);
+                    }
+                }
+                listCursos.setModel(model);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar programa: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -179,9 +214,6 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
         } 
     }//GEN-LAST:event_listCursosMouseClicked
 
-    void cargarDatosPrograma(String programaSeleccionado) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -2,9 +2,11 @@ package com.grupo3_mat.edEXT.Logica.Controladores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorProgramaFormacion;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -63,4 +65,26 @@ public class ControladorProgramaFormacion implements IControladorProgramaFormaci
         }
         return c;
     }
+    
+    @Override
+    public DTProgramaFormacion consultarPrograma(String nombre) throws Exception {
+        ProgramaFormacion pf = seleccionarPrograma(nombre);
+
+        List<String> nombresCursos = new ArrayList<>();
+        if (pf.getCursos() != null) {
+            for (Curso c : pf.getCursos().values()) {
+                nombresCursos.add(c.getNombre());
+            }
+        }
+
+        return new DTProgramaFormacion(
+                pf.getNombre(),
+                pf.getDescripcion(),
+                pf.getFechaInicio(),
+                pf.getFechaFin(),
+                pf.getFechaAlta(),
+                nombresCursos
+        );
+    }
+
 }

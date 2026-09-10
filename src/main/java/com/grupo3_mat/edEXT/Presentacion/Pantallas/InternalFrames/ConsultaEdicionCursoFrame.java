@@ -169,7 +169,30 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
         }
     }
 
+    public void cargarDatosEdicion(String nombreEdicion) {
+        try {
+            IControladorEdicion ice = Fabrica.getInstance().getIControladorEdicion();
+            DTEdicionCurso dt = ice.mostrarDetalleEdicion(nombreEdicion); // O la llamada correspondiente en tu controlador
 
+            if (dt != null) {
+                txtNombreEdicion.setText(dt.getNombre());
+                txtFechaInicio.setText(dt.getFechaInicio() != null ? dt.getFechaInicio().toString() : "");
+                txtFechaFin.setText(dt.getFechaFin() != null ? dt.getFechaFin().toString() : "");
+                txtCupo.setText(String.valueOf(dt.getCupo()));
+
+                // Cargar docentes inscritos si aplica
+                DefaultListModel<String> modDocentes = new DefaultListModel<>();
+                if (dt.getDocentes() != null) {
+                    for (String doc : dt.getDocentes()) {
+                        modDocentes.addElement(doc);
+                    }
+                }
+                listDocentes.setModel(modDocentes);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar edición: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     private void limpiarCampos() {
         txtNombreEdicion.setText("");
         txtFechaInicio.setText("");
@@ -311,8 +334,8 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
                         .addGap(24, 24, 24)
                         .addComponent(txtFechaFin))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(labelNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(83, 83, 83)
+                        .addComponent(labelNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(49, 49, 49)
                         .addComponent(txtNombreEdicion))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(labelFechaInicio)

@@ -220,8 +220,8 @@
                           <Component id="txtFechaFin" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="labelNombre" min="-2" pref="55" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="83" max="-2" attributes="0"/>
+                          <Component id="labelNombre" min="-2" pref="89" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="49" max="-2" attributes="0"/>
                           <Component id="txtNombreEdicion" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
