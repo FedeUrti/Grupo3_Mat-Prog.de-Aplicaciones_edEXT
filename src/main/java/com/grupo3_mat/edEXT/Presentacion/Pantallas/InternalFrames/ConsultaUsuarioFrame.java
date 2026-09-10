@@ -679,7 +679,7 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
         });
         jScrollPane2.setViewportView(lstCursos);
 
-        btnVerCursos.setText("Ver Cursos");
+        btnVerCursos.setText("Ver Curso");
         btnVerCursos.addActionListener(this::btnVerCursosActionPerformed);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);

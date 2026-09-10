@@ -696,7 +696,7 @@
                 </Container>
                 <Component class="javax.swing.JButton" name="btnVerCursos">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Ver Cursos"/>
+                    <Property name="text" type="java.lang.String" value="Ver Curso"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnVerCursosActionPerformed"/>
