@@ -139,24 +139,24 @@ public class CargadorDatosPrueba {
     private void cargarEdiciones(IControladorEdicion ctrl) throws Exception {
         // Se usa DTEdicionCurso, pasándole la lista de docentes directamente[cite: 43]
 
-        ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2010", LocalDate.of(2010, 3, 15), LocalDate.of(2010, 7, 7), -1, LocalDate.of(2010, 2, 16), Arrays.asList("bruces")));
-        ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2012", LocalDate.of(2012, 8, 1), LocalDate.of(2012, 11, 20), -1, LocalDate.of(2012, 7, 10), Arrays.asList("bruces", "adri")));
-        ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2025", LocalDate.of(2025, 4, 10), LocalDate.of(2025, 8, 7), -1, LocalDate.of(2025, 3, 6), Arrays.asList("bruces", "adri")));
+        ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2010", LocalDate.of(2010, 3, 15), LocalDate.of(2010, 7, 7), -1, -1, LocalDate.of(2010, 2, 16), Arrays.asList("bruces")));
+        ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2012", LocalDate.of(2012, 8, 1), LocalDate.of(2012, 11, 20), -1, -1, LocalDate.of(2012, 7, 10), Arrays.asList("bruces", "adri")));
+        ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2025", LocalDate.of(2025, 4, 10), LocalDate.of(2025, 8, 7), -1, -1, LocalDate.of(2025, 3, 6), Arrays.asList("bruces", "adri")));
 
-        ctrl.altaEdicionCurso("Dalavuelta", new DTEdicionCurso("Dalavuelta - 2025", LocalDate.of(2024, 8, 20), LocalDate.of(2024, 11, 10), 15, LocalDate.of(2024, 7, 20), Arrays.asList("phils")));
-        ctrl.altaEdicionCurso("Extensionismo Industrial", new DTEdicionCurso("Extensionismo Industrial - 2025", LocalDate.of(2025, 8, 10), LocalDate.of(2025, 11, 10), 15, LocalDate.of(2025, 7, 8), Arrays.asList("phils")));
-        ctrl.altaEdicionCurso("Inclusión Energética", new DTEdicionCurso("Inclusión Energética - 2026", LocalDate.of(2026, 3, 15), LocalDate.of(2026, 4, 30), 30, LocalDate.of(2026, 2, 20), Arrays.asList("phils")));
+        ctrl.altaEdicionCurso("Dalavuelta", new DTEdicionCurso("Dalavuelta - 2025", LocalDate.of(2024, 8, 20), LocalDate.of(2024, 11, 10), 15, 15, LocalDate.of(2024, 7, 20), Arrays.asList("phils")));
+        ctrl.altaEdicionCurso("Extensionismo Industrial", new DTEdicionCurso("Extensionismo Industrial - 2025", LocalDate.of(2025, 8, 10), LocalDate.of(2025, 11, 10), 15, 15, LocalDate.of(2025, 7, 8), Arrays.asList("phils")));
+        ctrl.altaEdicionCurso("Inclusión Energética", new DTEdicionCurso("Inclusión Energética - 2026", LocalDate.of(2026, 3, 15), LocalDate.of(2026, 4, 30), 30, 30, LocalDate.of(2026, 2, 20), Arrays.asList("phils")));
 
-        ctrl.altaEdicionCurso("Taller de robótica educativa", new DTEdicionCurso("Taller de robótica educativa - 2024", LocalDate.of(2024, 3, 10), LocalDate.of(2024, 5, 10), 10, LocalDate.of(2024, 2, 15), Arrays.asList("heisenberg")));
-        ctrl.altaEdicionCurso("Taller de robótica educativa", new DTEdicionCurso("Taller de robótica educativa - 2026", LocalDate.of(2026, 3, 10), LocalDate.of(2026, 5, 10), 10, LocalDate.of(2026, 2, 15), Arrays.asList("heisenberg", "benkenobi")));
-        ctrl.altaEdicionCurso("Taller de robótica educativa", new DTEdicionCurso("Taller de robótica educativa-2026-2", LocalDate.of(2026, 9, 10), LocalDate.of(2026, 11, 8), 20, LocalDate.of(2026, 8, 15), Arrays.asList("benkenobi", "waston")));
+        ctrl.altaEdicionCurso("Taller de robótica educativa", new DTEdicionCurso("Taller de robótica educativa - 2024", LocalDate.of(2024, 3, 10), LocalDate.of(2024, 5, 10), 10, 10, LocalDate.of(2024, 2, 15), Arrays.asList("heisenberg")));
+        ctrl.altaEdicionCurso("Taller de robótica educativa", new DTEdicionCurso("Taller de robótica educativa - 2026", LocalDate.of(2026, 3, 10), LocalDate.of(2026, 5, 10), 10, 10,  LocalDate.of(2026, 2, 15), Arrays.asList("heisenberg", "benkenobi")));
+        ctrl.altaEdicionCurso("Taller de robótica educativa", new DTEdicionCurso("Taller de robótica educativa-2026-2", LocalDate.of(2026, 9, 10), LocalDate.of(2026, 11, 8), 20, 20, LocalDate.of(2026, 8, 15), Arrays.asList("benkenobi", "waston")));
 
-        ctrl.altaEdicionCurso("Participación en investigación sobre el empleo del juego Komikan", new DTEdicionCurso("Participación en investigación sobre el empleo del juego Komikan - 2026", LocalDate.of(2026, 7, 29), LocalDate.of(2026, 10, 7), 5, LocalDate.of(2026, 7, 10), Arrays.asList("waston")));
-        ctrl.altaEdicionCurso("Herramientas de apoyo a la enseñanza de inglés", new DTEdicionCurso("Herramientas de apoyo a la enseñanza de inglés - 26", LocalDate.of(2026, 9, 15), LocalDate.of(2026, 12, 15), 5, LocalDate.of(2026, 6, 2), Arrays.asList("heisenberg")));
+        ctrl.altaEdicionCurso("Participación en investigación sobre el empleo del juego Komikan", new DTEdicionCurso("Participación en investigación sobre el empleo del juego Komikan - 2026", LocalDate.of(2026, 7, 29), LocalDate.of(2026, 10, 7), 5, 5, LocalDate.of(2026, 7, 10), Arrays.asList("waston")));
+        ctrl.altaEdicionCurso("Herramientas de apoyo a la enseñanza de inglés", new DTEdicionCurso("Herramientas de apoyo a la enseñanza de inglés - 26", LocalDate.of(2026, 9, 15), LocalDate.of(2026, 12, 15), 5, 5, LocalDate.of(2026, 6, 2), Arrays.asList("heisenberg")));
 
-        ctrl.altaEdicionCurso("MicroBit", new DTEdicionCurso("MicroBit-2026", LocalDate.of(2026, 8, 12), LocalDate.of(2026, 12, 5), 30, LocalDate.of(2026, 7, 2), Arrays.asList("house")));
-        ctrl.altaEdicionCurso("Talleres plenarios", new DTEdicionCurso("Talleres plenarios - 2026", LocalDate.of(2026, 3, 10), LocalDate.of(2026, 3, 30), -1, LocalDate.of(2026, 3, 2), Arrays.asList("timmy", "danny")));
-        ctrl.altaEdicionCurso("Seminarios de Resolución de Problemas", new DTEdicionCurso("Seminarios de Resolución de Problemas - 2026", LocalDate.of(2026, 9, 10), LocalDate.of(2026, 10, 20), -1, LocalDate.of(2026, 7, 12), Arrays.asList("timmy")));
+        ctrl.altaEdicionCurso("MicroBit", new DTEdicionCurso("MicroBit-2026", LocalDate.of(2026, 8, 12), LocalDate.of(2026, 12, 5), 30, 30, LocalDate.of(2026, 7, 2), Arrays.asList("house")));
+        ctrl.altaEdicionCurso("Talleres plenarios", new DTEdicionCurso("Talleres plenarios - 2026", LocalDate.of(2026, 3, 10), LocalDate.of(2026, 3, 30), -1, -1, LocalDate.of(2026, 3, 2), Arrays.asList("timmy", "danny")));
+        ctrl.altaEdicionCurso("Seminarios de Resolución de Problemas", new DTEdicionCurso("Seminarios de Resolución de Problemas - 2026", LocalDate.of(2026, 9, 10), LocalDate.of(2026, 10, 20), -1, 0, LocalDate.of(2026, 7, 12), Arrays.asList("timmy")));
     }
 
     private void cargarInscripciones(IControladorEdicion ctrl) throws Exception {

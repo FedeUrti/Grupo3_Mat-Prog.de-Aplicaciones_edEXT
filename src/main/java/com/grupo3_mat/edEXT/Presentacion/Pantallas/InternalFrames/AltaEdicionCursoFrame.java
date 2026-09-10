@@ -358,6 +358,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
                 fechaInicio,
                 fechaFin,
                 cupo,
+                0,
                 fechaPublicacion,
                 docentesSeleccionados
             );

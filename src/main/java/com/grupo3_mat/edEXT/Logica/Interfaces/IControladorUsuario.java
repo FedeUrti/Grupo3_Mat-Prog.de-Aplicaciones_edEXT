@@ -30,4 +30,6 @@ public interface IControladorUsuario {
     List<String> listarNicknamesDocentesPorInstituto(String nomInstituto);
     
     List<String> listarEstudiantes();
+    
+    List<String> listarDocentes();
 }

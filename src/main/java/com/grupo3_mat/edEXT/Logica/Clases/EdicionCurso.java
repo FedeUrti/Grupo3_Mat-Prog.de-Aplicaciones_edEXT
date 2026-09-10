@@ -96,4 +96,11 @@ public class EdicionCurso {
         }
         return this.inscripciones.size() < this.cupo; // Comparar inscriptos con la capacidad del cupo
     }
+    
+    public int getCupoDisponible() {
+        if (this.cupo <= 0) {
+            return -1;
+        }
+        return this.cupo - this.inscripciones.size();
+    }
 }
