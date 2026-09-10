@@ -4,6 +4,7 @@
  */
 package com.grupo3_mat.edEXT.Presentacion.Pantallas;
 
+import com.grupo3_mat.edEXT.Logica.CargadorDatosPrueba;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AgregarCursoAProgramaFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaCursoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaEdicionCursoFrame;
@@ -62,6 +63,8 @@ public class Principal extends javax.swing.JFrame {
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         AltaInstitutoMenuItem = new javax.swing.JMenuItem();
+        jMenu6 = new javax.swing.JMenu();
+        CargaTotalbtn = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -143,6 +146,14 @@ public class Principal extends javax.swing.JFrame {
         jMenu3.add(AltaInstitutoMenuItem);
 
         jMenuBar1.add(jMenu3);
+
+        jMenu6.setText("Acciones Extra");
+
+        CargaTotalbtn.setText("Carga Total Automatica");
+        CargaTotalbtn.addActionListener(this::CargaTotalbtnActionPerformed);
+        jMenu6.add(CargaTotalbtn);
+
+        jMenuBar1.add(jMenu6);
 
         setJMenuBar(jMenuBar1);
 
@@ -350,6 +361,35 @@ public class Principal extends javax.swing.JFrame {
         desktopPane.repaint();
     }//GEN-LAST:event_modificarDatosUsuarioMenuItemActionPerformed
 
+    private void CargaTotalbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CargaTotalbtnActionPerformed
+        // TODO add your handling code here:
+        // 1. Instanciamos la clase que contiene todos los datos
+        CargadorDatosPrueba cargador = new CargadorDatosPrueba();
+
+        try {
+            // 2. Ejecutamos la carga masiva
+            cargador.cargarDatosTotales();
+
+            // 3. Mostramos un mensaje de éxito en pantalla
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "¡Todos los datos de prueba fueron cargados con éxito!",
+                    "Carga Completada",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            // 4. Deshabilitamos el botón para que no se pueda volver a presionar
+            // Nota: Asegúrate de que "CargaTotalbtn" sea el nombre real de la variable de tu botón
+            // Si tu botón se llama distinto, cámbialo en la línea de abajo.
+            ((javax.swing.JMenuItem) evt.getSource()).setEnabled(false);
+
+        } catch (Exception e) {
+            // 5. Si algo falla, le avisamos al usuario por pantalla
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Ocurrió un error durante la carga de datos:\n" + e.getMessage(),
+                    "Error en la Carga",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_CargaTotalbtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -379,6 +419,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem AltaCursoMenuItem;
     private javax.swing.JMenuItem AltaECmenuItem;
     private javax.swing.JMenuItem AltaInstitutoMenuItem;
+    private javax.swing.JMenuItem CargaTotalbtn;
     private javax.swing.JMenuItem ConsultaCursoMenuItem;
     private javax.swing.JMenuItem InscripcionECmenuItem;
     private javax.swing.JMenuItem altaUsuarioMenuItem;
@@ -391,6 +432,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
+    private javax.swing.JMenu jMenu6;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem4;

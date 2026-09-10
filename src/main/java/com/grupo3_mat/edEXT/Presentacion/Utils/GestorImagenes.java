@@ -83,7 +83,7 @@ public class GestorImagenes {
         }
     }
 
-    private static void desplegarImagen(ImageIcon icon, JLabel label) {
+    public static void desplegarImagen(ImageIcon icon, JLabel label) {
         int ancho = label.getWidth() > 0 ? label.getWidth() : 120;
         int alto = label.getHeight() > 0 ? label.getHeight() : 120;
 

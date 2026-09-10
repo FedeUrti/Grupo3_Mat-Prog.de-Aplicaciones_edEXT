@@ -3,6 +3,7 @@ package com.grupo3_mat.edEXT.Logica.Manejadores;
 import com.grupo3_mat.edEXT.Logica.Clases.Docente;
 import com.grupo3_mat.edEXT.Logica.Clases.Estudiante;
 import com.grupo3_mat.edEXT.Logica.Clases.Usuario;
+import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
@@ -12,10 +13,8 @@ import java.util.List;
 public class ManejadorUsuario {
 
     private static ManejadorUsuario instancia = null;
-    private final EntityManagerFactory emf;
 
     private ManejadorUsuario() {
-        this.emf = Persistence.createEntityManagerFactory("edEXT_PU");
     }
 
     public static ManejadorUsuario getInstancia() {
@@ -26,7 +25,7 @@ public class ManejadorUsuario {
     }
 
     public void agregarUsuario(Usuario usuario) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();;
         try {
             em.getTransaction().begin();
             em.persist(usuario);
@@ -42,7 +41,7 @@ public class ManejadorUsuario {
     }
 
     public void modificarUsuario(Usuario usuario) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();;
         try {
             em.getTransaction().begin();
             em.merge(usuario);
@@ -58,7 +57,7 @@ public class ManejadorUsuario {
     }
 
     public Usuario buscarUsuarioPorNickname(String nickname) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();;
         try {
             return em.find(Usuario.class, nickname);
         } finally {
@@ -67,7 +66,7 @@ public class ManejadorUsuario {
     }
 
     public Usuario buscarUsuarioPorCorreo(String correo) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT u FROM Usuario u WHERE u.correo = :correo", Usuario.class)
                      .setParameter("correo", correo)
@@ -80,7 +79,7 @@ public class ManejadorUsuario {
     }
 
     public List<Usuario> getUsuarios() {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT u FROM Usuario u", Usuario.class).getResultList();
         } finally {
@@ -89,7 +88,7 @@ public class ManejadorUsuario {
     }
 
     public List<Docente> getDocentes() {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT d FROM Docente d", Docente.class).getResultList();
         } finally {
@@ -98,7 +97,7 @@ public class ManejadorUsuario {
     }
 
     public List<Estudiante> getEstudiantes() {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT e FROM Estudiante e", Estudiante.class).getResultList();
         } finally {

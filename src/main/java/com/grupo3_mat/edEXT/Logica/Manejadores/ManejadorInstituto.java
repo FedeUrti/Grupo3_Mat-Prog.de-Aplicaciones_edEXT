@@ -1,6 +1,7 @@
 package com.grupo3_mat.edEXT.Logica.Manejadores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
+import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -9,10 +10,9 @@ import java.util.List;
 public class ManejadorInstituto {
 
     private static ManejadorInstituto instancia = null;
-    private final EntityManagerFactory emf;
 
     private ManejadorInstituto() {
-        this.emf = Persistence.createEntityManagerFactory("edEXT_PU");
+      
     }
 
     public static ManejadorInstituto getInstancia() {
@@ -23,7 +23,7 @@ public class ManejadorInstituto {
     }
 
     public void agregarInstituto(Instituto inst) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();;
         try {
             em.getTransaction().begin();
             em.persist(inst);
@@ -34,7 +34,7 @@ public class ManejadorInstituto {
     }
 
     public Instituto buscarInstituto(String nombre) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();;
         try {
             return em.find(Instituto.class, nombre);
         } finally {
@@ -43,7 +43,7 @@ public class ManejadorInstituto {
     }
 
     public List<Instituto> listarInstitutos() {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = Conexion.getInstancia().getEntityManager();;
         try {
             return em.createQuery("SELECT i FROM Instituto i", Instituto.class).getResultList();
         } finally {
