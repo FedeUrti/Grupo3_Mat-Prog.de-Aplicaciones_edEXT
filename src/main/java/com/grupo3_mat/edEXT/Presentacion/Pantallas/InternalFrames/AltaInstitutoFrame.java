@@ -41,6 +41,7 @@ public class AltaInstitutoFrame extends javax.swing.JInternalFrame {
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jButton1.setText("Cancelar");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         btnAceptar.setText("Aceptar");
         btnAceptar.addActionListener(this::btnAceptarActionPerformed);
@@ -67,8 +68,6 @@ public class AltaInstitutoFrame extends javax.swing.JInternalFrame {
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "INFO", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Segoe UI", 0, 18))); // NOI18N
-
-        txtNombreInstituto.setText("UTEC");
 
         labelInstiNom.setText("Nombre Instituto");
 
@@ -141,6 +140,11 @@ public class AltaInstitutoFrame extends javax.swing.JInternalFrame {
             javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error de negocio", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAceptarActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
