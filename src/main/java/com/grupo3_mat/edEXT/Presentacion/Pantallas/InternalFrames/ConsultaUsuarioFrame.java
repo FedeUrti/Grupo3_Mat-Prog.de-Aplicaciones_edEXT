@@ -102,10 +102,10 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
             if (esDocente) {
                 DtDocente docente = (DtDocente) dt;
                 lblValorTipoUsuario.setText("Docente (" + docente.getInstituto() + ")");
-                jPanel4.setVisible(true);
 
-                // Activar el tab de Cursos (asumiendo que es el índice 0)
+                // Habilitar la pestaña de Cursos y seleccionarla por defecto
                 jTabbedPane1.setEnabledAt(0, true);
+                jTabbedPane1.setSelectedIndex(0);
 
                 IControladorEdicion ice = Fabrica.getInstance().getIControladorEdicion();
                 IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
@@ -120,7 +120,6 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
                         if (nombreCurso != null && !modCursos.contains(nombreCurso)) {
                             modCursos.addElement(nombreCurso);
 
-                            // CARGAR PROGRAMAS DIRECTAMENTE SIN HACER CLIC
                             DtCurso dtCurso = icc.consultarCurso(nombreCurso);
                             if (dtCurso != null && dtCurso.getProgramas() != null) {
                                 for (String prog : dtCurso.getProgramas()) {
@@ -140,13 +139,10 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
             } else if (dt instanceof DtEstudiante) {
                 DtEstudiante estudiante = (DtEstudiante) dt;
                 lblValorTipoUsuario.setText("Estudiante");
-                jPanel4.setVisible(false);
 
-                // Desactivar el tab de Cursos y cambiar la vista si estaba allí
+                // Desactivar pestaña Cursos y forzar ir a la pestaña Ediciones (índice 1)
                 jTabbedPane1.setEnabledAt(0, false);
-                if (jTabbedPane1.getSelectedIndex() == 0) {
-                    jTabbedPane1.setSelectedIndex(1); // Mover a la pestaña Ediciones
-                }
+                jTabbedPane1.setSelectedIndex(1);
 
                 if (estudiante.getEdicionesInscripto() != null) {
                     for (String ed : estudiante.getEdicionesInscripto()) {
@@ -164,6 +160,10 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
                 lstEdiciones1.setModel(modEdiciones);
                 lstEdiciones.setModel(modProgramas);
             }
+
+            // Refrescar el componente para evitar artefactos visuales
+            jTabbedPane1.revalidate();
+            jTabbedPane1.repaint();
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al consultar usuario: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -617,17 +617,43 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnVerProgramasActionPerformed
 
     private void btnVerEdicionesActionPerformed(java.awt.event.ActionEvent evt) {                                                
-        String edicionSeleccionada = lstEdiciones1.getSelectedValue(); // lstEdiciones1 almacena ediciones en este frame
+        String edicionSeleccionada = lstEdiciones1.getSelectedValue();
         if (edicionSeleccionada == null) {
             JOptionPane.showMessageDialog(this, "Seleccione una edición de la lista.", "Atención", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Llamar a ConsultaEdicionCursoFrame
-        ConsultaEdicionCursoFrame frameEdicion = new ConsultaEdicionCursoFrame();
-        this.getDesktopPane().add(frameEdicion);
-        frameEdicion.setVisible(true);
-        frameEdicion.toFront();
+        try {
+            IControladorEdicion ice = Fabrica.getInstance().getIControladorEdicion();
+            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+
+            // 1. Obtener el curso al que pertenece la edición
+            String nombreCurso = ice.obtenerCursoDeEdicion(edicionSeleccionada);
+            String nombreInstituto = null;
+
+            if (nombreCurso != null) {
+                DtCurso dtCurso = icc.consultarCurso(nombreCurso);
+                if (dtCurso != null) {
+                    nombreInstituto = dtCurso.getNomInstituto();
+                }
+            }
+
+            // 2. Instanciar según la información obtenida
+            ConsultaEdicionCursoFrame frameEdicion;
+            if (nombreInstituto != null && nombreCurso != null) {
+                frameEdicion = new ConsultaEdicionCursoFrame(nombreInstituto, nombreCurso, edicionSeleccionada);
+            } else {
+                frameEdicion = new ConsultaEdicionCursoFrame();
+                frameEdicion.cargarDatosEdicion(edicionSeleccionada);
+            }
+
+            this.getDesktopPane().add(frameEdicion);
+            frameEdicion.setVisible(true);
+            frameEdicion.toFront();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al abrir la edición: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
 //GEN-FIRST:event_btnVerEdicionesActionPerformed
     }//GEN-LAST:event_btnVerEdicionesActionPerformed
 

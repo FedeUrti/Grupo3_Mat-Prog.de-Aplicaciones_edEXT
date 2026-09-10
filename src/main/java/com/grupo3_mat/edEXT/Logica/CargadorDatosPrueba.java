@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 public class CargadorDatosPrueba {
-
+    
     public void cargarDatosTotales() {
         // Obtener las instancias de tu fábrica
         Fabrica fabrica = Fabrica.getInstance();
@@ -21,7 +21,7 @@ public class CargadorDatosPrueba {
         IControladorCurso ctrlCurso = fabrica.getIControladorCurso();
         IControladorEdicion ctrlEdi = fabrica.getIControladorEdicion();
         IControladorProgramaFormacion ctrlProg = fabrica.getIControladorProgramaFormacion();
-
+        
         try {
             System.out.println("Iniciando carga masiva de datos...");
             cargarInstitutos(ctrlInst);

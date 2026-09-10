@@ -19,7 +19,7 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
     private IControladorInstituto icInstituto;
     private IControladorCurso icCurso;
     private IControladorEdicion icEdicion;
-
+    private boolean cargandoDatos = false; // Bandera para evitar loops de eventos
     private DefaultListModel<String> listModelDocentes;
 
     /**
@@ -42,29 +42,30 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
     
     // Para invocar desde consulta curso
     public ConsultaEdicionCursoFrame(String nombreInstituto, String nombreCurso, String nombreEdicion) {
-        this(); // Inicializa componentes y carga la lista de institutos
+        this(); // Inicializa componentes y carga institutos
 
-        // Desactivar listeners para que no se disparen eventos en cadena durante la carga
-        cmbInstitutos.removeActionListener(this::cmbInstitutosActionPerformed);
-        cmbCursos.removeActionListener(this::cmbCursosActionPerformed);
-        cmbEdiciones.removeActionListener(this::cmbEdicionesActionPerformed);
+        cargandoDatos = true; // Bloqueamos la ejecución de listeners
+        try {
+            // 1. Seleccionar instituto y cargar sus cursos
+            if (nombreInstituto != null) {
+                cmbInstitutos.setSelectedItem(nombreInstituto);
+                alSeleccionarInstituto();
+            }
 
-        // 1. Seleccionar instituto y cargar sus cursos
-        cmbInstitutos.setSelectedItem(nombreInstituto);
-        alSeleccionarInstituto();
+            // 2. Seleccionar curso y cargar sus ediciones
+            if (nombreCurso != null) {
+                cmbCursos.setSelectedItem(nombreCurso);
+                alSeleccionarCurso();
+            }
 
-        // 2. Seleccionar curso y cargar sus ediciones
-        cmbCursos.setSelectedItem(nombreCurso);
-        alSeleccionarCurso();
-
-        // 3. Seleccionar edición y cargar detalle
-        cmbEdiciones.setSelectedItem(nombreEdicion);
-        alSeleccionarEdicion();
-
-        // Reactivar listeners para la interacción del usuario
-        cmbInstitutos.addActionListener(this::cmbInstitutosActionPerformed);
-        cmbCursos.addActionListener(this::cmbCursosActionPerformed);
-        cmbEdiciones.addActionListener(this::cmbEdicionesActionPerformed);
+            // 3. Seleccionar edición y cargar detalle
+            if (nombreEdicion != null) {
+                cmbEdiciones.setSelectedItem(nombreEdicion);
+                alSeleccionarEdicion();
+            }
+        } finally {
+            cargandoDatos = false; // Desbloqueamos los listeners
+        }
     }
 
     // Cargar Institutos al iniciar
@@ -88,12 +89,11 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
 
     // Al cambiar de Instituto cargar Cursos
     private void alSeleccionarInstituto() {
-        cmbCursos.removeActionListener(this::cmbCursosActionPerformed);
         cmbCursos.removeAllItems();
         limpiarCampos();
 
         String instSeleccionado = (String) cmbInstitutos.getSelectedItem();
-    
+
         if (instSeleccionado != null) {
             List<String> cursos = icCurso.listarCursosPorInstituto(instSeleccionado);
             if (cursos != null) {
@@ -102,16 +102,13 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
                 }
             }
             cmbCursos.setSelectedIndex(-1);
-            cmbCursos.setEnabled(true); // <--- Habilitamos si hay selección
+            cmbCursos.setEnabled(true);
         } else {
-            cmbCursos.setEnabled(false); // <--- Si no hay instituto, deshabilitamos
+            cmbCursos.setEnabled(false);
         }
 
-        // Como cambió el instituto, el combo de ediciones debe quedar deshabilitado y limpio
         cmbEdiciones.removeAllItems();
         cmbEdiciones.setEnabled(false);
-
-        cmbCursos.addActionListener(this::cmbCursosActionPerformed);
     }
 
     // Al cambiar de Curso cargar Ediciones
@@ -418,15 +415,19 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void cmbCursosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbCursosActionPerformed
-        alSeleccionarCurso();
-    }//GEN-LAST:event_cmbCursosActionPerformed
+        if (!cargandoDatos) {
+            alSeleccionarCurso();
+        }    }//GEN-LAST:event_cmbCursosActionPerformed
 
     private void cmbInstitutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbInstitutosActionPerformed
-        alSeleccionarInstituto();
-    }//GEN-LAST:event_cmbInstitutosActionPerformed
+        if (!cargandoDatos) {
+            alSeleccionarInstituto();
+        }    }//GEN-LAST:event_cmbInstitutosActionPerformed
 
     private void cmbEdicionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbEdicionesActionPerformed
-        alSeleccionarEdicion();
+        if (!cargandoDatos) {
+            alSeleccionarEdicion();
+        }
     }//GEN-LAST:event_cmbEdicionesActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
