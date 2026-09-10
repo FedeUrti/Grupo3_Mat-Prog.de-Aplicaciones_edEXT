@@ -8,6 +8,7 @@ import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import java.util.List;
+import javax.swing.DefaultListModel;
 
 /**
  *
@@ -18,17 +19,21 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     /**
      * Creates new form AltaCursoFrame
      */
+    private DefaultListModel<String> modelPrevias = new DefaultListModel<>();
     public AltaCursoFrame() {
         initComponents();
-        cargarInstitutos();
-        cargarCursosPrevios(); // <-- Cargar cursos en jComboBox1
 
-        // Configuración de fecha por defecto
+        // Vinculamos el modelo con el JList visual de previas
+        lstPreviasSeleccionadas.setModel(modelPrevias);
+
+        cargarInstitutos();
+        cargarCursosPrevios();
+
         jFecha.setDateFormatString("dd/MM/yyyy");
         jFecha.setDate(new java.util.Date());
 
-        // Estado inicial del selector de previas
-        jComboBox1.setEnabled(jCheckBox1.isSelected());
+        // Habilitar/deshabilitar según el checkbox
+        activarSeccionPrevias(jCheckBox1.isSelected());
     }
     private void cargarCursosPrevios() {
         jComboBox1.removeAllItems();
@@ -36,12 +41,14 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
             List<String> cursos = icc.listarCursos();
 
-            // Si no hay cursos cargados en el sistema, el ComboBox queda vacío
-            for (String curso : cursos) {
-                jComboBox1.addItem(curso);
+            if (cursos != null) {
+                for (String curso : cursos) {
+                    jComboBox1.addItem(curso);
+                }
             }
+            jComboBox1.setSelectedIndex(-1); // Deja el combo sin selección inicial
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar los cursos previos: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar los cursos previos: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }
     private void cargarInstitutos() {
@@ -56,7 +63,23 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar institutos: " + e.getMessage());
         }
     }
-
+    private void activarSeccionPrevias(boolean habilitar) {
+        jComboBox1.setEnabled(habilitar);
+        btnAgregarPrevia.setEnabled(habilitar);
+        btnQuitarPrevia.setEnabled(habilitar);
+        lstPreviasSeleccionadas.setEnabled(habilitar);
+    }
+    private boolean esUrlValida(String url) {
+        try {
+            java.net.URI uri = new java.net.URI(url);
+            // Verifica que la URI tenga protocolo y que sea http o https
+            return uri.getScheme() != null
+                    && (uri.getScheme().equalsIgnoreCase("http") || uri.getScheme().equalsIgnoreCase("https"))
+                    && uri.getHost() != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -67,26 +90,31 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         jLayeredPane2 = new javax.swing.JLayeredPane();
-        jLabel2 = new javax.swing.JLabel();
-        txtDuracion = new javax.swing.JTextField();
-        jLabel4 = new javax.swing.JLabel();
-        txtHoras = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        txtDescripcion = new javax.swing.JTextArea();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        txtUrl = new javax.swing.JTextField();
-        cbInstitutos = new javax.swing.JComboBox<>();
+        jPanel1 = new javax.swing.JPanel();
+        spnDuracion = new javax.swing.JSpinner();
+        jLabel8 = new javax.swing.JLabel();
+        spnCantHoras = new javax.swing.JSpinner();
+        spnCreditos = new javax.swing.JSpinner();
+        jLabel7 = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        txtCreditos = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        txtNombreCurso = new javax.swing.JTextField();
         jFecha = new com.toedter.calendar.JDateChooser();
+        txtUrl = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        lstPreviasSeleccionadas = new javax.swing.JList<>();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        btnAgregarPrevia = new javax.swing.JButton();
+        btnQuitarPrevia = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        txtNombreCurso = new javax.swing.JTextField();
+        cbInstitutos = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtDescripcion = new javax.swing.JTextArea();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         jLayeredPane1 = new javax.swing.JLayeredPane();
         AltaCursoButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
@@ -97,19 +125,11 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
 
         jLayeredPane2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "INFO", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Inter", 0, 18))); // NOI18N
 
-        jLabel2.setText("Nombre");
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jLabel4.setText("Duración");
+        jLabel8.setText("Fecha de Alta");
 
-        txtDescripcion.setColumns(20);
-        txtDescripcion.setRows(5);
-        jScrollPane1.setViewportView(txtDescripcion);
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        txtUrl.setToolTipText("Aqui van URLs ejemplo : https://example.com");
-
-        cbInstitutos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jLabel7.setText("URL Asociada");
 
         jCheckBox1.setText("Previa");
         jCheckBox1.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
@@ -117,37 +137,167 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
 
         jLabel5.setText("Cantidad de Horas");
 
-        jLabel6.setText("Cantidad de creditos asociados");
+        txtUrl.setToolTipText("Aqui van URLs ejemplo : https://example.com");
 
-        jLabel7.setText("URL Asociada");
+        jLabel4.setText("Duración (meses)");
+
+        jLabel6.setText("Cant.de creditos");
+
+        lstPreviasSeleccionadas.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane2.setViewportView(lstPreviasSeleccionadas);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        btnAgregarPrevia.setText("Agregar Previa");
+        btnAgregarPrevia.addActionListener(this::btnAgregarPreviaActionPerformed);
+
+        btnQuitarPrevia.setText("Quitar Previa");
+        btnQuitarPrevia.addActionListener(this::btnQuitarPreviaActionPerformed);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel8))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(65, 65, 65)
+                                .addComponent(jFecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(32, 32, 32)
+                                        .addComponent(btnAgregarPrevia)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnQuitarPrevia)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 101, Short.MAX_VALUE))))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtUrl))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addGap(18, 18, 18)
+                                .addComponent(spnCreditos))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel4))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(spnDuracion, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(spnCantHoras, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(jScrollPane2)))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(spnDuracion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(spnCantHoras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(spnCreditos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(21, 21, 21)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(txtUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8)
+                    .addComponent(jFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(19, 19, 19)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBox1))
+                .addGap(30, 30, 30)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAgregarPrevia)
+                    .addComponent(btnQuitarPrevia))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        cbInstitutos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel1.setText("Instituto:");
 
-        jLabel8.setText("Fecha de Alta");
-
-        txtCreditos.addActionListener(this::txtCreditosActionPerformed);
+        txtDescripcion.setColumns(20);
+        txtDescripcion.setRows(5);
+        jScrollPane1.setViewportView(txtDescripcion);
 
         jLabel3.setText("Descripción");
 
-        jLayeredPane2.setLayer(jLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(txtDuracion, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jLabel4, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(txtHoras, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jComboBox1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(txtUrl, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(cbInstitutos, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jCheckBox1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jLabel6, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jSeparator1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jLabel7, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jLabel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jLabel8, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(txtCreditos, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(txtNombreCurso, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane2.setLayer(jFecha, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLabel2.setText("Nombre");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtNombreCurso)
+                            .addComponent(cbInstitutos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(cbInstitutos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtNombreCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 104, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        jLayeredPane2.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jPanel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jLayeredPane2Layout = new javax.swing.GroupLayout(jLayeredPane2);
         jLayeredPane2.setLayout(jLayeredPane2Layout);
@@ -155,53 +305,10 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jLayeredPane2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                                .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1)
-                                    .addComponent(jLabel2))
-                                .addGap(30, 30, 30)
-                                .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(cbInstitutos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtNombreCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(29, 29, 29)
-                .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jLayeredPane2Layout.createSequentialGroup()
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel8))
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                                .addGap(22, 22, 22)
-                                .addComponent(jFecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtUrl))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jLayeredPane2Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtCreditos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jLayeredPane2Layout.createSequentialGroup()
-                            .addComponent(jLabel4)
-                            .addGap(18, 18, 18)
-                            .addComponent(txtDuracion))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jLayeredPane2Layout.createSequentialGroup()
-                            .addComponent(jLabel5)
-                            .addGap(18, 18, 18)
-                            .addComponent(txtHoras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jLayeredPane2Layout.setVerticalGroup(
             jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -209,48 +316,10 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(cbInstitutos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel2)
-                                    .addComponent(txtNombreCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(22, 22, 22)
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                                .addGap(30, 30, 30)
-                                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(txtDuracion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(txtHoras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(txtCreditos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel7)
-                            .addComponent(txtUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jLayeredPane2Layout.createSequentialGroup()
-                                .addComponent(jLabel8)
-                                .addGap(24, 24, 24)
-                                .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jCheckBox1)))
-                            .addComponent(jFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(43, Short.MAX_VALUE))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jLayeredPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
@@ -292,12 +361,12 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(8, 8, 8)
-                        .addComponent(jLayeredPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(231, 231, 231)
-                        .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addComponent(jLayeredPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -315,85 +384,168 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     private void AltaCursoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AltaCursoButtonActionPerformed
         // TODO add your handling code here:
         try {
+            // 1. Validar Instituto
             String nomInstituto = (String) cbInstitutos.getSelectedItem();
-            if (nomInstituto == null) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            if (nomInstituto == null || nomInstituto.trim().isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
+            // 2. Validar Nombre del Curso
             String nombreCurso = txtNombreCurso.getText().trim();
-            String descripcion = txtDescripcion.getText().trim();
-            String url = txtUrl.getText().trim();
-
-            int duracion = Integer.parseInt(txtDuracion.getText().trim());
-            int horas = Integer.parseInt(txtHoras.getText().trim());
-            int creditos = Integer.parseInt(txtCreditos.getText().trim());
-
-            // Parseo de la fecha ingresada por el usuario
-            if (jFecha.getDate() == null) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccione una fecha válida.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                return; // Cortar ejecución si no se seleccionó fecha
+            if (nombreCurso.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "El nombre del curso no puede estar vacío.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (Character.isDigit(nombreCurso.charAt(0))) {
+                javax.swing.JOptionPane.showMessageDialog(this, "El nombre del curso no puede comenzar con un número (Ingresado: '" + nombreCurso + "').", "Nombre Inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
             }
 
-            // 2. Obtener java.util.Date y convertir a java.time.LocalDate
+            // 3. Validar Descripción
+            String descripcion = txtDescripcion.getText().trim();
+            if (descripcion.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "La descripción no puede estar vacía.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 4. Validar Números (Duración, Horas, Créditos)
+            int duracion = (Integer) spnDuracion.getValue();
+            if (duracion <= 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, "La duración debe ser mayor a 0 (Valor ingresado: " + duracion + ").", "Valor Inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int horas = (Integer) spnCantHoras.getValue();
+            if (horas <= 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, "La cantidad de horas debe ser mayor a 0 (Valor ingresado: " + horas + ").", "Valor Inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int creditos = (Integer) spnCreditos.getValue();
+            if (creditos < 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Los créditos no pueden ser un valor negativo (Valor ingresado: " + creditos + ").", "Valor Inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            // 5. Validar URL
+            String url = txtUrl.getText().trim();
+            if (url.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "La URL no puede estar vacía.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (!esUrlValida(url)) {
+                javax.swing.JOptionPane.showMessageDialog(
+                        this,
+                        "La URL ingresada no tiene un formato válido.\nDebe comenzar con http:// o https:// (Ejemplo: https://ejemplo.com)",
+                        "URL Inválida",
+                        javax.swing.JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // 6. Validar Fecha
+            if (jFecha.getDate() == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccione una fecha válida.", "Fecha Inválida", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             java.util.Date dateSelected = jFecha.getDate();
             java.time.LocalDate fechaRegistro = dateSelected.toInstant()
                     .atZone(java.time.ZoneId.systemDefault())
                     .toLocalDate();
 
+            // 7. Extraer la lista de previas acumuladas (0, 1 o MÚLTIPLES)
             java.util.List<String> previas = new java.util.ArrayList<>();
             if (jCheckBox1.isSelected()) {
-                String previaSeleccionada = (String) jComboBox1.getSelectedItem();
-                if (previaSeleccionada != null) {
-                    previas.add(previaSeleccionada);
-                } else {
-                    javax.swing.JOptionPane.showMessageDialog(this, "No hay cursos registrados para seleccionar como previa.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+                if (modelPrevias.isEmpty()) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Marcó la casilla de 'Previa' pero no agregó ningún curso a la lista.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
                     return;
+                }
+                // Copiamos los elementos del DefaultListModel
+                for (int i = 0; i < modelPrevias.getSize(); i++) {
+                    previas.add(modelPrevias.getElementAt(i));
                 }
             }
 
-            // 4. Alta del curso llamando al controlador
+            // 8. Registro a través del controlador
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
             icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas);
 
             javax.swing.JOptionPane.showMessageDialog(this, "¡Curso registrado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 
-            // Limpiar campos
+            // 9. Limpiar formulario
             txtNombreCurso.setText("");
             txtDescripcion.setText("");
-            txtDuracion.setText("");
-            txtHoras.setText("");
-            txtCreditos.setText("");
+            spnDuracion.setValue(0);
+            spnCantHoras.setValue(0);
+            spnCreditos.setValue(0);
             txtUrl.setText("");
             jCheckBox1.setSelected(false);
-            jComboBox1.setEnabled(false);
-            cargarCursosPrevios(); // Recargar la lista para que incluya el nuevo curso recién registrado
+            modelPrevias.clear(); // Limpia la lista visual de previas
+            activarSeccionPrevias(false);
+            cargarCursosPrevios();
 
         } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Duración, horas y créditos deben ser números.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-        } catch (java.time.format.DateTimeParseException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "La fecha debe tener el formato dd/MM/yyyy.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Duración, horas y créditos deben ser números válidos.", "Error de Formato", javax.swing.JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Negocio", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Error en los datos del curso: " + e.getMessage(), "Error de Negocio", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_AltaCursoButtonActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
+        dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-        // TODO add your handling code here:
-        jComboBox1.setEnabled(jCheckBox1.isSelected());
+        boolean habilitar = jCheckBox1.isSelected();
+
+        jComboBox1.setEnabled(habilitar);
+        btnAgregarPrevia.setEnabled(habilitar); // Cambia el nombre si tu botón se llama distinto (ej: jButton1)
+        btnQuitarPrevia.setEnabled(habilitar);  // Si pusiste botón de quitar
+        lstPreviasSeleccionadas.setEnabled(habilitar);       // Si pusiste la lista visual
+
+        if (!habilitar) {
+            modelPrevias.clear(); // Limpia las previas si el usuario desmarca la casilla
+        }
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
-    private void txtCreditosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCreditosActionPerformed
+    private void btnAgregarPreviaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPreviaActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtCreditosActionPerformed
+        String cursoSeleccionado = (String) jComboBox1.getSelectedItem();
+
+        if (cursoSeleccionado == null || cursoSeleccionado.trim().isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un curso del desplegable.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Evitar agregar duplicados
+        if (modelPrevias.contains(cursoSeleccionado)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "El curso '" + cursoSeleccionado + "' ya está agregado en la lista de previas.", "Aviso", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            modelPrevias.addElement(cursoSeleccionado);
+        }
+    }//GEN-LAST:event_btnAgregarPreviaActionPerformed
+
+    private void btnQuitarPreviaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuitarPreviaActionPerformed
+        // TODO add your handling code here:
+        String seleccionado = lstPreviasSeleccionadas.getSelectedValue();
+
+        if (seleccionado != null) {
+            modelPrevias.removeElement(seleccionado);
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un curso de la lista para quitar.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btnQuitarPreviaActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AltaCursoButton;
+    private javax.swing.JButton btnAgregarPrevia;
+    private javax.swing.JButton btnQuitarPrevia;
     private javax.swing.JComboBox<String> cbInstitutos;
     private javax.swing.JButton jButton2;
     private javax.swing.JCheckBox jCheckBox1;
@@ -409,12 +561,15 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JLayeredPane jLayeredPane2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextField txtCreditos;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JList<String> lstPreviasSeleccionadas;
+    private javax.swing.JSpinner spnCantHoras;
+    private javax.swing.JSpinner spnCreditos;
+    private javax.swing.JSpinner spnDuracion;
     private javax.swing.JTextArea txtDescripcion;
-    private javax.swing.JTextField txtDuracion;
-    private javax.swing.JTextField txtHoras;
     private javax.swing.JTextField txtNombreCurso;
     private javax.swing.JTextField txtUrl;
     // End of variables declaration//GEN-END:variables

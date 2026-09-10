@@ -358,7 +358,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="lblValNombre3" min="-2" pref="229" max="-2" attributes="0"/>
+                          <Component id="lblValCupoDispo" min="-2" pref="229" max="-2" attributes="0"/>
                           <Component id="lblValFechaPublicacion" min="-2" pref="229" max="-2" attributes="0"/>
                           <Component id="lblValCupoTotal" min="-2" pref="229" max="-2" attributes="0"/>
                           <Component id="lblValFechaInicio" min="-2" pref="229" max="-2" attributes="0"/>
@@ -383,7 +383,7 @@
                       <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
                       <Component id="lblValCupoTotal" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
-                      <Component id="lblValNombre3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblValCupoDispo" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -400,7 +400,7 @@
                 <Property name="text" type="java.lang.String" value="&quot;&quot;"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="lblValNombre3">
+            <Component class="javax.swing.JLabel" name="lblValCupoDispo">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&quot;&quot;"/>
               </Properties>

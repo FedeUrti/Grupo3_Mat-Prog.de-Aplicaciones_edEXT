@@ -11,10 +11,19 @@ import java.util.List;
  * @author benja
  */
 public interface IControladorEdicion {
-    void altaEdicionCurso(String nombreCurso, DTEdicionCurso datosEdicion)throws Exception;
+    void altaEdicionCurso(String nombreCurso, DTEdicionCurso datosEdicion) throws Exception;
+
     List<String> listarEdicionesPorCurso(String nombreCurso);
+
     DTEdicionCurso mostrarDetalleEdicion(String nombreEdicion);
+
     void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion) throws Exception;
+
     public String obtenerCursoDeEdicion(String nombreEdicion);
+
     public List<String> listarEdicionesDeDocente(String nicknameDocente);
+
+    // Método a agregar:
+    public List<String> listarEdicionesDeEstudiante(String nicknameEstudiante);
+    
 }

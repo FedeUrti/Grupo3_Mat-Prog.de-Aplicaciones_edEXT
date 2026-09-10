@@ -125,7 +125,53 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
             cmbEdiciones.addActionListener(this::cmbEdicionesActionPerformed);
         }
     }
+    public void cargarDatosEdicion(String nombreEdicion) {
+        if (nombreEdicion == null || nombreEdicion.isEmpty()) {
+            return;
+        }
 
+        try {
+            // 1. Si tu pantalla usa ComboBoxes para Curso/Edición, puedes seleccionarlo aquí
+            // cmbEdiciones.setSelectedItem(nombreEdicion);
+
+            IControladorEdicion ice = Fabrica.getInstance().getIControladorEdicion();
+            DTEdicionCurso dt = ice.mostrarDetalleEdicion(nombreEdicion); // Ajusta según tu interfaz/controlador
+
+            if (dt != null) {
+                if (lblValNombre != null) {
+                    lblValNombre.setText(dt.getNombre());
+                }
+                if (lblValFechaInicio != null) {
+                    lblValFechaInicio.setText(dt.getFechaInicio() != null ? dt.getFechaInicio().toString() : "");
+                }
+                if (lblValFechaFin != null) {
+                    lblValFechaFin.setText(dt.getFechaFin() != null ? dt.getFechaFin().toString() : "");
+                }
+                if (lblValFechaPublicacion != null) {
+                    lblValFechaPublicacion.setText(dt.getFechaPublicacion() != null ? dt.getFechaPublicacion().toString() : "");
+                }
+                if (lblValCupoTotal != null) {
+                    lblValCupoTotal.setText(String.valueOf(dt.getCupo()));
+                }
+                if (lblValCupoDispo != null) {
+                    lblValCupoDispo.setText(String.valueOf(dt.getCupoDisponible()));
+                }
+
+                // Cargar Docentes si la edición los tiene
+                DefaultListModel<String> modDocentes = new DefaultListModel<>();
+                if (dt.getDocentes() != null) {
+                    for (String doc : dt.getDocentes()) {
+                        modDocentes.addElement(doc);
+                    }
+                }
+                if (listDocentes != null) {
+                    listDocentes.setModel(modDocentes);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar datos de la edición: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     // Cargar Institutos al iniciar
     private void cargarInstitutos() {
         cmbInstitutos.removeActionListener(this::cmbInstitutosActionPerformed);
@@ -235,10 +281,10 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
             if (cupoTotal > 0) {
                 int cupoDisponible = dt.getCupoDisponible();
                 lblValCupoTotal.setText(String.valueOf(cupoTotal));
-                lblValNombre3.setText(String.valueOf(cupoDisponible));
+                lblValCupoDispo.setText(String.valueOf(cupoDisponible));
             } else {
                 lblValCupoTotal.setText("Sin límite");
-                lblValNombre3.setText("Sin límite");
+                lblValCupoDispo.setText("Sin límite");
             }
 
             // Cargar docentes
@@ -258,7 +304,7 @@ private void limpiarCampos() {
     lblValFechaFin.setText("");
     lblValFechaPublicacion.setText("");
     lblValCupoTotal.setText("");
-    lblValNombre3.setText("");
+    lblValCupoDispo.setText("");
     listModelDocentes.clear();
 }
 
@@ -293,7 +339,7 @@ private void limpiarCampos() {
         jPanel3 = new javax.swing.JPanel();
         lblValCupoTotal = new javax.swing.JLabel();
         lblValFechaPublicacion = new javax.swing.JLabel();
-        lblValNombre3 = new javax.swing.JLabel();
+        lblValCupoDispo = new javax.swing.JLabel();
         lblValNombre = new javax.swing.JLabel();
         lblValFechaFin = new javax.swing.JLabel();
         lblValFechaInicio = new javax.swing.JLabel();
@@ -418,7 +464,7 @@ private void limpiarCampos() {
 
         lblValFechaPublicacion.setText("\"\"");
 
-        lblValNombre3.setText("\"\"");
+        lblValCupoDispo.setText("\"\"");
 
         lblValNombre.setText("\"\"");
 
@@ -433,7 +479,7 @@ private void limpiarCampos() {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblValNombre3, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblValCupoDispo, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblValFechaPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblValCupoTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblValFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -455,7 +501,7 @@ private void limpiarCampos() {
                 .addGap(29, 29, 29)
                 .addComponent(lblValCupoTotal)
                 .addGap(30, 30, 30)
-                .addComponent(lblValNombre3)
+                .addComponent(lblValCupoDispo)
                 .addContainerGap())
         );
 
@@ -557,12 +603,12 @@ private void limpiarCampos() {
     private javax.swing.JLabel labelFechaPublicacion;
     private javax.swing.JLabel labelInstituto;
     private javax.swing.JLabel labelNombre;
+    private javax.swing.JLabel lblValCupoDispo;
     private javax.swing.JLabel lblValCupoTotal;
     private javax.swing.JLabel lblValFechaFin;
     private javax.swing.JLabel lblValFechaInicio;
     private javax.swing.JLabel lblValFechaPublicacion;
     private javax.swing.JLabel lblValNombre;
-    private javax.swing.JLabel lblValNombre3;
     private javax.swing.JList<String> listDocentes;
     private javax.swing.JPanel panelSeleccion;
     // End of variables declaration//GEN-END:variables
