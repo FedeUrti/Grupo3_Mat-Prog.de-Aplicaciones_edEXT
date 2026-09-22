@@ -198,7 +198,6 @@ public class Principal extends javax.swing.JFrame {
         
         desktopPane.add(frame);
         frame.pack();
-        frame.setSize(480,531);
         frame.setVisible(true);
 
         desktopPane.revalidate();

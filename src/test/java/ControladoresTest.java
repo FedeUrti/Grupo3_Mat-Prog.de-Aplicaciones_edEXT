@@ -205,6 +205,7 @@ public class ControladoresTest {
                 LocalDate.of(2026, 3, 1),
                 LocalDate.of(2026, 7, 1),
                 30,
+                10,
                 LocalDate.of(2026, 2, 1),
                 docentes
         );
@@ -237,19 +238,19 @@ public class ControladoresTest {
     @Order(7)
     @DisplayName("Edicion: Excepciones")
     void testEdicionExcepciones() {
-        DTEdicionCurso dtEd = new DTEdicionCurso("Prog1-2026", LocalDate.now(), LocalDate.now(), 10, LocalDate.now(), null);
+        DTEdicionCurso dtEd = new DTEdicionCurso("Prog1-2026", LocalDate.now(), LocalDate.now(),30, 10, LocalDate.now(), null);
 
         // Edición duplicada
         assertThrows(Exception.class, () -> ctrlEdicion.altaEdicionCurso("Prog1", dtEd));
 
         // Curso inexistente
-        DTEdicionCurso dtEd2 = new DTEdicionCurso("EdicionX", LocalDate.now(), LocalDate.now(), 10, LocalDate.now(), null);
+        DTEdicionCurso dtEd2 = new DTEdicionCurso("EdicionX", LocalDate.now(), LocalDate.now(),30, 10, LocalDate.now(), null);
         assertThrows(Exception.class, () -> ctrlEdicion.altaEdicionCurso("CursoInexistente", dtEd2));
 
         // Docente inexistente al crear edición
         List<String> docInexistente = new ArrayList<>();
         docInexistente.add("docenteInexistente");
-        DTEdicionCurso dtEdBadDoc = new DTEdicionCurso("EdicionBadDoc", LocalDate.now(), LocalDate.now(), 10, LocalDate.now(), docInexistente);
+        DTEdicionCurso dtEdBadDoc = new DTEdicionCurso("EdicionBadDoc", LocalDate.now(), LocalDate.now(), 30,10, LocalDate.now(), docInexistente);
         assertThrows(Exception.class, () -> ctrlEdicion.altaEdicionCurso("Prog1", dtEdBadDoc));
 
         // Inscribir estudiante ya inscripto

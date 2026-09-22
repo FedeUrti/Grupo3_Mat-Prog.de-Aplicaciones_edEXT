@@ -17,13 +17,22 @@ public class Curso {
     @JoinColumn(name = "instituto_nombre")
     private Instituto instituto;
 
+    @Lob
+    @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
     private int duracion;
     private int cantHoras;
     private int creditos;
     private String url;
     private LocalDate fecha;
-
+   
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "Curso_Categoria",
+            joinColumns = @JoinColumn(name = "curso_nombre"),
+            inverseJoinColumns = @JoinColumn(name = "categoria_nombre")
+    )
+    private Set<Categoria> categorias = new HashSet<>();
     // Cambiado de List a Set para evitar MultipleBagFetchException en Hibernate
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Curso> previas = new HashSet<>();
@@ -109,7 +118,20 @@ public class Curso {
     public Set<ProgramaFormacion> getProgramas() {
         return programas;
     }
+    public Set<Categoria> getCategorias() {
+        return categorias;
+    }
 
+    public void setCategorias(Set<Categoria> categorias) {
+        this.categorias = categorias;
+    }
+
+    public void agregarCategoria(Categoria categoria) {
+        if (categoria != null) {
+            this.categorias.add(categoria);
+            categoria.getCursos().add(this);
+        }
+    }
     public void setProgramas(Set<ProgramaFormacion> programas) {
         this.programas = programas;
     }

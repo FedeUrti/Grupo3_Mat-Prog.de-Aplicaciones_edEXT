@@ -151,4 +151,18 @@ public class ControladorUsuario implements IControladorUsuario {
         }
         return estudiantes;
     }
+    
+    @Override
+    public List<String> listarDocentes() {
+        List<String> docentes = new ArrayList<>();
+        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
+        List<Usuario> usuarios = mu.getUsuarios();
+
+        for (Usuario u : usuarios) {
+            if (u instanceof Docente) {
+                docentes.add(u.getNickname());
+            }
+        }
+        return docentes;
+    }
 }

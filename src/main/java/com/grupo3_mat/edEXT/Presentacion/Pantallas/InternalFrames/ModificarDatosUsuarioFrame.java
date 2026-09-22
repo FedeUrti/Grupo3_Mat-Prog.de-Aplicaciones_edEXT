@@ -184,13 +184,9 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
 
                     // 2. Filtrado por Texto (con protección anti-null)
                     String nickStr = (dt.getNickname() != null) ? dt.getNickname().toLowerCase() : "";
-                    String nomStr = (dt.getNombre() != null) ? dt.getNombre().toLowerCase() : "";
-                    String apeStr = (dt.getApellido() != null) ? dt.getApellido().toLowerCase() : "";
-
+                   
                     boolean coincideTexto = texto.isEmpty()
-                            || nickStr.contains(texto)
-                            || nomStr.contains(texto)
-                            || apeStr.contains(texto);
+                            || nickStr.contains(texto);
 
                     if (coincideTipo && coincideTexto) {
                         model.addElement(dt.getNickname());
@@ -257,7 +253,6 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         lstSeleccioneUsuario = new javax.swing.JList<>();
         panelBuscador = new javax.swing.JPanel();
-        buscarBtn = new javax.swing.JButton();
         buscarTxt = new javax.swing.JTextField();
         panelFiltros = new javax.swing.JPanel();
         rbTodos = new javax.swing.JRadioButton();
@@ -295,13 +290,10 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
         panelBuscador.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscador"));
         panelBuscador.setMinimumSize(new java.awt.Dimension(410, 142));
 
-        buscarBtn.setText("Buscar");
-
-        buscarTxt.setText("jTextField1");
-
         panelFiltros.setBorder(javax.swing.BorderFactory.createTitledBorder("Filtros"));
 
         btnGroup.add(rbTodos);
+        rbTodos.setSelected(true);
         rbTodos.setText("Todos");
         rbTodos.addActionListener(this::rbTodosActionPerformed);
 
@@ -344,28 +336,21 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
         panelBuscador.setLayout(panelBuscadorLayout);
         panelBuscadorLayout.setHorizontalGroup(
             panelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelBuscadorLayout.createSequentialGroup()
+                .addComponent(buscarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(119, Short.MAX_VALUE))
             .addGroup(panelBuscadorLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelBuscadorLayout.createSequentialGroup()
-                        .addComponent(buscarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buscarBtn))
-                    .addGroup(panelBuscadorLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(filtroBtn)
-                        .addGap(18, 18, 18)
-                        .addComponent(panelFiltros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(35, Short.MAX_VALUE))
+                .addGap(16, 16, 16)
+                .addComponent(filtroBtn)
+                .addGap(18, 18, 18)
+                .addComponent(panelFiltros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         panelBuscadorLayout.setVerticalGroup(
             panelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelBuscadorLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(buscarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buscarBtn))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(buscarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
                 .addGroup(panelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(panelFiltros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(filtroBtn))
@@ -653,7 +638,6 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
     private javax.swing.ButtonGroup btnGroup;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnSeleccionarImagen;
-    private javax.swing.JButton buscarBtn;
     private javax.swing.JTextField buscarTxt;
     private javax.swing.JToggleButton filtroBtn;
     private com.toedter.calendar.JDateChooser jFecha;

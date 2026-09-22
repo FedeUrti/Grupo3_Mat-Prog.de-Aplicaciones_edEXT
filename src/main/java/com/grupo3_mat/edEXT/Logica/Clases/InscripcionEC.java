@@ -22,7 +22,8 @@ public class InscripcionEC {
     @MapsId("estudianteNickname") // Apunta a estudianteNickname en InscripcionECId
     @JoinColumn(name = "estudiante_nickname")
     private Estudiante estudiante;
-
+    @Enumerated(EnumType.STRING)
+    private EstadoInscripcion estado = EstadoInscripcion.INSCRIPTO;
     private LocalDate fechaInscripcion;
 
     public InscripcionEC() {}
@@ -59,5 +60,12 @@ public class InscripcionEC {
     
     public void setEdicion(EdicionCurso edicion) { 
         this.edicion = edicion; 
+    }
+    public EstadoInscripcion getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoInscripcion estado) {
+        this.estado = estado;
     }
 }

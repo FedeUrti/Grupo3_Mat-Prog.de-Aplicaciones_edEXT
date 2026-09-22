@@ -100,6 +100,7 @@ public class ControladorEdicion implements IControladorEdicion {
             edicion.getFechaInicio(),
             edicion.getFechaFin(),
             edicion.getCupo(),
+            edicion.getCupoDisponible(),
             edicion.getFechaPublicacion(),
             nombresDocentes
         );
@@ -166,4 +167,20 @@ public class ControladorEdicion implements IControladorEdicion {
         }
         return null;
     }
-}
+    @Override
+    public List<String> listarEdicionesDeEstudiante(String nicknameEstudiante) {
+        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
+        Usuario usr = mu.buscarUsuarioPorNickname(nicknameEstudiante);
+
+        if (usr instanceof Estudiante) {
+            Estudiante estudiante = (Estudiante) usr;
+            if (estudiante.getInscripciones() != null) {
+                // keySet() retorna directamente los nombres de las ediciones (edicionNombre)
+                return new ArrayList<>(estudiante.getInscripciones().keySet());
+            }
+        }
+
+        return new ArrayList<>();
+    }
+
+ }
