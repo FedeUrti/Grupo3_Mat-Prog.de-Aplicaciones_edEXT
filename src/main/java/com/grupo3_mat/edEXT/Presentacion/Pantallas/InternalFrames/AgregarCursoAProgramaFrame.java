@@ -6,6 +6,7 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
@@ -40,8 +41,8 @@ private void cargarDatos() throws Exception {
         
         // 1. Cargar lista de progrmas desde el Conrolador
         IControladorProgramaFormacion icpf = Fabrica.getInstance().getIControladorProgramaFormacion();
-        List<ProgramaFormacion> programas = icpf.listarProgramas();
-        for (ProgramaFormacion p : programas) {
+        List<DTProgramaFormacion> programas = icpf.listarProgramas();
+        for (DTProgramaFormacion p : programas) {
             cmbProgramas.addItem(p.getNombre());
         }
         

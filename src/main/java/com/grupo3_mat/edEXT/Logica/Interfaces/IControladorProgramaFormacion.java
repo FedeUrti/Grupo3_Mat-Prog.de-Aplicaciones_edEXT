@@ -1,19 +1,20 @@
 package com.grupo3_mat.edEXT.Logica.Interfaces;
 
-import com.grupo3_mat.edEXT.Logica.Clases.Curso;
-import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IControladorProgramaFormacion {
-
-    public abstract void crearProgramaFormacion(String nombre, String descripcion, Date fechaInicio, Date fechaFin, Date fechaAlta) throws Exception;
-    public abstract void agregarCursoAPrograma(String nombrePrograma, String nombreCurso) throws Exception;
-    public abstract List<ProgramaFormacion> listarProgramas() throws Exception;
-    public abstract ProgramaFormacion seleccionarPrograma(String nombre) throws Exception;
-    public abstract Curso seleccionarCurso(String nombreCurso) throws Exception;
-
-    // Nuevo método para obtener los datos encapsulados en DataType
-    public abstract DTProgramaFormacion consultarPrograma(String nombre) throws Exception;
+    /** Crea un programa asociado al docente que será responsable de gestionarlo. */
+    void crearProgramaFormacion(String nicknameDocente, String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaFin, LocalDate fechaAlta, String imagenPath) throws Exception;
+    /** Firma antigua, conservada para que las llamadas viejas reciban un error claro. */
+    @Deprecated
+    void crearProgramaFormacion(String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaFin, LocalDate fechaAlta, String imagenPath) throws Exception;
+    void agregarCursoAPrograma(String nombrePrograma, String nombreCurso) throws Exception;
+    List<DTProgramaFormacion> listarProgramas() throws Exception;
+    DTProgramaFormacion seleccionarPrograma(String nombre) throws Exception;
+    DtCurso seleccionarCurso(String nombreCurso) throws Exception;
+    DTProgramaFormacion consultarPrograma(String nombre) throws Exception;
+    void inscribirEstudianteAPrograma(String nickname, String nombrePrograma, LocalDate fechaInscripcion) throws Exception;
 }

@@ -22,8 +22,10 @@ public class ControladorInstituto implements IControladorInstituto {
         ManejadorInstituto mi = ManejadorInstituto.getInstancia();
         List<Instituto> institutos = mi.listarInstitutos();
         List<String> nombres = new ArrayList<>();
-        for (Instituto inst : institutos) {
-            nombres.add(inst.getNombre());
+        if (institutos != null) {
+            for (Instituto inst : institutos) {
+                nombres.add(inst.getNombre());
+            }
         }
         return nombres;
     }

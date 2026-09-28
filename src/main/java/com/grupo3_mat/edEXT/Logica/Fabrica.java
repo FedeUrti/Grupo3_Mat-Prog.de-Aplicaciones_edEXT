@@ -23,6 +23,11 @@ public class Fabrica {
     public IControladorCurso getIControladorCurso() {
         return new ControladorCurso();
     }
+
+    public IControladorCategoria getIControladorCategoria() {
+        // La presentación recibe la interfaz y no necesita conocer la clase concreta del controlador.
+        return new ControladorCategoria();
+    }
     
     public IControladorInstituto getIControladorInstituto() {
         return new ControladorInstituto();

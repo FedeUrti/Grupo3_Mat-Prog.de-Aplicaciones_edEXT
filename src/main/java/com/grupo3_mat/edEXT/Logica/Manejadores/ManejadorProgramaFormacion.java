@@ -1,10 +1,12 @@
 package com.grupo3_mat.edEXT.Logica.Manejadores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
+import com.grupo3_mat.edEXT.Logica.Clases.Docente;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
-import java.util.List;
 import jakarta.persistence.EntityManager;
+import java.util.List;
 
 public class ManejadorProgramaFormacion {
 
@@ -20,11 +22,17 @@ public class ManejadorProgramaFormacion {
         return instancia;
     }
 
-    // Para guardar registros nuevos por primera vez
     public void agregarPrograma(ProgramaFormacion pf) {
+        // Se valida aquí también para evitar programas sin responsable aunque se saltee el controlador.
+        if (pf.getDocente() == null) {
+            throw new IllegalArgumentException("El programa debe tener un docente responsable.");
+        }
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
+            // El docente viene de otra consulta y se enlaza a la transacción que guarda el programa.
+            Docente docenteGestionado = em.getReference(Docente.class, pf.getDocente().getNickname());
+            pf.setDocente(docenteGestionado);
             em.persist(pf);
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -42,6 +50,7 @@ public class ManejadorProgramaFormacion {
         try {
             em.getTransaction().begin();
 
+            // Se cargan ambas entidades dentro de la misma transacción antes de asociarlas.
             ProgramaFormacion pf = em.find(ProgramaFormacion.class, nombrePrograma);
             Curso c = em.find(Curso.class, nombreCurso);
 
@@ -56,23 +65,17 @@ public class ManejadorProgramaFormacion {
                 throw new Exception("El curso '" + c.getNombre() + "' ya pertenece al programa '" + pf.getNombre() + "'.");
             }
 
-            // 1. Sincronizar ambos lados de la relación bidireccional en memoria
             pf.agregarCurso(c);
             if (c.getProgramas() != null && !c.getProgramas().contains(pf)) {
                 c.getProgramas().add(pf);
             }
 
-            // 2. Persistir
             em.getTransaction().commit();
         } catch (Exception ex) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
 
-            // Imprime el StackTrace completo en la consola de NetBeans para ver la causa exacta
-            ex.printStackTrace();
-
-            // Extrae el mensaje de la excepción de nivel más bajo (ej. SQLException)
             Throwable rootCause = ex;
             while (rootCause.getCause() != null) {
                 rootCause = rootCause.getCause();
@@ -83,7 +86,6 @@ public class ManejadorProgramaFormacion {
         }
     }
 
-    // Para actualizar registros ya existentes en la BD
     public void modificarPrograma(ProgramaFormacion pf) {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
@@ -109,12 +111,53 @@ public class ManejadorProgramaFormacion {
         }
     }
 
-    public List<ProgramaFormacion> getProgramas() {
+    public List<DTProgramaFormacion> getProgramas() {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            List<ProgramaFormacion> programas = em.createQuery(
+                    "SELECT p FROM ProgramaFormacion p", ProgramaFormacion.class).getResultList();
+            List<DTProgramaFormacion> resultado = new java.util.ArrayList<>();
+            for (ProgramaFormacion programa : programas) {
+                resultado.add(convertirADataType(programa));
+            }
+            return resultado;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<ProgramaFormacion> listarEntidades() {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT p FROM ProgramaFormacion p", ProgramaFormacion.class).getResultList();
         } finally {
             em.close();
         }
+    }
+
+    private DTProgramaFormacion convertirADataType(ProgramaFormacion programa) {
+        // El DTO contiene nombres y datos de presentación, no referencias a objetos persistentes.
+        List<String> cursos = new java.util.ArrayList<>();
+        for (Curso curso : programa.getCursos().values()) {
+            cursos.add(curso.getNombre());
+        }
+
+        List<String> categorias = new java.util.ArrayList<>();
+        for (com.grupo3_mat.edEXT.Logica.Clases.Categoria categoria : programa.getCategorias()) {
+            categorias.add(categoria.getNombre());
+        }
+
+        List<String> institutos = new java.util.ArrayList<>();
+        for (com.grupo3_mat.edEXT.Logica.Clases.Instituto instituto : programa.getInstitutos()) {
+            institutos.add(instituto.getNombre());
+        }
+
+        return new DTProgramaFormacion(
+                programa.getNombre(), programa.getDescripcion(), programa.getFechaInicio(),
+                programa.getFechaFin(), programa.getFechaAlta(), cursos, categorias,
+                programa.getImagenPath(),
+                programa.getDocente() != null ? programa.getDocente().getNickname() : null,
+                institutos
+        );
     }
 }

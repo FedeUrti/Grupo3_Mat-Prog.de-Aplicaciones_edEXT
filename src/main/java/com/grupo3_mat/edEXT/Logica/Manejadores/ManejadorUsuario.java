@@ -2,12 +2,12 @@ package com.grupo3_mat.edEXT.Logica.Manejadores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Docente;
 import com.grupo3_mat.edEXT.Logica.Clases.Estudiante;
+import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
 import com.grupo3_mat.edEXT.Logica.Clases.Usuario;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.Persistence;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ManejadorUsuario {
@@ -25,9 +25,17 @@ public class ManejadorUsuario {
     }
 
     public void agregarUsuario(Usuario usuario) {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
+            if (usuario instanceof Docente docente) {
+                // Las búsquedas previas devuelven institutos desconectados; se vuelven referencias de esta transacción.
+                List<Instituto> institutosGestionados = new ArrayList<>();
+                for (Instituto instituto : docente.getInstitutos()) {
+                    institutosGestionados.add(em.getReference(Instituto.class, instituto.getNombre()));
+                }
+                docente.setInstitutos(institutosGestionados);
+            }
             em.persist(usuario);
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -41,7 +49,7 @@ public class ManejadorUsuario {
     }
 
     public void modificarUsuario(Usuario usuario) {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
             em.merge(usuario);
@@ -57,7 +65,7 @@ public class ManejadorUsuario {
     }
 
     public Usuario buscarUsuarioPorNickname(String nickname) {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.find(Usuario.class, nickname);
         } finally {

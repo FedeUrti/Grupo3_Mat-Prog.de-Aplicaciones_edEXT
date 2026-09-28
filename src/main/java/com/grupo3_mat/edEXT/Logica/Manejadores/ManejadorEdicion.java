@@ -1,12 +1,8 @@
 package com.grupo3_mat.edEXT.Logica.Manejadores;
 
-/**
- *
- * @author benja
- */
 import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 
 public class ManejadorEdicion {
@@ -24,7 +20,7 @@ public class ManejadorEdicion {
     }
 
     public void agregarEdicion(EdicionCurso edicion) {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(edicion);
@@ -40,15 +36,16 @@ public class ManejadorEdicion {
     }
 
     public EdicionCurso buscarEdicion(String nombre) {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.find(EdicionCurso.class, nombre);
         } finally {
             em.close();
         }
     }
+
     public List<EdicionCurso> buscarEdicionesPorDocente(String nicknameDocente) {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery(
                     "SELECT e FROM EdicionCurso e JOIN e.docentes d WHERE d.nickname = :nick",
@@ -59,8 +56,9 @@ public class ManejadorEdicion {
             em.close();
         }
     }
+
     public List<EdicionCurso> listarEdiciones() {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT e FROM EdicionCurso e", EdicionCurso.class).getResultList();
         } finally {
@@ -69,7 +67,7 @@ public class ManejadorEdicion {
     }
 
     public void modificarEdicion(EdicionCurso edicion) {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
             em.merge(edicion);
@@ -85,7 +83,7 @@ public class ManejadorEdicion {
     }
 
     public void eliminarEdicion(String nombre) {
-        EntityManager em = Conexion.getInstancia().getEntityManager();;
+        EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
             EdicionCurso edicion = em.find(EdicionCurso.class, nombre);

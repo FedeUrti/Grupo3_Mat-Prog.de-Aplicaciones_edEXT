@@ -7,6 +7,7 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas;
 import com.grupo3_mat.edEXT.Logica.CargadorDatosPrueba;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AgregarCursoAProgramaFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaCursoFrame;
+import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaCategoriaFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaEdicionCursoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaInstitutoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.AltaUsuarioFrame;
@@ -65,6 +66,7 @@ public class Principal extends javax.swing.JFrame {
         AltaInstitutoMenuItem = new javax.swing.JMenuItem();
         jMenu6 = new javax.swing.JMenu();
         CargaTotalbtn = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -152,6 +154,10 @@ public class Principal extends javax.swing.JFrame {
         CargaTotalbtn.setText("Carga Total Automatica");
         CargaTotalbtn.addActionListener(this::CargaTotalbtnActionPerformed);
         jMenu6.add(CargaTotalbtn);
+
+        jMenuItem2.setText("AltaCategoria");
+        jMenuItem2.addActionListener(this::jMenuItem2ActionPerformed);
+        jMenu6.add(jMenuItem2);
 
         jMenuBar1.add(jMenu6);
 
@@ -389,6 +395,22 @@ public class Principal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_CargaTotalbtnActionPerformed
 
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // TODO add your handling code here:
+        AltaCategoriaFrame frame = new AltaCategoriaFrame();
+        frame.setClosable(true);
+        frame.setIconifiable(true);
+        frame.setResizable(false);
+
+        desktopPane.add(frame);
+        frame.setVisible(true);
+
+        desktopPane.revalidate();
+        desktopPane.repaint();
+
+        
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -434,6 +456,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu6;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem modificarDatosUsuarioMenuItem;

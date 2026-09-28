@@ -1,20 +1,17 @@
 package com.grupo3_mat.edEXT.Logica;
+
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.*;
-// Asegúrate de importar tu Fabrica y otras dependencias necesarias
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public class CargadorDatosPrueba {
     
     public void cargarDatosTotales() {
-        // Obtener las instancias de tu fábrica
         Fabrica fabrica = Fabrica.getInstance();
         IControladorInstituto ctrlInst = fabrica.getIControladorInstituto();
         IControladorUsuario ctrlUsu = fabrica.getIControladorUsuario();
@@ -38,7 +35,6 @@ public class CargadorDatosPrueba {
     }
 
     private void cargarInstitutos(IControladorInstituto ctrl) {
-        // AltaInstituto solo recibe el String[cite: 44]
         ctrl.altaInstituto("INCO");
         ctrl.altaInstituto("IMERL");
         ctrl.altaInstituto("Física");
@@ -48,36 +44,34 @@ public class CargadorDatosPrueba {
     }
 
     private void cargarUsuarios(IControladorUsuario ctrl) throws Exception {
-        // Estudiantes: nomInstituto va en null[cite: 46]
-        ctrl.altaUsuario("eleven11", "Eleven", "Twelve", "eleven11@gmail.com", LocalDate.of(1971, 12, 31), "", null);
-        ctrl.altaUsuario("costas", "Gerardo", "Costas", "gcostas@gmail.com", LocalDate.of(1983, 11, 15), "", null);
-        ctrl.altaUsuario("roro", "Rodrigo", "Cotelo", "rcotelo@yahoo.com", LocalDate.of(1975, 8, 2), "", null);
-        ctrl.altaUsuario("chechi", "Cecilia", "Garrido", "cgarrido@hotmail.com", LocalDate.of(1987, 9, 12), "", null);
-        ctrl.altaUsuario("jeffw", "Jeff", "Williams", "jwilliams@gmail.com", LocalDate.of(1964, 11, 27), "", null);
-        ctrl.altaUsuario("weiss", "Adrian", "Weiss", "aweiss@hotmail.com", LocalDate.of(1978, 12, 23), "", null);
+        // Estudiantes
+        ctrl.altaUsuario("eleven11", "Eleven", "Twelve", "eleven11@gmail.com", LocalDate.of(1971, 12, 31), "", null, "Pepe1");
+        ctrl.altaUsuario("costas", "Gerardo", "Costas", "gcostas@gmail.com", LocalDate.of(1983, 11, 15), "", null, "Pepe1");
+        ctrl.altaUsuario("roro", "Rodrigo", "Cotelo", "rcotelo@yahoo.com", LocalDate.of(1975, 8, 2), "", null, "Pepe1");
+        ctrl.altaUsuario("chechi", "Cecilia", "Garrido", "cgarrido@hotmail.com", LocalDate.of(1987, 9, 12), "", null, "Pepe1");
+        ctrl.altaUsuario("jeffw", "Jeff", "Williams", "jwilliams@gmail.com", LocalDate.of(1964, 11, 27), "", null, "Pepe1");
+        ctrl.altaUsuario("weiss", "Adrian", "Weiss", "aweiss@hotmail.com", LocalDate.of(1978, 12, 23), "", null, "Pepe1");
 
-        // Docentes: pasamos el nombre del Instituto[cite: 46]
-        ctrl.altaUsuario("heisenberg", "Walter", "White", "heisenberg@gmail.com", LocalDate.of(1956, 3, 7), "", "INCO");
-        ctrl.altaUsuario("benkenobi", "Obi-Wan", "Kenobi", "benKenobi@gmail.com", LocalDate.of(1914, 4, 2), "", "INCO");
-        ctrl.altaUsuario("waston", "Emma", "Watson", "e.watson@gmail.com", LocalDate.of(1990, 4, 15), "", "INCO");
-        ctrl.altaUsuario("house", "Gregory", "House", "greghouse@gmail.com", LocalDate.of(1959, 5, 15), "", "Eléctrica");
-        ctrl.altaUsuario("timmy", "Tim", "Cook", "tim.cook@apple.com", LocalDate.of(1960, 11, 1), "", "IMERL");
-        ctrl.altaUsuario("danny", "Daniel", "Riccio", "dan.riccio@gmail.com", LocalDate.of(1963, 7, 5), "", "IMERL");
-        ctrl.altaUsuario("phils", "Philip", "Schiller", "schiller@gmail.com", LocalDate.of(1961, 10, 7), "", "IMPII");
-        ctrl.altaUsuario("bruces", "Bruce", "Sewell", "sewell@gmail.com", LocalDate.of(1959, 12, 3), "", "DISI");
-        ctrl.altaUsuario("adri", "Adriana", "García", "agarcia@gmail.com", LocalDate.of(1978, 7, 28), "", "DISI");
+        // Docentes
+        ctrl.altaUsuario("heisenberg", "Walter", "White", "heisenberg@gmail.com", LocalDate.of(1956, 3, 7), "", "INCO", "Pepe1");
+        ctrl.altaUsuario("benkenobi", "Obi-Wan", "Kenobi", "benKenobi@gmail.com", LocalDate.of(1914, 4, 2), "", "INCO", "Pepe1");
+        ctrl.altaUsuario("waston", "Emma", "Watson", "e.watson@gmail.com", LocalDate.of(1990, 4, 15), "", "INCO", "Pepe1");
+        ctrl.altaUsuario("house", "Gregory", "House", "greghouse@gmail.com", LocalDate.of(1959, 5, 15), "", "Eléctrica", "Pepe1");
+        ctrl.altaUsuario("timmy", "Tim", "Cook", "tim.cook@apple.com", LocalDate.of(1960, 11, 1), "", "IMERL", "Pepe1");
+        ctrl.altaUsuario("danny", "Daniel", "Riccio", "dan.riccio@gmail.com", LocalDate.of(1963, 7, 5), "", "IMERL", "Pepe1");
+        ctrl.altaUsuario("phils", "Philip", "Schiller", "schiller@gmail.com", LocalDate.of(1961, 10, 7), "", "IMPII", "Pepe1");
+        ctrl.altaUsuario("bruces", "Bruce", "Sewell", "sewell@gmail.com", LocalDate.of(1959, 12, 3), "", "DISI", "Pepe1");
+        ctrl.altaUsuario("adri", "Adriana", "García", "agarcia@gmail.com", LocalDate.of(1978, 7, 28), "", "DISI", "Pepe1");
     }
 
     private void cargarCursos(IControladorCurso ctrl) throws Exception {
-        // Nota: La duración en ControladorCurso es un int[cite: 42], extraje el número de las semanas.
-        // Se deben cargar primero los cursos que NO tienen previas, y luego los que sí.
-
-        // 1. Cursos SIN previas[cite: 42]
+        // Cursos SIN previas
         ctrl.altaCurso("IMERL", "Talleres plenarios", "Talleres plenarios*: presentados por cuatro reconocidos\n"
                 + "matemáticos uruguayos, plantearán diversos tópicos de matemática\n"
                 + "en el marco de los cuales se realizarán actividades fomentando la\n"
                 + "integración entre\n"
-                + "estudiantes, docentes e investigadores", 3, 15, 1, "www.tmu.edu.uy", LocalDate.of(2026, 2, 1), new ArrayList<>());
+                + "estudiantes, docentes e investigadores", 3, 15, 1, "www.tmu.edu.uy", LocalDate.of(2026, 2, 1), new ArrayList<>(), new ArrayList<>(), "");
+
         ctrl.altaCurso("IMPII", "Inclusión Energética", "En el proyecto se conjuga el trabajo de docentes y estudiantes de la\n"
                 + "carrera Ingeniería Industrial Mecánica a través del Módulo de\n"
                 + "Extensión, en donde se trabaja en el diseño, construcción y prueba\n"
@@ -85,29 +79,34 @@ public class CargadorDatosPrueba {
                 + "relevantes para luego poder replicarlos junto a las familias en los\n"
                 + "talleres. Las premisas fundamentales a la hora de pensar los diseños\n"
                 + "son: por un lado el bajo costo de los materiales y por otro la fácil\n"
-                + "construcción de forma de poder construirlos ellos mismos.", 6, 45, 3, "https://eva.fing.edu.uy/course/view.php?id=783#section-2", LocalDate.of(2026, 2, 1), new ArrayList<>());
+                + "construcción de forma de poder construirlos ellos mismos.", 6, 45, 3, "https://eva.fing.edu.uy/course/view.php?id=783#section-2", LocalDate.of(2026, 2, 1), new ArrayList<>(), new ArrayList<>(), "");
+
         ctrl.altaCurso("DISI", "Flor del Ceibo", "Flor de Ceibo es un proyecto central de la Universidad de la\n"
                 + "República, que tiene misión por movilizar la participación de\n"
                 + "estudiantes universitarios en diversas tareas vinculadas con la\n"
-                + "puesta en funcionamiento del Plan Ceibal en el territorio nacional.", 15, 150, 10, "http://www.flordeceibo.edu.uy/", LocalDate.of(2008, 7, 27), new ArrayList<>());
+                + "puesta en funcionamiento del Plan Ceibal en el territorio nacional.", 15, 150, 10, "http://www.flordeceibo.edu.uy/", LocalDate.of(2008, 7, 27), new ArrayList<>(), new ArrayList<>(), "");
+
         ctrl.altaCurso("INCO", "Taller de robótica educativa", "La asignatura se organiza en dos etapas. La primer etapa se dicta a\n"
                 + "través de clases teóricoprácticas, donde se espera además que cada\n"
                 + "estudiante le dedique horas de estudio.\n"
                 + "La segunda etapa consiste en que los estudiantes trabajen en grupo\n"
                 + "sobre el diseño e implementación de una experiencia didáctica de\n"
                 + "inclusión del robot Butiá en el aula, utilizando los conocimientos\n"
-                + "aprendidos en clase.", 8, 90, 6, "https://eva.fing.edu.uy/course/view.php?$id=1187$", LocalDate.of(2024, 2, 2), new ArrayList<>());
+                + "aprendidos en clase.", 8, 90, 6, "https://eva.fing.edu.uy/course/view.php?$id=1187$", LocalDate.of(2024, 2, 2), new ArrayList<>(), new ArrayList<>(), "");
+
         ctrl.altaCurso("INCO", "Participación en investigación sobre el empleo del juego Komikan", "Se propone desarrollar una aplicación interactiva para tablet\n"
                 + "Android basada en el juego de tablero Komikan (versión web del\n"
                 + "juego\n"
                 + "(https://codepen.io/Borborem/full/OvZBvZ/), que incluya los\n"
                 + "distintos aspectos concernientes al juego, así como a situaciones\n"
-                + "específicas particulares.", 9, 45, 3, "https://eva.fing.edu.uy/mod/folder/view.php?id=89398", LocalDate.of(2026, 6, 15), new ArrayList<>());
+                + "específicas particulares.", 9, 45, 3, "https://eva.fing.edu.uy/mod/folder/view.php?id=89398", LocalDate.of(2026, 6, 15), new ArrayList<>(), new ArrayList<>(), "");
+
         ctrl.altaCurso("INCO", "Herramientas de apoyo a la enseñanza de inglés", "Se realizarán visitas a escuelas rurales participantes en un proyecto\n"
                 + "conjunto del grupo PLN y el Programa de Políticas Lingüísticas de\n"
                 + "ANEP, en el marco del cual se desarrollaron diferentes herramientas\n"
                 + "para uso de maestros que enseñan inglés con apoyo remoto de\n"
-                + "profesores especializados desde Montevideo.", 12, 60, 4, "https://eva.fing.edu.uy/mod/folder/view.php?id=89398", LocalDate.of(2026, 5, 24), new ArrayList<>());
+                + "profesores especializados desde Montevideo.", 12, 60, 4, "https://eva.fing.edu.uy/mod/folder/view.php?id=89398", LocalDate.of(2026, 5, 24), new ArrayList<>(), new ArrayList<>(), "");
+
         ctrl.altaCurso("Eléctrica", "MicroBit", "El Centro Ceibal se encuentra distribuyendo placas micro:bit\n"
                 + "(https://microbit.ceibal.edu.uy/) para que estudiantes de primaria\n"
                 + "y secundaria aprendan nociones básicas de robótica, electrónica y\n"
@@ -115,30 +114,30 @@ public class CargadorDatosPrueba {
                 + "un microcontrolador y cuentan con leds, botones, acelerómetro,\n"
                 + "brújula, bluetooth y otros sensores. Además, las placas se\n"
                 + "programan fácilmente con lenguaje tipo “scratch” y python, por lo\n"
-                + "que son muy útiles para un primer acercamiento a la temática.", 15, 105, 7, "https://www.fing.edu.uy/noticias/extension/modulo-de-tallerextension-microbit", LocalDate.of(2026, 3, 13), new ArrayList<>());
+                + "que son muy útiles para un primer acercamiento a la temática.", 15, 105, 7, "https://www.fing.edu.uy/noticias/extension/modulo-de-tallerextension-microbit", LocalDate.of(2026, 3, 13), new ArrayList<>(), new ArrayList<>(), "");
 
-        // 2. Cursos CON previas (Las listas se pasan en la misma firma)[cite: 42]
+        // Cursos CON previas
         List<String> previasC1 = Arrays.asList("Talleres plenarios");
         ctrl.altaCurso("IMERL", "Seminarios de Resolución de Problemas", "Seminario, *todos los jueves* en Facultad de Ingeniería a\n"
                 + "partir del jueves 25 de Julio, en las áreas en que se desarrollan los\n"
-                + "problemas de las Olimpíadas de Matemática.", 5, 30, 2, "www.tmu.edu.uy", LocalDate.of(2026, 7, 12), previasC1);
+                + "problemas de las Olimpíadas de Matemática.", 5, 30, 2, "www.tmu.edu.uy", LocalDate.of(2026, 7, 12), previasC1, new ArrayList<>(), "");
+
         ctrl.altaCurso("IMPII", "Dalavuelta", "Dalavuelta es un proyecto de extensión que nace en el Instituto de\n"
                 + "Ingeniería Mecánica y Producción Industrial (IIMPI) de Fing, que, si\n"
                 + "bien inicia su trabajo en el desarrollo de bicicletas accesibles para\n"
                 + "personas en situación de discapacidad motriz a partir de bicicletas\n"
                 + "abandonadas, se propuso diseñar otras herramientas para fomentar\n"
-                + "la accesibilidad.", 10, 60, 4, "https://eva.fing.edu.uy/course/view.php?id783#section-2", LocalDate.of(2024, 6, 25), previasC1);
+                + "la accesibilidad.", 10, 60, 4, "https://eva.fing.edu.uy/course/view.php?id783#section-2", LocalDate.of(2024, 6, 25), previasC1, new ArrayList<>(), "");
+
         ctrl.altaCurso("IMPII", "Extensionismo Industrial", "El proyecto tiene como objetivo desarrollar intervenciones\n"
                 + "curriculares en pequeños emprendimientos productivos de\n"
                 + "diferentes sectores de la industria nacional.La metodologías de\n"
                 + "trabajo permite articular diversas intervenciones, combinando\n"
                 + "actividades de enseñanza, extensión e investigación por parte de\n"
-                + "docentes del IMPII.", 12, 75, 5, "https://eva.fing.edu.uy/course/view.php?id=783#section-2", LocalDate.of(2025, 6, 16), previasC1);
+                + "docentes del IMPII.", 12, 75, 5, "https://eva.fing.edu.uy/course/view.php?id=783#section-2", LocalDate.of(2025, 6, 16), previasC1, new ArrayList<>(), "");
     }
 
     private void cargarEdiciones(IControladorEdicion ctrl) throws Exception {
-        // Se usa DTEdicionCurso, pasándole la lista de docentes directamente[cite: 43]
-
         ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2010", LocalDate.of(2010, 3, 15), LocalDate.of(2010, 7, 7), -1, -1, LocalDate.of(2010, 2, 16), Arrays.asList("bruces")));
         ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2012", LocalDate.of(2012, 8, 1), LocalDate.of(2012, 11, 20), -1, -1, LocalDate.of(2012, 7, 10), Arrays.asList("bruces", "adri")));
         ctrl.altaEdicionCurso("Flor del Ceibo", new DTEdicionCurso("Flor del Ceibo - 2025", LocalDate.of(2025, 4, 10), LocalDate.of(2025, 8, 7), -1, -1, LocalDate.of(2025, 3, 6), Arrays.asList("bruces", "adri")));
@@ -160,7 +159,6 @@ public class CargadorDatosPrueba {
     }
 
     private void cargarInscripciones(IControladorEdicion ctrl) throws Exception {
-        // firma: inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion)[cite: 43]
         ctrl.inscribirEstudianteAEdicion("eleven11", "Flor del Ceibo - 2010", LocalDate.of(2010, 2, 20));
         ctrl.inscribirEstudianteAEdicion("chechi", "Flor del Ceibo - 2010", LocalDate.of(2010, 2, 25));
 
@@ -179,19 +177,18 @@ public class CargadorDatosPrueba {
     }
 
     private void cargarProgramas(IControladorProgramaFormacion ctrl) throws Exception {
-        // ControladorPrograma usa java.util.Date[cite: 45]. Hacemos la conversión.
-        Date fechaAltaSys = convertirLocalDateADate(LocalDate.of(2026, 1, 1)); // Fecha alta genérica
+        LocalDate fechaAltaSys = LocalDate.of(2026, 1, 1);
 
-        ctrl.crearProgramaFormacion("EFI Ingeniería Mecánica", "Programa mecánica",
-                convertirLocalDateADate(LocalDate.of(2026, 5, 1)), convertirLocalDateADate(LocalDate.of(2026, 10, 31)), fechaAltaSys);
+                // Los programas de ejemplo también guardan quién es responsable de administrarlos.
+        ctrl.crearProgramaFormacion("heisenberg", "EFI Ingeniería Mecánica", "Programa mecánica",
+                LocalDate.of(2026, 5, 1), LocalDate.of(2026, 10, 31), fechaAltaSys, "");
 
-        ctrl.crearProgramaFormacion("Formación integral", "Programa varios institutos",
-                convertirLocalDateADate(LocalDate.of(2026, 7, 15)), convertirLocalDateADate(LocalDate.of(2027, 1, 1)), fechaAltaSys);
+        ctrl.crearProgramaFormacion("heisenberg", "Formación integral", "Programa varios institutos",
+                LocalDate.of(2026, 7, 15), LocalDate.of(2027, 1, 1), fechaAltaSys, "");
 
-        ctrl.crearProgramaFormacion("EFI Robótica", "Programa robótica",
-                convertirLocalDateADate(LocalDate.of(2026, 9, 3)), convertirLocalDateADate(LocalDate.of(2026, 11, 18)), fechaAltaSys);
+        ctrl.crearProgramaFormacion("heisenberg", "EFI Robótica", "Programa robótica",
+                LocalDate.of(2026, 9, 3), LocalDate.of(2026, 11, 18), fechaAltaSys, "");
 
-        // Agregando Cursos a Programas[cite: 45]
         ctrl.agregarCursoAPrograma("EFI Ingeniería Mecánica", "Dalavuelta");
         ctrl.agregarCursoAPrograma("EFI Ingeniería Mecánica", "Extensionismo Industrial");
         ctrl.agregarCursoAPrograma("EFI Ingeniería Mecánica", "Inclusión Energética");
@@ -202,10 +199,5 @@ public class CargadorDatosPrueba {
 
         ctrl.agregarCursoAPrograma("EFI Robótica", "Taller de robótica educativa");
         ctrl.agregarCursoAPrograma("EFI Robótica", "MicroBit");
-    }
-
-    // Utilidad para convertir LocalDate a java.util.Date
-    private Date convertirLocalDateADate(LocalDate localDate) {
-        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

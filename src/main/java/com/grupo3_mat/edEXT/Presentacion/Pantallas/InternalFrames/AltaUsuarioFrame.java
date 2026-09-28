@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -35,8 +36,8 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         rbEstudianteActionPerformed(null);
     }
     private void cargarInstitutos() {
-        cbInstituto.removeAllItems();
-        cbInstituto.addItem("Seleccionar Instituto");
+        // Se cargan en una lista porque un docente puede elegir más de un instituto.
+        javax.swing.DefaultListModel<String> modelo = new javax.swing.DefaultListModel<>();
 
         try {
             Fabrica fabrica = Fabrica.getInstance();
@@ -44,8 +45,9 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
             List<String> institutos = ici.listarInstitutos();
 
             for (String inst : institutos) {
-                cbInstituto.addItem(inst);
+                modelo.addElement(inst);
             }
+            lstInstitutos.setModel(modelo);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al cargar los institutos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -56,6 +58,58 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
             return null;
         }
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    private String solicitarContrasenaConfirmada() {
+        while (true) {
+            // Los campos enmascarados evitan mostrar la contraseña mientras se escribe.
+            javax.swing.JPasswordField contrasena = new javax.swing.JPasswordField(20);
+            javax.swing.JPasswordField confirmacion = new javax.swing.JPasswordField(20);
+            javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 4, 4));
+            panel.add(new javax.swing.JLabel("Contraseña:"));
+            panel.add(contrasena);
+            panel.add(new javax.swing.JLabel("Confirmar contraseña:"));
+            panel.add(confirmacion);
+
+            int opcion = JOptionPane.showConfirmDialog(
+                    this,
+                    panel,
+                    "Definir contraseña",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+            if (opcion != JOptionPane.OK_OPTION) {
+                contrasena.setText("");
+                confirmacion.setText("");
+                return null;
+            }
+
+            char[] valor = contrasena.getPassword();
+            char[] confirmacionValor = confirmacion.getPassword();
+            if (valor.length == 0) {
+                java.util.Arrays.fill(confirmacionValor, '\0');
+                contrasena.setText("");
+                confirmacion.setText("");
+                JOptionPane.showMessageDialog(this, "La contraseña es obligatoria.", "Dato requerido", JOptionPane.WARNING_MESSAGE);
+                continue;
+            }
+            // La cuenta solo se crea cuando las dos entradas coinciden exactamente.
+            if (!java.util.Arrays.equals(valor, confirmacionValor)) {
+                java.util.Arrays.fill(valor, '\0');
+                java.util.Arrays.fill(confirmacionValor, '\0');
+                contrasena.setText("");
+                confirmacion.setText("");
+                JOptionPane.showMessageDialog(this, "Las contraseñas no coinciden.", "Contraseña inválida", JOptionPane.WARNING_MESSAGE);
+                continue;
+            }
+
+            String resultado = new String(valor);
+            java.util.Arrays.fill(valor, '\0');
+            java.util.Arrays.fill(confirmacionValor, '\0');
+            contrasena.setText("");
+            confirmacion.setText("");
+            return resultado;
+        }
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -80,7 +134,8 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         rbEstudiante = new javax.swing.JRadioButton();
         txtApellido = new javax.swing.JTextField();
         txtNickname = new javax.swing.JTextField();
-        cbInstituto = new javax.swing.JComboBox<>();
+        jScrollPaneInstitutos = new javax.swing.JScrollPane();
+        lstInstitutos = new javax.swing.JList<>();
         lblImagen = new javax.swing.JLabel();
         txtNombre = new javax.swing.JTextField();
         lblNombre = new javax.swing.JLabel();
@@ -119,8 +174,10 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         rbEstudiante.setText("Estudiante");
         rbEstudiante.addActionListener(this::rbEstudianteActionPerformed);
 
-        cbInstituto.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccionar Instituto" }));
-        cbInstituto.setEnabled(false);
+        lstInstitutos.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        jScrollPaneInstitutos.setViewportView(lstInstitutos);
+        jScrollPaneInstitutos.setPreferredSize(new java.awt.Dimension(200, 70));
+        lstInstitutos.setEnabled(false);
 
         lblImagen.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblImagen.setText("Imagen:");
@@ -133,7 +190,7 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         rbDocente.addActionListener(this::rbDocenteActionPerformed);
 
         lblInstituto.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        lblInstituto.setText("Instituto:");
+        lblInstituto.setText("Institutos:");
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Imagen de Perfil"));
 
@@ -193,7 +250,7 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(lblInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jScrollPaneInstitutos, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -234,9 +291,9 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbInstituto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPaneInstitutos, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -306,7 +363,7 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void rbDocenteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbDocenteActionPerformed
-        cbInstituto.setEnabled(true);
+        lstInstitutos.setEnabled(true);
 
         if (this.imagenPath == null || this.imagenPath.trim().isEmpty()) {
             com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes.cargarImagenEnLabel(
@@ -318,8 +375,8 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_rbDocenteActionPerformed
 
     private void rbEstudianteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbEstudianteActionPerformed
-        cbInstituto.setEnabled(false);
-        cbInstituto.setSelectedIndex(0);
+        lstInstitutos.setEnabled(false);
+        lstInstitutos.clearSelection();
 
         if (this.imagenPath == null || this.imagenPath.trim().isEmpty()) {
             com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes.cargarImagenEnLabel(
@@ -418,15 +475,14 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
         }
 
         // 2. Determinar si es Docente o Estudiante y evaluar el instituto
-        String nomInstituto = null;
+        // Estudiante no tiene institutos; docente debe seleccionar uno o varios.
+        List<String> nombresInstitutos = rbDocente.isSelected()
+            ? new ArrayList<>(lstInstitutos.getSelectedValuesList())
+            : List.of();
 
-        if (rbDocente.isSelected()) {
-            nomInstituto = (String) cbInstituto.getSelectedItem();
-
-            if (nomInstituto == null || nomInstituto.trim().isEmpty() || nomInstituto.equals("Seleccionar Instituto")) {
-                JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto para el docente.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        if (rbDocente.isSelected() && nombresInstitutos.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar al menos un instituto para el docente.", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 return;
-            }
         }
 
         try {
@@ -437,6 +493,10 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
             }
 
             LocalDate fechaNacimiento = convertirALocalDate(FechaNac);
+            String contrasena = solicitarContrasenaConfirmada();
+            if (contrasena == null) {
+                return;
+            }
 
             // 3. Procesar y guardar la imagen localmente si fue seleccionada
             String nombreImagenGuardada = null;
@@ -451,14 +511,16 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
             Fabrica fabrica = Fabrica.getInstance();
             IControladorUsuario icu = fabrica.getIControladorUsuario();
 
-            icu.altaUsuario(
+            // El controlador recibe todos los institutos seleccionados en una sola operación.
+            icu.altaUsuarioConInstitutos(
                     nick,
                     nombre,
                     apellido,
                     email,
                     fechaNacimiento,
                     nombreImagenGuardada,
-                    nomInstituto
+                        nombresInstitutos,
+                        contrasena
             );
 
             JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -481,7 +543,8 @@ public class AltaUsuarioFrame extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnAccept;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnSeleccionarImagen;
-    private javax.swing.JComboBox<String> cbInstituto;
+    private javax.swing.JScrollPane jScrollPaneInstitutos;
+    private javax.swing.JList<String> lstInstitutos;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

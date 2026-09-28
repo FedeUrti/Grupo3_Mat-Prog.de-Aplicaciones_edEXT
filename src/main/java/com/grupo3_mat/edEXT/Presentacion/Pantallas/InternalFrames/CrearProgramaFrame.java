@@ -5,6 +5,11 @@
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
 import javax.swing.JOptionPane;
 
 /**
@@ -19,7 +24,12 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
     public CrearProgramaFrame() {
         initComponents();
     }
-
+    private LocalDate convertirALocalDate(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -194,9 +204,13 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
             String descripcion = txtDescripcion.getText().trim();
 
             // Obtener las fechas desde los JDateChooser
-            java.util.Date fechaInicio = fechaInicDateC.getDate();
-            java.util.Date fechaFin = fechaFinDateC.getDate();
-            java.util.Date fechaAlta = new java.util.Date(); // Fecha actual
+            Date fechaInicio = fechaInicDateC.getDate();
+            Date fechaFin = fechaFinDateC.getDate();
+            Date fechaAlta = new Date(); // Fecha actual
+            
+            LocalDate fechaInicioD =  convertirALocalDate(fechaInicio);
+            LocalDate fechaFinD =  convertirALocalDate(fechaFin);
+            LocalDate fechaAltaD =  convertirALocalDate(fechaAlta); // Fecha actual
 
             // Validación de campos vacíos y fechas sin seleccionar
             if (nombre.isEmpty() || descripcion.isEmpty() || fechaInicio == null || fechaFin == null) {
@@ -211,8 +225,32 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
             }
 
             // Llamada a la lógica mediante la Fabrica
-            IControladorProgramaFormacion icpf = com.grupo3_mat.edEXT.Logica.Fabrica.getInstance().getIControladorProgramaFormacion();
-            icpf.crearProgramaFormacion(nombre, descripcion, fechaInicio, fechaFin, fechaAlta);
+            String imagenPath = "francisco";
+            com.grupo3_mat.edEXT.Logica.Fabrica fabrica = com.grupo3_mat.edEXT.Logica.Fabrica.getInstance();
+            IControladorUsuario icu = fabrica.getIControladorUsuario();
+            List<String> docentes = icu.listarDocentes();
+            if (docentes.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Debe existir al menos un docente para crear el programa.", "Sin docentes", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // El programa necesita un docente responsable que exista en el sistema.
+            String docenteResponsable = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Seleccione el docente responsable:",
+                    "Responsable del programa",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    docentes.toArray(),
+                    docentes.get(0)
+            );
+            if (docenteResponsable == null) {
+                return;
+            }
+
+            IControladorProgramaFormacion icpf = fabrica.getIControladorProgramaFormacion();
+            // Se envía el responsable junto con los datos básicos del programa.
+            icpf.crearProgramaFormacion(docenteResponsable, nombre, descripcion, fechaInicioD, fechaFinD, fechaAltaD, imagenPath);
 
             // Dialogo de exito y cierre
             JOptionPane.showMessageDialog(this, "El Programa de Formación se ha registrado con éxito.", "Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);

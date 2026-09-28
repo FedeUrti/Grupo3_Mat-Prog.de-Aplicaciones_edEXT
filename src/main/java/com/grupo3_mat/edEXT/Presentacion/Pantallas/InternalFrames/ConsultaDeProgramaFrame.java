@@ -6,6 +6,7 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
@@ -31,9 +32,9 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
         try {
             cmbProgramas.removeAllItems();
             IControladorProgramaFormacion icpf = Fabrica.getInstance().getIControladorProgramaFormacion();
-            List<ProgramaFormacion> programas = icpf.listarProgramas();
+            List<DTProgramaFormacion> programas = icpf.listarProgramas();
             
-            for (ProgramaFormacion p : programas) {
+            for (DTProgramaFormacion p : programas) {
                 cmbProgramas.addItem(p.getNombre());
             }            
         } catch (Exception ex) {
@@ -41,6 +42,17 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
         }
             
     }
+
+    private String armarDetallesPrograma(DTProgramaFormacion programa) {
+        // Los institutos mostrados son los de los cursos del programa; el docente es quien lo creó.
+        return "Nombre: " + programa.getNombre() + "\n"
+                + "Descripción: " + programa.getDescripcion() + "\n"
+                + "Fecha Inicio: " + programa.getFechaInicio() + "\n"
+                + "Fecha Fin: " + programa.getFechaFin() + "\n"
+                + "Docente responsable: " + (programa.getNicknameDocente() != null ? programa.getNicknameDocente() : "Sin asignar") + "\n"
+                + "Institutos (por cursos): " + String.join(", ", programa.getInstitutos());
+    }
+
     public void cargarDatosPrograma(String nombrePrograma) {
         if (nombrePrograma == null || nombrePrograma.isEmpty()) {
             return;
@@ -55,12 +67,7 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
 
             if (dt != null) {
                 // Desplegar información detallada en el TextArea
-                txtDetalles.setText(
-                        "Nombre: " + dt.getNombre() + "\n"
-                        + "Descripción: " + dt.getDescripcion() + "\n"
-                        + "Fecha Inicio: " + (dt.getFechaInicio() != null ? dt.getFechaInicio().toString() : "") + "\n"
-                        + "Fecha Fin: " + (dt.getFechaFin() != null ? dt.getFechaFin().toString() : "")
-                );
+                txtDetalles.setText(armarDetallesPrograma(dt) + "\nCategorías: " + String.join(", ", dt.getCategorias()));
 
                 // Cargar los cursos del programa en el JList
                 DefaultListModel<String> model = new DefaultListModel<>();
@@ -188,23 +195,22 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
 
     private void cmbProgramasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbProgramasActionPerformed
         String nombreSeleccionado = (String) cmbProgramas.getSelectedItem();
-        if (nombreSeleccionado == null) return;
-        
+        if (nombreSeleccionado == null) {
+            return;
+        }
+
         try {
             IControladorProgramaFormacion icpf = Fabrica.getInstance().getIControladorProgramaFormacion();
-            ProgramaFormacion pf = icpf.seleccionarPrograma(nombreSeleccionado);
-            
-            //Mostrar los detalles del programa
-            txtDetalles.setText("Nombre: " + pf.getNombre() + "\n" + 
-            "Descripcion: " + pf.getDescripcion() + "\n" +
-            "Fecha Inicio: " + pf.getFechaInicio() + "\n" +
-            "Fecha Fin: " + pf.getFechaFin());
-            
-            //Cargart los cursos asociados en el JList
+            DTProgramaFormacion pf = icpf.seleccionarPrograma(nombreSeleccionado);
+
+            // Mostrar los detalles del programa
+                txtDetalles.setText(armarDetallesPrograma(pf) + "\nCategorías: " + String.join(", ", pf.getCategorias()));
+
+            // Cargar los cursos asociados en el JList
             DefaultListModel<String> model = new DefaultListModel<>();
             if (pf.getCursos() != null) {
-                for(Curso c : pf.getCursos().values()) {
-                    model.addElement(c.getNombre());
+                for (String nombreCurso : pf.getCursos()) {
+                    model.addElement(nombreCurso);
                 }
             }
             listCursos.setModel(model);

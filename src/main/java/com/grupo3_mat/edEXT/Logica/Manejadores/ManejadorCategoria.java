@@ -1,29 +1,29 @@
 package com.grupo3_mat.edEXT.Logica.Manejadores;
 
-import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
+import com.grupo3_mat.edEXT.Logica.Clases.Categoria;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 
-public class ManejadorInstituto {
+public class ManejadorCategoria {
 
-    private static ManejadorInstituto instancia = null;
+    private static ManejadorCategoria instancia = null;
 
-    private ManejadorInstituto() {
+    private ManejadorCategoria() {
     }
 
-    public static ManejadorInstituto getInstancia() {
+    public static ManejadorCategoria getInstancia() {
         if (instancia == null) {
-            instancia = new ManejadorInstituto();
+            instancia = new ManejadorCategoria();
         }
         return instancia;
     }
 
-    public void agregarInstituto(Instituto inst) {
+    public void agregarCategoria(Categoria cat) {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(inst);
+            em.persist(cat);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
@@ -35,19 +35,19 @@ public class ManejadorInstituto {
         }
     }
 
-    public Instituto buscarInstituto(String nombre) {
+    public Categoria buscarCategoria(String nombre) {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
-            return em.find(Instituto.class, nombre);
+            return em.find(Categoria.class, nombre);
         } finally {
             em.close();
         }
     }
 
-    public List<Instituto> listarInstitutos() {
+    public List<Categoria> listarCategorias() {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
-            return em.createQuery("SELECT i FROM Instituto i", Instituto.class).getResultList();
+            return em.createQuery("SELECT c FROM Categoria c", Categoria.class).getResultList();
         } finally {
             em.close();
         }

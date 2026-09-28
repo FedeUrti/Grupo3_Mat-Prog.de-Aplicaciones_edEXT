@@ -5,6 +5,7 @@
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import java.util.List;
@@ -79,6 +80,38 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private List<String> seleccionarCategorias(List<String> nombresCategorias) {
+        // Cada checkbox permite asociar cero, una o varias categorías al curso.
+        javax.swing.JPanel panel = new javax.swing.JPanel();
+        panel.setLayout(new javax.swing.BoxLayout(panel, javax.swing.BoxLayout.Y_AXIS));
+        List<javax.swing.JCheckBox> opciones = new java.util.ArrayList<>();
+
+        for (String nombre : nombresCategorias) {
+            javax.swing.JCheckBox opcion = new javax.swing.JCheckBox(nombre);
+            opciones.add(opcion);
+            panel.add(opcion);
+        }
+
+        int resultado = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                new javax.swing.JScrollPane(panel),
+                "Seleccione las categorías del curso",
+                javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                javax.swing.JOptionPane.PLAIN_MESSAGE
+        );
+        if (resultado != javax.swing.JOptionPane.OK_OPTION) {
+            return null;
+        }
+
+        List<String> seleccionadas = new java.util.ArrayList<>();
+        for (javax.swing.JCheckBox opcion : opciones) {
+            if (opcion.isSelected()) {
+                seleccionadas.add(opcion.getText());
+            }
+        }
+        return seleccionadas;
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -469,8 +502,16 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             }
 
             // 8. Registro a través del controlador
+            String imagenPath = "ha";
+
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-            icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas);
+            IControladorCategoria icat = Fabrica.getInstance().getIControladorCategoria();
+            // El curso todavía no existe, por eso las categorías se eligen desde su catálogo.
+            List<String> categorias = seleccionarCategorias(icat.listarCategorias());
+            if (categorias == null) {
+                return;
+            }
+            icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas, categorias, imagenPath);
 
             javax.swing.JOptionPane.showMessageDialog(this, "¡Curso registrado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 

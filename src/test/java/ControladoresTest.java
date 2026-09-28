@@ -1,6 +1,7 @@
 
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
@@ -12,7 +13,10 @@ import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
+import com.grupo3_mat.edEXT.Logica.DataTypes.CriterioOrdenInscripciones;
+import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ControladoresTest {
 
     private static IControladorInstituto ctrlInstituto;
+    private static IControladorCategoria ctrlCategoria;
     private static IControladorUsuario ctrlUsuario;
     private static IControladorCurso ctrlCurso;
     private static IControladorEdicion ctrlEdicion;
@@ -42,6 +47,7 @@ public class ControladoresTest {
         
         Fabrica fabrica = Fabrica.getInstance();
         ctrlInstituto = fabrica.getIControladorInstituto();
+        ctrlCategoria = fabrica.getIControladorCategoria();
         ctrlUsuario = fabrica.getIControladorUsuario();
         ctrlCurso = fabrica.getIControladorCurso();
         ctrlEdicion = fabrica.getIControladorEdicion();
@@ -58,10 +64,12 @@ public class ControladoresTest {
     void testInstitutoAltaYListar() {
         ctrlInstituto.altaInstituto("INCO");
         ctrlInstituto.altaInstituto("FING");
+        ctrlInstituto.altaInstituto("IMERL");
 
         List<String> institutos = ctrlInstituto.listarInstitutos();
         assertTrue(institutos.contains("INCO"));
         assertTrue(institutos.contains("FING"));
+        assertTrue(institutos.contains("IMERL"));
 
         // Excepción al repetir nombre
         assertThrows(IllegalArgumentException.class, () -> ctrlInstituto.altaInstituto("INCO"));
@@ -75,10 +83,13 @@ public class ControladoresTest {
     @DisplayName("Usuario: Alta Estudiante y Docente + Consultas")
     void testUsuarioAltaYConsultas() throws Exception {
         // Alta Estudiante
-        ctrlUsuario.altaUsuario("estudiante1", "Juan", "Perez", "juan@test.com", LocalDate.of(2000, 1, 1), "/img/est.png", null);
+        ctrlUsuario.altaUsuario("estudiante1", "Juan", "Perez", "juan@test.com", LocalDate.of(2000, 1, 1), "/img/est.png", null, "clave-estudiante1");
 
         // Alta Docente
-        ctrlUsuario.altaUsuario("docente1", "Maria", "Gomez", "maria@test.com", LocalDate.of(1985, 5, 10), "/img/doc.png", "INCO");
+        ctrlUsuario.altaUsuario("docente1", "Maria", "Gomez", "maria@test.com", LocalDate.of(1985, 5, 10), "/img/doc.png", "INCO", "clave-docente1");
+        ctrlUsuario.altaUsuarioConInstitutos(
+            "docenteMulti", "Docente", "Multi", "multi@test.com", LocalDate.of(1980, 1, 1), "",
+            List.of("INCO", "IMERL"), "clave-docente-multi");
 
         // Listar Nicknames
         List<String> nicknames = ctrlUsuario.listarNicknamesUsuarios();
@@ -93,6 +104,8 @@ public class ControladoresTest {
         // Listar Docentes por Instituto
         List<String> docentesInco = ctrlUsuario.listarNicknamesDocentesPorInstituto("INCO");
         assertTrue(docentesInco.contains("docente1"));
+        assertTrue(docentesInco.contains("docenteMulti"));
+        assertTrue(ctrlUsuario.listarNicknamesDocentesPorInstituto("IMERL").contains("docenteMulti"));
 
         // Obtener Info Usuario (Estudiante)
         DtUsuario infoEst = ctrlUsuario.obtenerInfoUsuario("estudiante1");
@@ -103,6 +116,12 @@ public class ControladoresTest {
         DtUsuario infoDoc = ctrlUsuario.obtenerInfoUsuario("docente1");
         assertNotNull(infoDoc);
         assertTrue(infoDoc instanceof DtDocente);
+        DtDocente infoDocMulti = (DtDocente) ctrlUsuario.obtenerInfoUsuario("docenteMulti");
+        assertEquals(2, infoDocMulti.getInstitutos().size());
+        assertTrue(infoDocMulti.getInstitutos().containsAll(List.of("INCO", "IMERL")));
+        assertTrue(ctrlUsuario.iniciarSesion("estudiante1", "clave-estudiante1"));
+        assertTrue(ctrlUsuario.iniciarSesion("maria@test.com", "clave-docente1"));
+        assertThrows(Exception.class, () -> ctrlUsuario.iniciarSesion("estudiante1", "incorrecta"));
 
         // Modificar Datos Usuario
         ctrlUsuario.modificarDatosUsuario("estudiante1", "Juan Carlos", "Perez Gomez", LocalDate.of(2000, 1, 1), "/img/est2.png");
@@ -114,19 +133,23 @@ public class ControladoresTest {
     @Order(3)
     @DisplayName("Usuario: Excepciones de Alta y Modificación")
     void testUsuarioExcepciones() {
+        assertThrows(Exception.class, ()
+            -> ctrlUsuario.altaUsuario("sinClave", "Sin", "Clave", "sin-clave@test.com", LocalDate.now(), "", null, "")
+        );
+
         // Nickname duplicado
         assertThrows(Exception.class, ()
-                -> ctrlUsuario.altaUsuario("estudiante1", "Pedro", "García", "pedro@test.com", LocalDate.now(), "", null)
+                -> ctrlUsuario.altaUsuario("estudiante1", "Pedro", "García", "pedro@test.com", LocalDate.now(), "", null, "clave-prueba")
         );
 
         // Correo duplicado
         assertThrows(Exception.class, ()
-                -> ctrlUsuario.altaUsuario("estudiante2", "Pedro", "García", "juan@test.com", LocalDate.now(), "", null)
+                -> ctrlUsuario.altaUsuario("estudiante2", "Pedro", "García", "juan@test.com", LocalDate.now(), "", null, "clave-prueba")
         );
 
         // Instituto inexistente para docente
         assertThrows(Exception.class, ()
-                -> ctrlUsuario.altaUsuario("docente2", "Ana", "Lopez", "ana@test.com", LocalDate.now(), "", "InstitutoInexistente")
+                -> ctrlUsuario.altaUsuario("docente2", "Ana", "Lopez", "ana@test.com", LocalDate.now(), "", "InstitutoInexistente", "clave-prueba")
         );
 
         // Modificar usuario inexistente
@@ -145,13 +168,15 @@ public class ControladoresTest {
     @Order(4)
     @DisplayName("Curso: Alta con previas, Consultar y Listar Cursos")
     void testCursoAltaYConsultas() throws Exception {
+        ctrlCategoria.altaCategoria("Educativo");
+
         // Curso previo
-        ctrlCurso.altaCurso("INCO", "Prog1", "Introduccion a la Programacion", 10, 60, 10, "http://prog1.com", LocalDate.now(), null);
+        ctrlCurso.altaCurso("INCO", "Prog1", "Introduccion a la Programacion", 10, 60, 10, "http://prog1.com", LocalDate.now(), null, null, "");
 
         // Curso principal con previa
         List<String> previas = new ArrayList<>();
         previas.add("Prog1");
-        ctrlCurso.altaCurso("INCO", "Prog2", "Programacion Avanzada", 12, 80, 12, "http://prog2.com", LocalDate.now(), previas);
+        ctrlCurso.altaCurso("INCO", "Prog2", "Programacion Avanzada", 12, 80, 12, "http://prog2.com", LocalDate.now(), previas, List.of("Educativo"), "");
 
         // Listar Cursos
         List<String> todosCursos = ctrlCurso.listarCursos();
@@ -167,6 +192,8 @@ public class ControladoresTest {
         assertNotNull(dtProg2);
         assertEquals("Prog2", dtProg2.getNombre());
         assertTrue(dtProg2.getPrevias().contains("Prog1"));
+        assertTrue(dtProg2.getCategorias().contains("Educativo"));
+        assertThrows(Exception.class, () -> ctrlCategoria.altaCategoria("Educativo"));
     }
 
     @Test
@@ -175,12 +202,12 @@ public class ControladoresTest {
     void testCursoExcepciones() {
         // Curso duplicado
         assertThrows(IllegalArgumentException.class, ()
-                -> ctrlCurso.altaCurso("INCO", "Prog1", "Desc", 5, 40, 5, "", LocalDate.now(), null)
+                -> ctrlCurso.altaCurso("INCO", "Prog1", "Desc", 5, 40, 5, "", LocalDate.now(), null, null , "")
         );
 
         // Instituto inexistente
         assertThrows(IllegalArgumentException.class, ()
-                -> ctrlCurso.altaCurso("NoExisteInst", "Fisica1", "Desc", 5, 40, 5, "", LocalDate.now(), null)
+                -> ctrlCurso.altaCurso("NoExisteInst", "Fisica1", "Desc", 5, 40, 5, "", LocalDate.now(),  null, null , "")
         );
 
         // Consultar curso inexistente
@@ -231,7 +258,41 @@ public class ControladoresTest {
         assertTrue(edDocente.contains("Prog1-2026"));
 
         // Inscribir Estudiante
+        LocalDate hoy = LocalDate.now();
+        String edicionAnterior = "Prog1-2025-Rechazada";
+        DTEdicionCurso datosEdicionAnterior = new DTEdicionCurso(
+            edicionAnterior,
+            hoy.minusYears(2),
+            hoy.minusYears(1),
+            -1,
+            -1,
+            hoy.minusYears(2),
+            docentes
+        );
+        ctrlEdicion.altaEdicionCurso("Prog1", datosEdicionAnterior);
+        ctrlEdicion.inscribirEstudianteAEdicion("estudiante1", edicionAnterior, hoy);
+        ctrlEdicion.cambiarEstadoInscripcion("docente1", edicionAnterior, "estudiante1", EstadoInscripcion.RECHAZADA);
+
         ctrlEdicion.inscribirEstudianteAEdicion("estudiante1", "Prog1-2026", LocalDate.now());
+
+        List<com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion> inscripciones =
+            ctrlEdicion.listarInscripcionesAEdicion("docente1", "Prog1-2026", CriterioOrdenInscripciones.PRIORIDAD);
+        assertEquals(1, inscripciones.size());
+        assertEquals(0.5, inscripciones.get(0).getPrioridad());
+
+        List<com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion> resultados =
+            ctrlEdicion.listarResultadosInscripcionesEstudiante("estudiante1");
+        assertEquals(2, resultados.size());
+        assertTrue(resultados.stream().anyMatch(inscripcion -> inscripcion.getEstado() == EstadoInscripcion.RECHAZADA));
+
+        ctrlUsuario.altaUsuario("docenteNoAsignado", "Otro", "Docente", "otro-docente@test.com", hoy, "", "INCO", "clave-docente-no-asignado");
+        assertThrows(Exception.class, () -> ctrlEdicion.listarInscripcionesAEdicion(
+            "docenteNoAsignado", "Prog1-2026", CriterioOrdenInscripciones.FECHA_INSCRIPCION));
+
+        ctrlEdicion.cambiarEstadoInscripcion("docente1", "Prog1-2026", "estudiante1", EstadoInscripcion.ACEPTADA);
+        assertEquals(1, ctrlEdicion.listarAceptadosAEdicion("docente1", "Prog1-2026").size());
+        assertThrows(Exception.class, () -> ctrlEdicion.cambiarEstadoInscripcion(
+            "docente1", "Prog1-2026", "estudiante1", EstadoInscripcion.RECHAZADA));
     }
 
     @Test
@@ -271,38 +332,41 @@ public class ControladoresTest {
     @Order(8)
     @DisplayName("ProgramaFormacion: Crear, Listar, Seleccionar y Agregar Curso")
     void testProgramaFormacion() throws Exception {
-        Date ahora = new Date();
+        LocalDate ahora = LocalDate.now();
 
         // Crear Programa
-        ctrlPrograma.crearProgramaFormacion("Desarrollo Java", "Programa completo de Java", ahora, ahora, ahora);
+        ctrlPrograma.crearProgramaFormacion("docente1", "Desarrollo Java", "Programa completo de Java", ahora, ahora, ahora, "aa");
 
         // Listar Programas
-        List<ProgramaFormacion> programas = ctrlPrograma.listarProgramas();
+        List<DTProgramaFormacion> programas = ctrlPrograma.listarProgramas();
         assertFalse(programas.isEmpty());
 
         // Seleccionar Programa
-        ProgramaFormacion pf = ctrlPrograma.seleccionarPrograma("Desarrollo Java");
+        DTProgramaFormacion pf = ctrlPrograma.seleccionarPrograma("Desarrollo Java");
         assertNotNull(pf);
         assertEquals("Desarrollo Java", pf.getNombre());
+        assertEquals("docente1", pf.getNicknameDocente());
 
         // Seleccionar Curso
-        Curso curso = ctrlPrograma.seleccionarCurso("Prog1");
+        DtCurso curso = ctrlPrograma.seleccionarCurso("Prog1");
         assertNotNull(curso);
         assertEquals("Prog1", curso.getNombre());
 
         // Agregar Curso a Programa
         ctrlPrograma.agregarCursoAPrograma("Desarrollo Java", "Prog1");
+        DTProgramaFormacion programaConCurso = ctrlPrograma.consultarPrograma("Desarrollo Java");
+        assertEquals(List.of("INCO"), programaConCurso.getInstitutos());
     }
 
     @Test
     @Order(9)
     @DisplayName("ProgramaFormacion: Excepciones")
     void testProgramaFormacionExcepciones() {
-        Date ahora = new Date();
+        LocalDate ahora = LocalDate.now();
 
         // Crear duplicado
         assertThrows(Exception.class, ()
-                -> ctrlPrograma.crearProgramaFormacion("Desarrollo Java", "Desc", ahora, ahora, ahora)
+                -> ctrlPrograma.crearProgramaFormacion("docente1", "Desarrollo Java", "Desc", ahora, ahora, ahora,"")
         );
 
         // Seleccionar programa inexistente

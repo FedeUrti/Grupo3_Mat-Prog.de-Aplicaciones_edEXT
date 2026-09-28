@@ -6,6 +6,7 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.swing.JOptionPane;
  * @author fede1
  */
 public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
+    private static final String PREFIJO_CATEGORIA = "Categoría: ";
 
     /**
      * Creates new form ConsultaCursoFrame
@@ -41,6 +43,11 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             List<String> institutos = ici.listarInstitutos();
             for (String inst : institutos) {
                 cbInstitutos.addItem(inst);
+            }
+            IControladorCategoria icat = Fabrica.getInstance().getIControladorCategoria();
+            // Las categorías llevan un prefijo para compartir esta lista con los institutos.
+            for (String categoria : icat.listarCategorias()) {
+                cbInstitutos.addItem(PREFIJO_CATEGORIA + categoria);
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al cargar institutos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -75,7 +82,11 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
 
             // 1. Cargar Datos Básicos en las etiquetas correspondientes
             valorNombre.setText(dt.getNombre());
-            txtDescripcion.setText(dt.getDescripcion());
+            String descripcion = dt.getDescripcion() != null ? dt.getDescripcion() : "";
+            if (dt.getCategorias() != null && !dt.getCategorias().isEmpty()) {
+                descripcion += "\n\nCategorías: " + String.join(", ", dt.getCategorias());
+            }
+            txtDescripcion.setText(descripcion);
             valorDuracion.setText(String.valueOf(dt.getDuracion()));
             valorHoras.setText(String.valueOf(dt.getCantHoras()) + " hs");
             valorCreditos.setText(String.valueOf(dt.getCreditos()));
@@ -506,7 +517,14 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
 
         try {
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-            List<String> cursos = icc.listarCursosPorInstituto(institutoSeleccionado);
+            List<String> cursos;
+            // El prefijo permite saber si se filtra por instituto o por categoría.
+            if (institutoSeleccionado.startsWith(PREFIJO_CATEGORIA)) {
+                String categoria = institutoSeleccionado.substring(PREFIJO_CATEGORIA.length());
+                cursos = icc.listarCursosPorCategoria(categoria);
+            } else {
+                cursos = icc.listarCursosPorInstituto(institutoSeleccionado);
+            }
 
             DefaultListModel<String> modeloCursos = new DefaultListModel<>();
             for (String curso : cursos) {
@@ -538,8 +556,16 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(this, "Por favor, seleccioná una edición de la lista.", "Atención", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        String instituto = (String) cbInstitutos.getSelectedItem();
         String curso = lstCursos.getSelectedValue();
+        String instituto;
+        try {
+            // El curso puede haberse encontrado por categoría; se consulta su instituto verdadero.
+            DtCurso datosCurso = Fabrica.getInstance().getIControladorCurso().consultarCurso(curso);
+            instituto = datosCurso.getNomInstituto();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "No se pudo obtener el instituto del curso: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         ConsultaEdicionCursoFrame frameEdicion = new ConsultaEdicionCursoFrame(instituto, curso, edicionSeleccionada);
 

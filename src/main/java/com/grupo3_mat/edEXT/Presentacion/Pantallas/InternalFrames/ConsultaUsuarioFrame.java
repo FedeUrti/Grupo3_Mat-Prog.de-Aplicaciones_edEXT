@@ -7,6 +7,7 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
@@ -116,7 +117,7 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
 
             if (esDocente) {
                 DtDocente docente = (DtDocente) dt;
-                lblValorTipoUsuario.setText("Docente (" + docente.getInstituto() + ")");
+                lblValorTipoUsuario.setText("Docente (" + String.join(", ", docente.getInstitutos()) + ")");
 
                 // Habilitar la pestaña de Cursos y seleccionarla por defecto
                 jTabbedPane1.setEnabledAt(0, true);
@@ -156,21 +157,13 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
                 jTabbedPane1.setEnabledAt(0, false);
                 jTabbedPane1.setSelectedIndex(1);
 
-                // 1. Obtener las ediciones del estudiante desde el DTO
-                List<String> edicionesEstudiante = estudiante.getEdicionesInscripto();
-
-                // Si el DTO viene vacío/null, intentar consultar al controlador directamente
-                if (edicionesEstudiante == null || edicionesEstudiante.isEmpty()) {
-                    try {
-                        edicionesEstudiante = ice.listarEdicionesDeEstudiante(estudiante.getNickname());
-                    } catch (Exception ignored) {
-                        // Si el método no existe en la interfaz IControladorEdicion, ignora el error
-                    }
-                }
+                // 1. Obtener las inscripciones a ediciones del estudiante desde el DTO
+                List<DTInscripcionEdicion> edicionesEstudiante = estudiante.getInscripcionesEdicion();
 
                 // 2. Cargar ediciones y obtener sus programas asociados a través del curso
                 if (edicionesEstudiante != null) {
-                    for (String edicion : edicionesEstudiante) {
+                    for (DTInscripcionEdicion inscripcion : edicionesEstudiante) {
+                        String edicion = inscripcion.getNombreEdicion();
                         modEdiciones.addElement(edicion);
 
                         String nombreCurso = ice.obtenerCursoDeEdicion(edicion);
