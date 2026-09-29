@@ -46,6 +46,30 @@ public class AltaCategoriaFrame extends JInternalFrame {
 
         try {
             IControladorCategoria controlador = Fabrica.getInstance().getIControladorCategoria();
+            if (controlador.listarCategorias().contains(nombre)) {
+                int modificar = JOptionPane.showConfirmDialog(
+                        this,
+                        "La categoría '" + nombre + "' ya existe. ¿Desea modificar su nombre?",
+                        "Categoría existente",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+                if (modificar == JOptionPane.YES_OPTION) {
+                    String nuevoNombre = JOptionPane.showInputDialog(this, "Nuevo nombre para la categoría:", nombre);
+                    if (nuevoNombre == null) {
+                        return;
+                    }
+                    nuevoNombre = nuevoNombre.trim();
+                    if (nuevoNombre.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Ingrese un nombre válido.", "Dato requerido", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    controlador.modificarCategoria(nombre, nuevoNombre);
+                    JOptionPane.showMessageDialog(this, "Categoría modificada.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                }
+                return;
+            }
             controlador.altaCategoria(nombre);
             JOptionPane.showMessageDialog(this, "Categoría creada.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             dispose();

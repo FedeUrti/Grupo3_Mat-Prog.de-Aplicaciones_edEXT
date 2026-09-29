@@ -8,8 +8,14 @@ import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import java.awt.Image;
+import java.io.File;
 import java.util.List;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -21,13 +27,22 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
      * Creates new form AltaCursoFrame
      */
     private DefaultListModel<String> modelPrevias = new DefaultListModel<>();
+    private DefaultListModel<String> modelCategorias = new DefaultListModel<>();
+    private String imagenPath;
     public AltaCursoFrame() {
         initComponents();
 
         // Vinculamos el modelo con el JList visual de previas
         lstPreviasSeleccionadas.setModel(modelPrevias);
+        lsCategorias.setModel(modelCategorias);
+        lsCategorias.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         cargarInstitutos();
+        cargarCategorias();
+        cbInstitutos.addActionListener(event -> {
+            modelPrevias.clear();
+            cargarCursosPrevios();
+        });
         cargarCursosPrevios();
 
         jFecha.setDateFormatString("dd/MM/yyyy");
@@ -38,9 +53,14 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     }
     private void cargarCursosPrevios() {
         jComboBox1.removeAllItems();
+        String institutoSeleccionado = (String) cbInstitutos.getSelectedItem();
+        if (institutoSeleccionado == null || institutoSeleccionado.isBlank()) {
+            return;
+        }
+
         try {
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-            List<String> cursos = icc.listarCursos();
+            List<String> cursos = icc.listarCursosPorInstituto(institutoSeleccionado);
 
             if (cursos != null) {
                 for (String curso : cursos) {
@@ -64,6 +84,17 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar institutos: " + e.getMessage());
         }
     }
+    private void cargarCategorias() {
+        modelCategorias.clear();
+        try {
+            IControladorCategoria icat = Fabrica.getInstance().getIControladorCategoria();
+            for (String categoria : icat.listarCategorias()) {
+                modelCategorias.addElement(categoria);
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar categorías: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
     private void activarSeccionPrevias(boolean habilitar) {
         jComboBox1.setEnabled(habilitar);
         btnAgregarPrevia.setEnabled(habilitar);
@@ -82,37 +113,6 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
         }
     }
 
-    private List<String> seleccionarCategorias(List<String> nombresCategorias) {
-        // Cada checkbox permite asociar cero, una o varias categorías al curso.
-        javax.swing.JPanel panel = new javax.swing.JPanel();
-        panel.setLayout(new javax.swing.BoxLayout(panel, javax.swing.BoxLayout.Y_AXIS));
-        List<javax.swing.JCheckBox> opciones = new java.util.ArrayList<>();
-
-        for (String nombre : nombresCategorias) {
-            javax.swing.JCheckBox opcion = new javax.swing.JCheckBox(nombre);
-            opciones.add(opcion);
-            panel.add(opcion);
-        }
-
-        int resultado = javax.swing.JOptionPane.showConfirmDialog(
-                this,
-                new javax.swing.JScrollPane(panel),
-                "Seleccione las categorías del curso",
-                javax.swing.JOptionPane.OK_CANCEL_OPTION,
-                javax.swing.JOptionPane.PLAIN_MESSAGE
-        );
-        if (resultado != javax.swing.JOptionPane.OK_OPTION) {
-            return null;
-        }
-
-        List<String> seleccionadas = new java.util.ArrayList<>();
-        for (javax.swing.JCheckBox opcion : opciones) {
-            if (opcion.isSelected()) {
-                seleccionadas.add(opcion.getText());
-            }
-        }
-        return seleccionadas;
-    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -148,6 +148,14 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
         txtDescripcion = new javax.swing.JTextArea();
         jLabel3 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        lblCategorias = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        lsCategorias = new javax.swing.JList<>();
+        jPanel4 = new javax.swing.JPanel();
+        btnSeleccionarImagen = new javax.swing.JButton();
+        lblImagen = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        lblFotoPerfil = new javax.swing.JLabel();
         jLayeredPane1 = new javax.swing.JLayeredPane();
         AltaCursoButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
@@ -290,6 +298,70 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
 
         jLabel2.setText("Nombre");
 
+        lblCategorias.setText("Categoria/s");
+
+        lsCategorias.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane3.setViewportView(lsCategorias);
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        btnSeleccionarImagen.setText("Seleccionar Imagen");
+        btnSeleccionarImagen.addActionListener(this::btnSeleccionarImagenActionPerformed);
+
+        lblImagen.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblImagen.setText("Imagen:");
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Imagen de Perfil"));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnSeleccionarImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnSeleccionarImagen)
+                            .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(66, 66, 66))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -297,18 +369,25 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
-                            .addComponent(jLabel2))
-                        .addGap(30, 30, 30)
+                            .addComponent(jLabel2)
+                            .addComponent(lblCategorias))
+                        .addGap(26, 26, 26)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtNombreCurso)
-                            .addComponent(cbInstitutos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(cbInstitutos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addGap(30, 30, 30))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3)))
+                        .addGap(0, 68, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -322,11 +401,17 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtNombreCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblCategorias)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(22, 22, 22)
                 .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 104, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(25, 25, 25))
         );
 
         jLayeredPane2.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -348,10 +433,10 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             .addGroup(jLayeredPane2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jLayeredPane2Layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -399,7 +484,7 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(8, 8, 8)
                         .addComponent(jLayeredPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -467,15 +552,6 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
                 return;
             }
 
-            if (!esUrlValida(url)) {
-                javax.swing.JOptionPane.showMessageDialog(
-                        this,
-                        "La URL ingresada no tiene un formato válido.\nDebe comenzar con http:// o https:// (Ejemplo: https://ejemplo.com)",
-                        "URL Inválida",
-                        javax.swing.JOptionPane.WARNING_MESSAGE
-                );
-                return;
-            }
 
             // 6. Validar Fecha
             if (jFecha.getDate() == null) {
@@ -502,13 +578,12 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             }
 
             // 8. Registro a través del controlador
-            String imagenPath = "ha";
+
 
             IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-            IControladorCategoria icat = Fabrica.getInstance().getIControladorCategoria();
-            // El curso todavía no existe, por eso las categorías se eligen desde su catálogo.
-            List<String> categorias = seleccionarCategorias(icat.listarCategorias());
-            if (categorias == null) {
+            List<String> categorias = lsCategorias.getSelectedValuesList();
+            if (categorias.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Seleccione al menos una categoría para el curso.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
             icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas, categorias, imagenPath);
@@ -582,11 +657,53 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnQuitarPreviaActionPerformed
 
+    private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed
+        // 1. Crear y configurar el selector de archivos
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes (JPG, PNG, JPEG)", "jpg", "png", "jpeg");
+        chooser.setFileFilter(filter);
+
+        // 2. Abrir la ventana
+        int returnVal = chooser.showOpenDialog(this);
+
+        // 3. Si el usuario seleccionó un archivo
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File archivo = chooser.getSelectedFile();
+
+            // ¡LO QUE FALTABA! Guardar la ruta absoluta para enviarla al ControladorUsuario
+            this.imagenPath = archivo.getAbsolutePath();
+
+
+            // B. Cargar y previsualizar la imagen escalada
+            try {
+                ImageIcon originalIcon = new ImageIcon(archivo.getAbsolutePath());
+
+                // Medidas seguras por si el label todavía no se ha renderizado completamente
+                int ancho = (lblFotoPerfil.getWidth() > 0) ? lblFotoPerfil.getWidth() : 120;
+                int alto = (lblFotoPerfil.getHeight() > 0) ? lblFotoPerfil.getHeight() : 120;
+
+                Image imagenEscalada = originalIcon.getImage().getScaledInstance(
+                    ancho,
+                    alto,
+                    Image.SCALE_SMOOTH
+                );
+
+                lblFotoPerfil.setIcon(new ImageIcon(imagenEscalada));
+                lblFotoPerfil.setText(""); // Borra el texto inicial ("Foto", "Sin imagen", etc.)
+                lblFotoPerfil.setBorder(null);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al previsualizar la imagen: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnSeleccionarImagenActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AltaCursoButton;
     private javax.swing.JButton btnAgregarPrevia;
     private javax.swing.JButton btnQuitarPrevia;
+    private javax.swing.JButton btnSeleccionarImagen;
     private javax.swing.JComboBox<String> cbInstitutos;
     private javax.swing.JButton jButton2;
     private javax.swing.JCheckBox jCheckBox1;
@@ -604,8 +721,15 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLayeredPane jLayeredPane2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel lblCategorias;
+    private javax.swing.JLabel lblFotoPerfil;
+    private javax.swing.JLabel lblImagen;
+    private javax.swing.JList<String> lsCategorias;
     private javax.swing.JList<String> lstPreviasSeleccionadas;
     private javax.swing.JSpinner spnCantHoras;
     private javax.swing.JSpinner spnCreditos;
