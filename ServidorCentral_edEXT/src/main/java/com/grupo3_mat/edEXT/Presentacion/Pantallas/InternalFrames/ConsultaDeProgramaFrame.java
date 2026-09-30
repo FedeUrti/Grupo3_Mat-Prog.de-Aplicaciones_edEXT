@@ -10,6 +10,7 @@ import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
+import com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -66,6 +67,8 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
             DTProgramaFormacion dt = icpf.consultarPrograma(nombrePrograma);
 
             if (dt != null) {
+                GestorImagenes.cargarImagenEnLabel(dt.getImagenPath(), lblImg);
+
                 // Desplegar información detallada en el TextArea
                 txtDetalles.setText(armarDetallesPrograma(dt) + "\nCategorías: " + String.join(", ", dt.getCategorias()));
 
@@ -225,12 +228,16 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
     private void cmbProgramasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbProgramasActionPerformed
         String nombreSeleccionado = (String) cmbProgramas.getSelectedItem();
         if (nombreSeleccionado == null) {
+            lblImg.setIcon(null);
+            lblImg.setText("");
             return;
         }
 
         try {
             IControladorProgramaFormacion icpf = Fabrica.getInstance().getIControladorProgramaFormacion();
             DTProgramaFormacion pf = icpf.seleccionarPrograma(nombreSeleccionado);
+
+            GestorImagenes.cargarImagenEnLabel(pf.getImagenPath(), lblImg);
 
             // Mostrar los detalles del programa
                 txtDetalles.setText(armarDetallesPrograma(pf) + "\nCategorías: " + String.join(", ", pf.getCategorias()));

@@ -10,15 +10,28 @@ import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes;
 import javax.swing.*;
+import java.awt.Image;
+import java.io.File;
 import java.util.List;
 import java.time.*;
 import java.util.Date;
+import javax.swing.filechooser.FileNameExtensionFilter;
 /**
  *
  * @author benja
  */
 public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
+
+    private static final String[] IMAGENES_PREDETERMINADAS = {
+        "/Presentacion/Recursos/imagen_predeterminada_edCurso_1.png",
+        "/Presentacion/Recursos/imagen_predeterminada_edCurso_2.jpg"
+    };
+
+    private static String seleccionarImagenPredeterminada() {
+        return IMAGENES_PREDETERMINADAS[java.util.concurrent.ThreadLocalRandom.current().nextInt(IMAGENES_PREDETERMINADAS.length)];
+    }
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AltaEdicionCursoFrame.class.getName());
     
@@ -26,6 +39,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
     private IControladorInstituto icInstituto;
     private IControladorEdicion icEdicion;
     private IControladorUsuario icUsuario;
+    private String imagenPath = seleccionarImagenPredeterminada();
 
     private DefaultListModel<String> listModelDocentes;
     /**
@@ -33,6 +47,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
      */
     public AltaEdicionCursoFrame() {
         initComponents();
+        GestorImagenes.cargarImagenEnLabel(imagenPath, lblFotoPerfil);
     
         Fabrica fabrica = Fabrica.getInstance();
         this.icCurso = fabrica.getIControladorCurso();
@@ -145,6 +160,11 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
         dateChooserFechaPublicacion = new com.toedter.calendar.JDateChooser();
         dateChooserFechaInicio = new com.toedter.calendar.JDateChooser();
         labelFechaPublicacion = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        btnSeleccionarImagen = new javax.swing.JButton();
+        lblImagen = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        lblFotoPerfil = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         listDocentes = new javax.swing.JList<>();
         jPanel4 = new javax.swing.JPanel();
@@ -232,6 +252,61 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
 
         labelFechaPublicacion.setText("Fecha de publicación:");
 
+        jPanel5.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        btnSeleccionarImagen.setText("Seleccionar Imagen");
+        btnSeleccionarImagen.addActionListener(this::btnSeleccionarImagenActionPerformed);
+
+        lblImagen.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblImagen.setText("Imagen:");
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Imagen de Perfil"));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnSeleccionarImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnSeleccionarImagen)
+                            .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(66, 66, 66))
+                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -245,7 +320,11 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
                     .addComponent(dateChooserFechaFin, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
                     .addComponent(dateChooserFechaInicio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(dateChooserFechaPublicacion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -262,7 +341,9 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
                 .addComponent(labelFechaFin)
                 .addGap(18, 18, 18)
                 .addComponent(dateChooserFechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jScrollPane1.setViewportView(listDocentes);
@@ -330,7 +411,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(91, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(103, 103, 103))
             .addGroup(layout.createSequentialGroup()
@@ -345,7 +426,7 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(75, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
         pack();
@@ -436,7 +517,9 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
                 cupo,
                 0,
                 fechaPublicacion,
-                docentesSeleccionados
+                docentesSeleccionados,
+                GestorImagenes.guardarImagenLocalSiCorresponde(
+                    imagenPath, "edicion_" + nombreEdicion.replaceAll("[^A-Za-z0-9_-]", "_"))
             );
 
             icEdicion.altaEdicionCurso(nombreCurso, dtEdicion);
@@ -463,9 +546,50 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
         
     }//GEN-LAST:event_cmbCursosActionPerformed
 
+    private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed
+        // 1. Crear y configurar el selector de archivos
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes (JPG, PNG, JPEG)", "jpg", "png", "jpeg");
+        chooser.setFileFilter(filter);
+
+        // 2. Abrir la ventana
+        int returnVal = chooser.showOpenDialog(this);
+
+        // 3. Si el usuario seleccionó un archivo
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File archivo = chooser.getSelectedFile();
+
+            // ¡LO QUE FALTABA! Guardar la ruta absoluta para enviarla al ControladorUsuario
+            this.imagenPath = archivo.getAbsolutePath();
+
+            // B. Cargar y previsualizar la imagen escalada
+            try {
+                ImageIcon originalIcon = new ImageIcon(archivo.getAbsolutePath());
+
+                // Medidas seguras por si el label todavía no se ha renderizado completamente
+                int ancho = (lblFotoPerfil.getWidth() > 0) ? lblFotoPerfil.getWidth() : 120;
+                int alto = (lblFotoPerfil.getHeight() > 0) ? lblFotoPerfil.getHeight() : 120;
+
+                Image imagenEscalada = originalIcon.getImage().getScaledInstance(
+                    ancho,
+                    alto,
+                    Image.SCALE_SMOOTH
+                );
+
+                lblFotoPerfil.setIcon(new ImageIcon(imagenEscalada));
+                lblFotoPerfil.setText(""); // Borra el texto inicial ("Foto", "Sin imagen", etc.)
+                lblFotoPerfil.setBorder(null);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al previsualizar la imagen: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnSeleccionarImagenActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
     private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnSeleccionarImagen;
     private javax.swing.JCheckBox chkTieneCupo;
     private javax.swing.JComboBox<String> cmbCursos;
     private javax.swing.JComboBox<String> cmbInstitutos;
@@ -476,6 +600,8 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelCurso;
     private javax.swing.JLabel labelDocentes;
@@ -484,6 +610,8 @@ public class AltaEdicionCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel labelFechaPublicacion;
     private javax.swing.JLabel labelInstituto;
     private javax.swing.JLabel labelNombre;
+    private javax.swing.JLabel lblFotoPerfil;
+    private javax.swing.JLabel lblImagen;
     private javax.swing.JList<String> listDocentes;
     private javax.swing.JTextField txtCupo;
     private javax.swing.JTextField txtNombreEdicion;

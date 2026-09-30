@@ -8,6 +8,7 @@ import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes;
 import javax.swing.*;
 import java.util.List;
 /**
@@ -138,6 +139,8 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
             DTEdicionCurso dt = ice.mostrarDetalleEdicion(nombreEdicion); // Ajusta según tu interfaz/controlador
 
             if (dt != null) {
+                GestorImagenes.cargarImagenEnLabel(dt.getImagenPath(), lblImg2);
+
                 if (lblValNombre != null) {
                     lblValNombre.setText(dt.getNombre());
                 }
@@ -270,6 +273,8 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
         DTEdicionCurso dt = icEdicion.mostrarDetalleEdicion(nombreEdicion);
 
         if (dt != null) {
+            GestorImagenes.cargarImagenEnLabel(dt.getImagenPath(), lblImg2);
+
             lblValNombre.setText(dt.getNombre() != null ? dt.getNombre() : "");
             lblValFechaInicio.setText(dt.getFechaInicio() != null ? dt.getFechaInicio().toString() : "");
             lblValFechaFin.setText(dt.getFechaFin() != null ? dt.getFechaFin().toString() : "");
@@ -299,6 +304,8 @@ public class ConsultaEdicionCursoFrame extends javax.swing.JInternalFrame {
 }
 
 private void limpiarCampos() {
+    lblImg2.setIcon(null);
+    lblImg2.setText("");
     lblValNombre.setText("");
     lblValFechaInicio.setText("");
     lblValFechaFin.setText("");

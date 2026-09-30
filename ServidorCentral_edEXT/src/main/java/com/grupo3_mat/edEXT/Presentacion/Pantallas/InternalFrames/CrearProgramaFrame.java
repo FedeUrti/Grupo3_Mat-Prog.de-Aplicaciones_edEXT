@@ -6,11 +6,17 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes;
+import java.awt.Image;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -18,11 +24,23 @@ import javax.swing.JOptionPane;
  */
 public class CrearProgramaFrame extends javax.swing.JInternalFrame {
 
+    private static final String[] IMAGENES_PREDETERMINADAS = {
+        "/Presentacion/Recursos/imagen_predeterminada_progForm_2.png",
+        "/Presentacion/Recursos/imagen_predeterminada_progForm_1.png"
+    };
+
+    private static String seleccionarImagenPredeterminada() {
+        return IMAGENES_PREDETERMINADAS[java.util.concurrent.ThreadLocalRandom.current().nextInt(IMAGENES_PREDETERMINADAS.length)];
+    }
+
+    private String imagenPath = seleccionarImagenPredeterminada();
+
     /**
      * Creates new form CrearProgramaFrame
      */
     public CrearProgramaFrame() {
         initComponents();
+        GestorImagenes.cargarImagenEnLabel(imagenPath, lblFotoPerfil);
     }
     private LocalDate convertirALocalDate(Date date) {
         if (date == null) {
@@ -51,6 +69,11 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
         jLabel4 = new javax.swing.JLabel();
         fechaFinDateC = new com.toedter.calendar.JDateChooser();
         jLabel2 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        btnSeleccionarImagen = new javax.swing.JButton();
+        lblImagen = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        lblFotoPerfil = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         btnCancelar = new javax.swing.JButton();
         btnAceptar = new javax.swing.JButton();
@@ -82,6 +105,61 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel2.setText("Descripción:");
 
+        jPanel5.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        btnSeleccionarImagen.setText("Seleccionar Imagen");
+        btnSeleccionarImagen.addActionListener(this::btnSeleccionarImagenActionPerformed);
+
+        lblImagen.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblImagen.setText("Imagen:");
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Imagen de Perfil"));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnSeleccionarImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnSeleccionarImagen)
+                            .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(66, 66, 66))
+                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -103,8 +181,9 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
                             .addComponent(fechaFinDateC, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel3))
-                .addContainerGap(53, Short.MAX_VALUE))
+                    .addComponent(jLabel3)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -130,7 +209,9 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
                     .addComponent(fechaFinDateC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addGap(31, 31, 31)
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(26, 26, 26))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -225,7 +306,6 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
             }
 
             // Llamada a la lógica mediante la Fabrica
-            String imagenPath = "francisco";
             com.grupo3_mat.edEXT.Logica.Fabrica fabrica = com.grupo3_mat.edEXT.Logica.Fabrica.getInstance();
             IControladorUsuario icu = fabrica.getIControladorUsuario();
             List<String> docentes = icu.listarDocentes();
@@ -250,7 +330,9 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
 
             IControladorProgramaFormacion icpf = fabrica.getIControladorProgramaFormacion();
             // Se envía el responsable junto con los datos básicos del programa.
-            icpf.crearProgramaFormacion(docenteResponsable, nombre, descripcion, fechaInicioD, fechaFinD, fechaAltaD, imagenPath);
+                String imagenGuardada = GestorImagenes.guardarImagenLocalSiCorresponde(
+                    imagenPath, "programa_" + nombre.replaceAll("[^A-Za-z0-9_-]", "_"));
+                icpf.crearProgramaFormacion(docenteResponsable, nombre, descripcion, fechaInicioD, fechaFinD, fechaAltaD, imagenGuardada);
 
             // Dialogo de exito y cierre
             JOptionPane.showMessageDialog(this, "El Programa de Formación se ha registrado con éxito.", "Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);
@@ -266,10 +348,51 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
         this.dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
+    private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed
+        // 1. Crear y configurar el selector de archivos
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes (JPG, PNG, JPEG)", "jpg", "png", "jpeg");
+        chooser.setFileFilter(filter);
+
+        // 2. Abrir la ventana
+        int returnVal = chooser.showOpenDialog(this);
+
+        // 3. Si el usuario seleccionó un archivo
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File archivo = chooser.getSelectedFile();
+
+            // ¡LO QUE FALTABA! Guardar la ruta absoluta para enviarla al ControladorUsuario
+            this.imagenPath = archivo.getAbsolutePath();
+
+            // B. Cargar y previsualizar la imagen escalada
+            try {
+                ImageIcon originalIcon = new ImageIcon(archivo.getAbsolutePath());
+
+                // Medidas seguras por si el label todavía no se ha renderizado completamente
+                int ancho = (lblFotoPerfil.getWidth() > 0) ? lblFotoPerfil.getWidth() : 120;
+                int alto = (lblFotoPerfil.getHeight() > 0) ? lblFotoPerfil.getHeight() : 120;
+
+                Image imagenEscalada = originalIcon.getImage().getScaledInstance(
+                    ancho,
+                    alto,
+                    Image.SCALE_SMOOTH
+                );
+
+                lblFotoPerfil.setIcon(new ImageIcon(imagenEscalada));
+                lblFotoPerfil.setText(""); // Borra el texto inicial ("Foto", "Sin imagen", etc.)
+                lblFotoPerfil.setBorder(null);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al previsualizar la imagen: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnSeleccionarImagenActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
     private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnSeleccionarImagen;
     private com.toedter.calendar.JDateChooser fechaFinDateC;
     private com.toedter.calendar.JDateChooser fechaInicDateC;
     private javax.swing.JLabel jLabel1;
@@ -279,8 +402,12 @@ public class CrearProgramaFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblFotoPerfil;
+    private javax.swing.JLabel lblImagen;
     private javax.swing.JTextArea txtDescripcion;
     private javax.swing.JTextField txtNombre;
     // End of variables declaration//GEN-END:variables
