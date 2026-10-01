@@ -88,7 +88,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             // 1. Cargar Datos Básicos en las etiquetas correspondientes
             valorNombre.setText(dt.getNombre());
             txtDescripcion.setText(dt.getDescripcion() != null ? dt.getDescripcion() : "");
-            valorDuracion.setText(String.valueOf(dt.getDuracion()) + "meses");
+            valorDuracion.setText(String.valueOf(dt.getDuracion()) + " meses");
             valorHoras.setText(String.valueOf(dt.getCantHoras()) + " hs");
             valorCreditos.setText(String.valueOf(dt.getCreditos()));
             valorURL.setText(dt.getUrl());
