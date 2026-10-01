@@ -163,7 +163,7 @@ private void cargarDatos() throws Exception {
             
             //Notificación de exito
             JOptionPane.showMessageDialog(this, "El curso '" + nombreCurso + "' fue agregado con éxito al programa '" + nombrePrograma + "'.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-            this.dispose();
+            
             
         } catch (Exception ex) {
             //Captura excepcions (por ejemplo si el curso ya pertenece al programa)
