@@ -42,23 +42,30 @@ public class GestorImagenes {
         return nombreFinal;
     }
 
+    public static String guardarImagenLocalSiCorresponde(String imagenPath, String identificador) throws IOException {
+        if (imagenPath == null || imagenPath.trim().isEmpty()) {
+            return imagenPath;
+        }
+
+        File archivo = new File(imagenPath);
+        return archivo.isFile() ? guardarImagenLocal(archivo, identificador) : imagenPath;
+    }
+
+    public static void cargarImagenEnLabel(String imagenPath, JLabel label) {
+        if (!cargarImagen(imagenPath, label)) {
+            label.setIcon(null);
+            label.setText("[Imagen no disponible]");
+            label.revalidate();
+            label.repaint();
+        }
+    }
+
     /**
      * Carga la foto subida por el usuario si existe localmente.
      * Si no tiene o no se encuentra en el disco, carga el placeholder empaquetado en el proyecto.
      */
     public static void cargarImagenEnLabel(String nombreImagen, JLabel label, boolean esDocente) {
-        File archivo = null;
-
-        if (nombreImagen != null && !nombreImagen.trim().isEmpty() && !nombreImagen.equalsIgnoreCase("null")) {
-            archivo = new File(DIRECTORIO_BASE + File.separator + nombreImagen);
-            if (!archivo.exists()) {
-                archivo = new File(nombreImagen);
-            }
-        }
-
-        // 1. Si el usuario tiene imagen subida
-        if (archivo != null && archivo.exists()) {
-            desplegarImagen(new ImageIcon(archivo.getAbsolutePath()), label);
+        if (cargarImagen(nombreImagen, label)) {
             return;
         }
 
@@ -81,6 +88,29 @@ public class GestorImagenes {
             label.revalidate();
             label.repaint();
         }
+    }
+
+    private static boolean cargarImagen(String imagenPath, JLabel label) {
+        if (imagenPath == null || imagenPath.trim().isEmpty() || imagenPath.equalsIgnoreCase("null")) {
+            return false;
+        }
+
+        File archivoLocal = new File(DIRECTORIO_BASE, imagenPath);
+        if (!archivoLocal.isFile()) {
+            archivoLocal = new File(imagenPath);
+        }
+        if (archivoLocal.isFile()) {
+            desplegarImagen(new ImageIcon(archivoLocal.getAbsolutePath()), label);
+            return true;
+        }
+
+        String rutaRecurso = imagenPath.startsWith("/") ? imagenPath : "/" + imagenPath;
+        URL recurso = GestorImagenes.class.getResource(rutaRecurso);
+        if (recurso != null) {
+            desplegarImagen(new ImageIcon(recurso), label);
+            return true;
+        }
+        return false;
     }
 
     public static void desplegarImagen(ImageIcon icon, JLabel label) {

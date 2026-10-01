@@ -8,6 +8,7 @@ import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes;
 import java.awt.Image;
 import java.io.File;
 import java.util.List;
@@ -23,14 +24,24 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class AltaCursoFrame extends javax.swing.JInternalFrame {
 
+    private static final String[] IMAGENES_PREDETERMINADAS = {
+        "/Presentacion/Recursos/imagen_predeterminada_curso_3.png",
+        "/Presentacion/Recursos/imagen_predeterminada_curso_2.png"
+    };
+
+    private static String seleccionarImagenPredeterminada() {
+        return IMAGENES_PREDETERMINADAS[java.util.concurrent.ThreadLocalRandom.current().nextInt(IMAGENES_PREDETERMINADAS.length)];
+    }
+
     /**
      * Creates new form AltaCursoFrame
      */
     private DefaultListModel<String> modelPrevias = new DefaultListModel<>();
     private DefaultListModel<String> modelCategorias = new DefaultListModel<>();
-    private String imagenPath;
+    private String imagenPath = seleccionarImagenPredeterminada();
     public AltaCursoFrame() {
         initComponents();
+        GestorImagenes.cargarImagenEnLabel(imagenPath, lblFotoPerfil);
 
         // Vinculamos el modelo con el JList visual de previas
         lstPreviasSeleccionadas.setModel(modelPrevias);
@@ -586,7 +597,9 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
                 javax.swing.JOptionPane.showMessageDialog(this, "Seleccione al menos una categoría para el curso.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas, categorias, imagenPath);
+            String imagenGuardada = GestorImagenes.guardarImagenLocalSiCorresponde(
+                    imagenPath, "curso_" + nombreCurso.replaceAll("[^A-Za-z0-9_-]", "_"));
+            icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas, categorias, imagenGuardada);
 
             javax.swing.JOptionPane.showMessageDialog(this, "¡Curso registrado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
             this.dispose();

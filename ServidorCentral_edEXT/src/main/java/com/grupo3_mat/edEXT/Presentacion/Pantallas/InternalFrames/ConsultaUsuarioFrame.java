@@ -117,7 +117,7 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
 
             if (esDocente) {
                 DtDocente docente = (DtDocente) dt;
-                lblValorTipoUsuario.setText("Docente (" + String.join(", ", docente.getInstitutos()) + ")");
+                lblValorTipoUsuario.setText("Docente(" + String.join("/", docente.getInstitutos()) + ")");
 
                 // Habilitar la pestaña de Cursos y seleccionarla por defecto
                 jTabbedPane1.setEnabledAt(0, true);

@@ -7,6 +7,7 @@ package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import java.util.List;
 import javax.swing.DefaultListModel;
@@ -56,6 +57,8 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     private void limpiarDatosDerecha() {
         valorNombre.setText("");
         txtDescripcion.setText("");
+        lblImg.setIcon(null);
+        lblImg.setText("");
         valorDuracion.setText("");
         if (valorHoras != null) {
             valorHoras.setText("");
@@ -79,6 +82,8 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             if (dt == null) {
                 return;
             }
+
+            GestorImagenes.cargarImagenEnLabel(dt.getImagenPath(), lblImg);
 
             // 1. Cargar Datos Básicos en las etiquetas correspondientes
             valorNombre.setText(dt.getNombre());
