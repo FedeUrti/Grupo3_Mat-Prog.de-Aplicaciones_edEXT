@@ -54,6 +54,7 @@ public class Principal extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
         AltaCursoMenuItem = new javax.swing.JMenuItem();
         ConsultaCursoMenuItem = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         AltaECmenuItem = new javax.swing.JMenuItem();
         consultaECmenuItem = new javax.swing.JMenuItem();
@@ -66,7 +67,6 @@ public class Principal extends javax.swing.JFrame {
         AltaInstitutoMenuItem = new javax.swing.JMenuItem();
         jMenu6 = new javax.swing.JMenu();
         CargaTotalbtn = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -106,6 +106,10 @@ public class Principal extends javax.swing.JFrame {
         ConsultaCursoMenuItem.setText("Consulta de Curso");
         ConsultaCursoMenuItem.addActionListener(this::ConsultaCursoMenuItemActionPerformed);
         jMenu2.add(ConsultaCursoMenuItem);
+
+        jMenuItem2.setText("Alta de Categoría");
+        jMenuItem2.addActionListener(this::jMenuItem2ActionPerformed);
+        jMenu2.add(jMenuItem2);
 
         jMenu4.setText("Ediciones");
 
@@ -154,10 +158,6 @@ public class Principal extends javax.swing.JFrame {
         CargaTotalbtn.setText("Carga Total Automatica");
         CargaTotalbtn.addActionListener(this::CargaTotalbtnActionPerformed);
         jMenu6.add(CargaTotalbtn);
-
-        jMenuItem2.setText("AltaCategoria");
-        jMenuItem2.addActionListener(this::jMenuItem2ActionPerformed);
-        jMenu6.add(jMenuItem2);
 
         jMenuBar1.add(jMenu6);
 

@@ -97,7 +97,7 @@ private void cargarDatos() throws Exception {
         btnAceptar.addActionListener(this::btnAceptarActionPerformed);
 
         btnCancelar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        btnCancelar.setText("Cancelar");
+        btnCancelar.setText("Cerrar");
         btnCancelar.addActionListener(this::btnCancelarActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -163,7 +163,6 @@ private void cargarDatos() throws Exception {
             
             //Notificación de exito
             JOptionPane.showMessageDialog(this, "El curso '" + nombreCurso + "' fue agregado con éxito al programa '" + nombrePrograma + "'.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-            
             
         } catch (Exception ex) {
             //Captura excepcions (por ejemplo si el curso ya pertenece al programa)

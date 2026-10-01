@@ -133,7 +133,7 @@ public class AltaInstitutoFrame extends javax.swing.JInternalFrame {
 
             // 3. Confirmar y limpiar campo
             javax.swing.JOptionPane.showMessageDialog(this, "¡Instituto '" + nombreInst + "' registrado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-            txtNombreInstituto.setText("");
+            this.dispose();
 
         } catch (IllegalArgumentException e) {
             // Si el instituto ya existe en la base de datos, atrapa el mensaje lanzado por el controlador

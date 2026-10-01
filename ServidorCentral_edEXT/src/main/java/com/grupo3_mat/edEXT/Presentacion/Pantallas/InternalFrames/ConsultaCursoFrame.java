@@ -27,6 +27,12 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         limpiarTodo();
         cargarInstitutos();
     }
+    
+    // Constructor para llamar desde otras pantallas
+    public ConsultaCursoFrame(String nombreCurso) {
+        this();
+        cargarDatosCurso(nombreCurso);
+    }
 
     private void limpiarTodo() {
         lstCursos.setModel(new DefaultListModel<>());
@@ -82,7 +88,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             // 1. Cargar Datos Básicos en las etiquetas correspondientes
             valorNombre.setText(dt.getNombre());
             txtDescripcion.setText(dt.getDescripcion() != null ? dt.getDescripcion() : "");
-            valorDuracion.setText(String.valueOf(dt.getDuracion()));
+            valorDuracion.setText(String.valueOf(dt.getDuracion()) + "meses");
             valorHoras.setText(String.valueOf(dt.getCantHoras()) + " hs");
             valorCreditos.setText(String.valueOf(dt.getCreditos()));
             valorURL.setText(dt.getUrl());
@@ -180,14 +186,15 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         valorCreditos = new javax.swing.JLabel();
         valorHoras = new javax.swing.JLabel();
         lblInstituto2 = new javax.swing.JLabel();
-        valorURL = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         txtDescripcion = new javax.swing.JTextArea();
         jScrollPane4 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
-        jLabel1 = new javax.swing.JLabel();
         jPanel8 = new javax.swing.JPanel();
         lblImg = new javax.swing.JLabel();
+        lblDuracion1 = new javax.swing.JLabel();
+        jPanel9 = new javax.swing.JPanel();
+        valorURL = new javax.swing.JTextField();
         jPanel5 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         cbInstitutos = new javax.swing.JComboBox<>();
@@ -231,11 +238,6 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Ediciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Inter", 0, 18))); // NOI18N
 
-        lstEdiciones.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         lstEdiciones.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane3.setViewportView(lstEdiciones);
 
@@ -258,20 +260,15 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnVerEC)
-                .addContainerGap(194, Short.MAX_VALUE))
+                .addContainerGap(216, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Ediciones de Curso", jPanel2);
 
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Programas de Formacion", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Inter", 0, 18))); // NOI18N
 
-        lstProgramas.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         lstProgramas.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane5.setViewportView(lstProgramas);
 
@@ -282,23 +279,21 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+            .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnVerPF))
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE))
-                .addGap(15, 15, 15))
+                    .addComponent(btnVerPF)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 408, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(123, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnVerPF)
-                .addGap(37, 37, 37))
+                .addContainerGap(215, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Programas", jPanel6);
@@ -337,22 +332,12 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         lblInstituto2.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblInstituto2.setText("URL");
 
-        valorURL.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
-        valorURL.setText("\"\"");
-
         txtDescripcion.setEditable(false);
         txtDescripcion.setColumns(20);
         txtDescripcion.setRows(5);
         jScrollPane2.setViewportView(txtDescripcion);
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         jScrollPane4.setViewportView(jList1);
-
-        jLabel1.setText("Categorias");
 
         jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder("Imagen de Perfil"));
 
@@ -376,6 +361,29 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
+        lblDuracion1.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblDuracion1.setText("Categorías");
+
+        valorURL.setEditable(false);
+        valorURL.setName(""); // NOI18N
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(valorURL)
+                .addContainerGap())
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(valorURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -390,28 +398,31 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
                             .addComponent(lblNombre1)
                             .addComponent(lblInstituto1)
                             .addComponent(lblInstituto2))
-                        .addGap(6, 6, 6)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(valorHoras, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                                    .addComponent(valorURL, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(valorCreditos, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(valorDuracion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(34, 34, 34)
-                                .addComponent(jLabel1))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                                .addGap(6, 6, 6)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(valorHoras, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                                        .addComponent(valorCreditos, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(valorDuracion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGap(8, 8, 8)
+                                .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(lblNombre)
                         .addGap(18, 18, 18)
                         .addComponent(valorNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
+                        .addComponent(lblDuracion1)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(13, Short.MAX_VALUE))
+                        .addContainerGap(14, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(25, 25, 25))))
         );
@@ -430,17 +441,17 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
                             .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addGap(8, 8, 8)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 7, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lblDuracion1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblDuracion)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(valorDuracion)
-                                .addComponent(jLabel1)))
+                            .addComponent(valorDuracion, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblNombre1)
@@ -450,9 +461,9 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
                             .addComponent(lblInstituto1)
                             .addComponent(valorCreditos))
                         .addGap(30, 30, 30)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblInstituto2)
-                            .addComponent(valorURL)))
+                            .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -552,7 +563,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -646,7 +657,6 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnVerEC;
     private javax.swing.JButton btnVerPF;
     private javax.swing.JComboBox<String> cbInstitutos;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JList<String> jList1;
     private javax.swing.JPanel jPanel1;
@@ -657,6 +667,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -666,6 +677,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JLabel lblDescripcion;
     private javax.swing.JLabel lblDuracion;
+    private javax.swing.JLabel lblDuracion1;
     private javax.swing.JLabel lblImg;
     private javax.swing.JLabel lblInstituto1;
     private javax.swing.JLabel lblInstituto2;
@@ -679,6 +691,6 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel valorDuracion;
     private javax.swing.JLabel valorHoras;
     private javax.swing.JLabel valorNombre;
-    private javax.swing.JLabel valorURL;
+    private javax.swing.JTextField valorURL;
     // End of variables declaration//GEN-END:variables
 }

@@ -80,6 +80,15 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
                     }
                 }
                 listCursos.setModel(model);
+                
+                // Cargar las categorías
+                DefaultListModel<String> modelCategorias = new DefaultListModel<>();
+                if (dt.getCategorias() != null) {
+                    for (String categoria : dt.getCategorias()) {
+                        modelCategorias.addElement(categoria);
+                    }
+                }
+                lstCategorias.setModel(modelCategorias);
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al cargar programa: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -95,6 +104,7 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        listCursos1 = new javax.swing.JList<>();
         btnCerrar = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         cmbProgramas = new javax.swing.JComboBox<>();
@@ -104,8 +114,18 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
         listCursos = new javax.swing.JList<>();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        btnVerCurso = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        lstCategorias = new javax.swing.JList<>();
         jPanel8 = new javax.swing.JPanel();
         lblImg = new javax.swing.JLabel();
+
+        listCursos1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                listCursos1MouseClicked(evt);
+            }
+        });
 
         setClosable(true);
         setIconifiable(true);
@@ -139,21 +159,36 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel2.setText("Cursos del Programa:");
 
+        btnVerCurso.setText("Ver Curso");
+        btnVerCurso.addActionListener(this::btnVerCursoActionPerformed);
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel3.setText("Categorías del Programa:");
+
+        jScrollPane3.setViewportView(lstCategorias);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmbProgramas, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))
+                        .addGap(27, 27, 27)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnVerCurso, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(cmbProgramas, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -162,13 +197,20 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(cmbProgramas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(33, 33, 33)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(34, 34, 34)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnVerCurso)))
+                .addGap(12, 12, 12)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
 
         jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder("Imagen de Perfil"));
@@ -217,9 +259,9 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(18, 18, 18)
+                .addGap(50, 50, 50)
                 .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(69, 69, 69))
+                .addGap(37, 37, 37))
         );
 
         pack();
@@ -250,6 +292,15 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
                 }
             }
             listCursos.setModel(model);
+            
+            // Cargar las categorías asociadas
+            DefaultListModel<String> modelCategorias = new DefaultListModel<>();
+            if (pf.getCategorias() != null) {
+                for (String nombreCategoria : pf.getCategorias()) {
+                    modelCategorias.addElement(nombreCategoria);
+                }
+            }
+            lstCategorias.setModel(modelCategorias);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -260,35 +311,77 @@ public class ConsultaDeProgramaFrame extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void listCursosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listCursosMouseClicked
-        if (evt.getClickCount() == 1) {
-            String cursoSeleccionado = listCursos.getSelectedValue();
-            
-            if(cursoSeleccionado != null) {
-                try {
-                    ConsultaCursoFrame consultaCurso = new ConsultaCursoFrame();
-                    this.getDesktopPane().add(consultaCurso);
-                    consultaCurso.setVisible(true);
-                    consultaCurso.toFront();
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Error al abrir la consulta del curso: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        } 
+
     }//GEN-LAST:event_listCursosMouseClicked
+
+    private void btnVerCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerCursoActionPerformed
+        String cursoSeleccionado = listCursos.getSelectedValue();
+
+        if (cursoSeleccionado == null) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Seleccione un curso de la lista.", 
+                "Atención", 
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            javax.swing.JDesktopPane desktop = this.getDesktopPane();
+
+            if (desktop != null) {
+                // Invoca a ConsultaCursoFrame
+                ConsultaCursoFrame consultaCurso = new ConsultaCursoFrame(cursoSeleccionado);
+                desktop.add(consultaCurso);
+                consultaCurso.setVisible(true);
+                consultaCurso.toFront();
+                
+                try {
+                    consultaCurso.setSelected(true);
+                } catch (java.beans.PropertyVetoException e) {
+                    // Ignorar restricción de foco si ocurre
+                }
+            } else {
+                JOptionPane.showMessageDialog(
+                    this, 
+                    "No se pudo acceder al contenedor principal de pantallas.", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Error al abrir la consulta del curso: " + ex.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }//GEN-LAST:event_btnVerCursoActionPerformed
+
+    private void listCursos1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listCursos1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_listCursos1MouseClicked
 
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCerrar;
+    private javax.swing.JButton btnVerCurso;
     private javax.swing.JComboBox<String> cmbProgramas;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel lblImg;
     private javax.swing.JList<String> listCursos;
+    private javax.swing.JList<String> listCursos1;
+    private javax.swing.JList<String> lstCategorias;
     private javax.swing.JTextArea txtDetalles;
     // End of variables declaration//GEN-END:variables
 

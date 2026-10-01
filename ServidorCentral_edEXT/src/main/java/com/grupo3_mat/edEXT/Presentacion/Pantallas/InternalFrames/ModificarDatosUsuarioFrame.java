@@ -400,7 +400,7 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblImagenPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -600,9 +600,7 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
             icu.modificarDatosUsuario(nickname, nombre, apellido, fechaNac, rutaFinalImagen);
 
             JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-            cargarUsuarios();
-            lstSeleccioneUsuario.setSelectedValue(nickname, true);
+            this.dispose();
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al modificar el usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
