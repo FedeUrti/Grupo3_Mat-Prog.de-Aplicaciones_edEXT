@@ -374,7 +374,6 @@ public class InscripcionEdicionCursoFrame extends javax.swing.JInternalFrame {
             ice.inscribirEstudianteAEdicion(estudianteSeleccionado, edicionVigenteActual, fechaInscripcion);
         
             JOptionPane.showMessageDialog(this, "Inscripción registrada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            this.dispose();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "No se pudo realizar la inscripción: " + e.getMessage(), "Error de Registro", JOptionPane.ERROR_MESSAGE);
         }

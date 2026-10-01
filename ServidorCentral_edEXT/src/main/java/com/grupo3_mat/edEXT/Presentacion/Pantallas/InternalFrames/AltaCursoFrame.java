@@ -157,8 +157,8 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
         jPanel3 = new javax.swing.JPanel();
         lblFotoPerfil = new javax.swing.JLabel();
         jLayeredPane1 = new javax.swing.JLayeredPane();
-        AltaCursoButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        AltaCursoButton = new javax.swing.JButton();
 
         setMaximizable(true);
         setTitle("Alta de Curso");
@@ -442,14 +442,14 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
 
         jLayeredPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
-        AltaCursoButton.setText("Aceptar");
-        AltaCursoButton.addActionListener(this::AltaCursoButtonActionPerformed);
-
         jButton2.setText("Cancelar");
         jButton2.addActionListener(this::jButton2ActionPerformed);
 
-        jLayeredPane1.setLayer(AltaCursoButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        AltaCursoButton.setText("Aceptar");
+        AltaCursoButton.addActionListener(this::AltaCursoButtonActionPerformed);
+
         jLayeredPane1.setLayer(jButton2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(AltaCursoButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
         jLayeredPane1.setLayout(jLayeredPane1Layout);
@@ -467,8 +467,8 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             .addGroup(jLayeredPane1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(AltaCursoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(AltaCursoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -479,7 +479,7 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(231, 231, 231)
+                        .addGap(337, 337, 337)
                         .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(8, 8, 8)
@@ -589,18 +589,7 @@ public class AltaCursoFrame extends javax.swing.JInternalFrame {
             icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas, categorias, imagenPath);
 
             javax.swing.JOptionPane.showMessageDialog(this, "¡Curso registrado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-
-            // 9. Limpiar formulario
-            txtNombreCurso.setText("");
-            txtDescripcion.setText("");
-            spnDuracion.setValue(0);
-            spnCantHoras.setValue(0);
-            spnCreditos.setValue(0);
-            txtUrl.setText("");
-            jCheckBox1.setSelected(false);
-            modelPrevias.clear(); // Limpia la lista visual de previas
-            activarSeccionPrevias(false);
-            cargarCursosPrevios();
+            this.dispose();
 
         } catch (NumberFormatException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Duración, horas y créditos deben ser números válidos.", "Error de Formato", javax.swing.JOptionPane.ERROR_MESSAGE);
