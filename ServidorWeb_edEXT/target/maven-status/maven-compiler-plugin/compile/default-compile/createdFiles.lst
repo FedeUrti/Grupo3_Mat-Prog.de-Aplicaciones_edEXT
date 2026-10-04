@@ -1,2 +1,6 @@
-com\grupo3_mat\servidorweb_edext\JakartaRestConfiguration.class
+com\grupo3_mat\servidorweb_edext\servlets\CursosServlet.class
 com\grupo3_mat\servidorweb_edext\resources\JakartaEE10Resource.class
+com\grupo3_mat\servidorweb_edext\servlets\AutenticacionServlet.class
+com\grupo3_mat\servidorweb_edext\servlets\CursoServlet.class
+com\grupo3_mat\servidorweb_edext\JakartaRestConfiguration.class
+com\grupo3_mat\servidorweb_edext\servlets\ImagenCursoServlet.class

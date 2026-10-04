@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,76 +10,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <style>
-        body {
-            background-color: #f4f6f9;
-        }
-        /* Estilos del Header */
-        .custom-header {
-            background-color: #1a2738 !important;
-        }
-        .logo-circle {
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            background-color: #2b5288;
-            border: 2px solid #ffffff;
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        /* Estilos del Menú Lateral */
-        .sidebar-title {
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: #333333;
-            letter-spacing: 0.05em;
-            margin-top: 0.8rem;
-            margin-bottom: 0.6rem;
-            padding-left: 0.2rem;
-        }
-        .custom-item {
-            border: none;
-            background-color: #eaeef3;
-            color: #222222;
-            font-weight: 500;
-            font-size: 0.95rem;
-            border-radius: 6px !important;
-            margin-bottom: 4px;
-            transition: all 0.2s ease;
-        }
-        .custom-item:hover, .custom-item.active {
-            background-color: #d8e0e8;
-            color: #000000;
-        }
-        /* Estilos de las Tarjetas de Contenido */
-        .course-card {
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            background-color: #ffffff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-        }
-        .btn-read-more {
-            background-color: #1c1c1c;
-            color: #ffffff;
-            border-radius: 8px;
-            padding: 4px 16px;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        .btn-read-more:hover {
-            background-color: #333333;
-            color: #ffffff;
-        }
-    </style>
+    <link href="assets/css/edext.css" rel="stylesheet">
 </head>
 <body>
 
-    <!-- 1. CABEZAL / NAVBAR -->
+    <!-- 1. CABEZAL: búsqueda, navegación a cursos y estado de sesión del usuario. -->
     <header class="custom-header py-2 px-4 shadow-sm">
         <div class="container-fluid d-flex align-items-center justify-content-between">
             
@@ -90,8 +26,8 @@
             </a>
 
             <!-- Buscador Universal con Formato de Píldora -->
-            <div class="w-50 mx-3">
-                <form action="buscar" method="GET">
+            <div class="w-50 mx-3 search-area">
+                <form action="cursos" method="GET">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3 text-muted">
                             <i class="bi bi-search"></i>
@@ -104,16 +40,27 @@
                 </form>
             </div>
 
-            <!-- Botones de Usuario (Visitante) -->
+            <!-- La barra cambia sus acciones según exista una sesión autenticada. -->
             <div class="d-flex gap-2">
-                <a href="login.jsp" class="btn btn-outline-light px-3 py-1 fw-semibold">Iniciar Sesión</a>
-                <a href="registro.jsp" class="btn btn-light text-dark px-3 py-1 fw-semibold">Registrarse</a>
+                <a href="cursos" class="btn btn-outline-light px-3 py-1 fw-semibold">Cursos</a>
+                <a href="alta-curso" class="btn btn-light text-dark px-3 py-1 fw-semibold">Alta de curso</a>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.usuarioNickname}">
+                        <a href="mi-cuenta" class="btn btn-outline-light px-3 py-1 fw-semibold">Mi cuenta</a>
+                        <form action="logout" method="post">
+                            <button class="btn btn-light text-dark px-3 py-1 fw-semibold" type="submit">Cerrar sesión</button>
+                        </form>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="login" class="btn btn-light text-dark px-3 py-1 fw-semibold">Iniciar sesión</a>
+                    </c:otherwise>
+                </c:choose>
             </div>
 
         </div>
     </header>
 
-    <!-- 2. CUERPO PRINCIPAL (2 COLUMNAS) -->
+    <!-- 2. CUERPO: filtros de catálogo y tarjetas de cursos destacados. -->
     <div class="container-fluid my-4 px-4">
         <div class="row g-4">
 
@@ -124,22 +71,22 @@
                     <!-- SECCIÓN INSTITUTOS -->
                     <div class="sidebar-title text-uppercase">INSTITUTOS</div>
                     <div class="list-group list-group-flush">
-                        <a href="consulta-curso?instituto=INCO" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                        <a href="cursos?instituto=INCO" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
                             <i class="bi bi-gear-wide-connected"></i> INCO
                         </a>
-                        <a href="consulta-curso?instituto=IMERL" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                        <a href="cursos?instituto=IMERL" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
                             <i class="bi bi-gear"></i> IMERL
                         </a>
-                        <a href="consulta-curso?instituto=Fisica" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                        <a href="cursos?instituto=Física" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
                             <i class="bi bi-compass"></i> Física
                         </a>
-                        <a href="consulta-curso?instituto=IMPII" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                        <a href="cursos?instituto=IMPII" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
                             <i class="bi bi-cpu"></i> IMPII
                         </a>
-                        <a href="consulta-curso?instituto=Electrica" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                        <a href="cursos?instituto=Eléctrica" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
                             <i class="bi bi-diagram-3"></i> Eléctrica
                         </a>
-                        <a href="consulta-curso?instituto=DISI" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                        <a href="cursos?instituto=DISI" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
                             <i class="bi bi-grid-3x3"></i> DISI
                         </a>
                     </div>
@@ -149,17 +96,17 @@
                     <!-- SECCIÓN CATEGORÍAS -->
                     <div class="sidebar-title text-uppercase">CATEGORÍAS</div>
                     <div class="list-group list-group-flush">
-                        <a href="consulta-curso?categoria=Social" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-people"></i> Social
+                        <a href="cursos?categoria=Inclusión" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                            <i class="bi bi-people"></i> Inclusión
                         </a>
-                        <a href="consulta-curso?categoria=Industrial" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-bag"></i> Industrial
+                        <a href="cursos?categoria=Industria" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                            <i class="bi bi-bag"></i> Industria
                         </a>
-                        <a href="consulta-curso?categoria=Educativos" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-mortarboard"></i> Educativos
+                        <a href="cursos?categoria=Educación" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                            <i class="bi bi-mortarboard"></i> Educación
                         </a>
-                        <a href="consulta-curso?categoria=Interdisciplinario" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-list-task"></i> Interdisciplinario
+                        <a href="cursos?categoria=Extensión" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                            <i class="bi bi-list-task"></i> Extensión
                         </a>
                     </div>
 
@@ -180,7 +127,7 @@
                                 <p class="card-text text-dark fs-5 fw-normal mb-2">
                                     La segunda etapa consiste en que trabajen en grupo sobre el diseño e implementación de una experiencia didáctica de inclusión del robot Butiá en el aula, utilizando los conocimientos aprendidos en clase.
                                 </p>
-                                <a href="consulta-curso?nombre=ButiaX" class="btn btn-read-more text-decoration-none">Leer más</a>
+                                <a href="consulta-curso?nombre=Taller%20de%20rob%C3%B3tica%20educativa" class="btn btn-read-more text-decoration-none">Leer más</a>
                             </div>
                         </div>
                     </div>

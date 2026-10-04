@@ -25,6 +25,24 @@
             <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <!-- 1. La API permite compilar las etiquetas c: de las vistas JSP. -->
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <!-- 2. La implementación resuelve esas etiquetas cuando Tomcat renderiza las JSP. -->
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
+            <!-- 3. Incluye en el WAR los controladores y modelos del sistema central. -->
+            <groupId>com.grupo3.mat</groupId>
+            <artifactId>Grupo3_Mat-Prog.de-Aplicaciones_edEXT</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     
     <build>
@@ -34,8 +52,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <release>21</release>
                 </configuration>
             </plugin>
             <plugin>
