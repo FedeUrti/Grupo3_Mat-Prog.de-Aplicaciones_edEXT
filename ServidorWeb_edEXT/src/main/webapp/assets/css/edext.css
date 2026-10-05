@@ -1,0 +1,124 @@
+:root {
+    /* Colores compartidos para conservar la identidad visual de edEXT en todas las vistas. */
+    --edext-navy: #1a2738;
+    --edext-blue: #2b5288;
+    --edext-page: #f4f6f9;
+    --edext-border: #e2e8f0;
+    --edext-muted: #64748b;
+}
+
+body {
+    background-color: var(--edext-page);
+    color: #222;
+}
+
+.custom-header {
+    background-color: var(--edext-navy) !important;
+}
+
+.logo-circle {
+    width: 58px;
+    height: 58px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background-color: var(--edext-blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.sidebar-title {
+    margin: 0.8rem 0 0.6rem;
+    padding-left: 0.2rem;
+    color: #333;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+/* Componentes compartidos del menú y las tarjetas de contenido. */
+.custom-item {
+    margin-bottom: 4px;
+    border: 0;
+    border-radius: 6px !important;
+    background-color: #eaeef3;
+    color: #222;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.custom-item:hover,
+.custom-item.active {
+    background-color: #d8e0e8;
+    color: #000;
+}
+
+.course-card,
+.content-card {
+    border: 1px solid var(--edext-border);
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 3%);
+}
+
+/* Botón oscuro usado para acciones secundarias de navegación. */
+.btn-read-more {
+    padding: 4px 16px;
+    border-radius: 8px;
+    background-color: #1c1c1c;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.btn-read-more:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Ajustes comunes de formularios, títulos y espacio para imágenes. */
+.page-heading {
+    color: var(--edext-navy);
+}
+
+.form-label {
+    font-weight: 600;
+}
+
+.form-text,
+.text-muted {
+    color: var(--edext-muted) !important;
+}
+
+.course-image-placeholder {
+    min-height: 190px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e7edf5, #f7f9fc);
+    color: var(--edext-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.required-mark {
+    color: #b42318;
+}
+
+@media (max-width: 767.98px) {
+    /* En pantallas pequeñas, permitir que el buscador baje a una fila propia. */
+    .custom-header .container-fluid {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0;
+    }
+
+    .custom-header .search-area {
+        order: 3;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+}

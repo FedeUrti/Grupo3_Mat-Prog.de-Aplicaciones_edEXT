@@ -1,0 +1,743 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
+ */
+package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
+
+import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes;
+import java.awt.Image;
+import java.io.File;
+import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+/**
+ *
+ * @author fede1
+ */
+public class AltaCursoFrame extends javax.swing.JInternalFrame {
+
+    private static final String[] IMAGENES_PREDETERMINADAS = {
+        "/Presentacion/Recursos/imagen_predeterminada_curso_3.png",
+        "/Presentacion/Recursos/imagen_predeterminada_curso_2.png"
+    };
+
+    private static String seleccionarImagenPredeterminada() {
+        return IMAGENES_PREDETERMINADAS[java.util.concurrent.ThreadLocalRandom.current().nextInt(IMAGENES_PREDETERMINADAS.length)];
+    }
+
+    /**
+     * Creates new form AltaCursoFrame
+     */
+    private DefaultListModel<String> modelPrevias = new DefaultListModel<>();
+    private DefaultListModel<String> modelCategorias = new DefaultListModel<>();
+    private String imagenPath = seleccionarImagenPredeterminada();
+    public AltaCursoFrame() {
+        initComponents();
+        GestorImagenes.cargarImagenEnLabel(imagenPath, lblFotoPerfil);
+
+        // Vinculamos el modelo con el JList visual de previas
+        lstPreviasSeleccionadas.setModel(modelPrevias);
+        lsCategorias.setModel(modelCategorias);
+        lsCategorias.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+        cargarInstitutos();
+        cargarCategorias();
+        cbInstitutos.addActionListener(event -> {
+            modelPrevias.clear();
+            cargarCursosPrevios();
+        });
+        cargarCursosPrevios();
+
+        jFecha.setDateFormatString("dd/MM/yyyy");
+        jFecha.setDate(new java.util.Date());
+
+        // Habilitar/deshabilitar según el checkbox
+        activarSeccionPrevias(jCheckBox1.isSelected());
+    }
+    private void cargarCursosPrevios() {
+        jComboBox1.removeAllItems();
+        String institutoSeleccionado = (String) cbInstitutos.getSelectedItem();
+        if (institutoSeleccionado == null || institutoSeleccionado.isBlank()) {
+            return;
+        }
+
+        try {
+            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+            List<String> cursos = icc.listarCursosPorInstituto(institutoSeleccionado);
+
+            if (cursos != null) {
+                for (String curso : cursos) {
+                    jComboBox1.addItem(curso);
+                }
+            }
+            jComboBox1.setSelectedIndex(-1); // Deja el combo sin selección inicial
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar los cursos previos: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    private void cargarInstitutos() {
+        cbInstitutos.removeAllItems();
+        try {
+            IControladorInstituto ici = Fabrica.getInstance().getIControladorInstituto();
+            java.util.List<String> institutos = ici.listarInstitutos();
+            for (String inst : institutos) {
+                cbInstitutos.addItem(inst);
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar institutos: " + e.getMessage());
+        }
+    }
+    private void cargarCategorias() {
+        modelCategorias.clear();
+        try {
+            IControladorCategoria icat = Fabrica.getInstance().getIControladorCategoria();
+            for (String categoria : icat.listarCategorias()) {
+                modelCategorias.addElement(categoria);
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar categorías: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    private void activarSeccionPrevias(boolean habilitar) {
+        jComboBox1.setEnabled(habilitar);
+        btnAgregarPrevia.setEnabled(habilitar);
+        btnQuitarPrevia.setEnabled(habilitar);
+        lstPreviasSeleccionadas.setEnabled(habilitar);
+    }
+    private boolean esUrlValida(String url) {
+        try {
+            java.net.URI uri = new java.net.URI(url);
+            // Verifica que la URI tenga protocolo y que sea http o https
+            return uri.getScheme() != null
+                    && (uri.getScheme().equalsIgnoreCase("http") || uri.getScheme().equalsIgnoreCase("https"))
+                    && uri.getHost() != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLayeredPane2 = new javax.swing.JLayeredPane();
+        jPanel1 = new javax.swing.JPanel();
+        spnDuracion = new javax.swing.JSpinner();
+        jLabel8 = new javax.swing.JLabel();
+        spnCantHoras = new javax.swing.JSpinner();
+        spnCreditos = new javax.swing.JSpinner();
+        jLabel7 = new javax.swing.JLabel();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jLabel5 = new javax.swing.JLabel();
+        jFecha = new com.toedter.calendar.JDateChooser();
+        txtUrl = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        lstPreviasSeleccionadas = new javax.swing.JList<>();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        btnAgregarPrevia = new javax.swing.JButton();
+        btnQuitarPrevia = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        txtNombreCurso = new javax.swing.JTextField();
+        cbInstitutos = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtDescripcion = new javax.swing.JTextArea();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        lblCategorias = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        lsCategorias = new javax.swing.JList<>();
+        jPanel4 = new javax.swing.JPanel();
+        btnSeleccionarImagen = new javax.swing.JButton();
+        lblImagen = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        lblFotoPerfil = new javax.swing.JLabel();
+        jLayeredPane1 = new javax.swing.JLayeredPane();
+        jButton2 = new javax.swing.JButton();
+        AltaCursoButton = new javax.swing.JButton();
+
+        setMaximizable(true);
+        setTitle("Alta de Curso");
+        setMaximumSize(getPreferredSize());
+
+        jLayeredPane2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "INFO", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Inter", 0, 18))); // NOI18N
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel8.setText("Fecha de Alta");
+
+        jLabel7.setText("URL Asociada");
+
+        jCheckBox1.setText("Previa");
+        jCheckBox1.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        jCheckBox1.addActionListener(this::jCheckBox1ActionPerformed);
+
+        jLabel5.setText("Cantidad de Horas");
+
+        txtUrl.setToolTipText("Aqui van URLs ejemplo : https://example.com");
+
+        jLabel4.setText("Duración (meses)");
+
+        jLabel6.setText("Cant.de creditos");
+
+        lstPreviasSeleccionadas.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane2.setViewportView(lstPreviasSeleccionadas);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        btnAgregarPrevia.setText("Agregar Previa");
+        btnAgregarPrevia.addActionListener(this::btnAgregarPreviaActionPerformed);
+
+        btnQuitarPrevia.setText("Quitar Previa");
+        btnQuitarPrevia.addActionListener(this::btnQuitarPreviaActionPerformed);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel8))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(65, 65, 65)
+                                .addComponent(jFecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(32, 32, 32)
+                                        .addComponent(btnAgregarPrevia)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnQuitarPrevia)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 101, Short.MAX_VALUE))))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtUrl))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addGap(18, 18, 18)
+                                .addComponent(spnCreditos))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel4))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(spnDuracion, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(spnCantHoras, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(jScrollPane2)))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(spnDuracion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(spnCantHoras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(spnCreditos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(21, 21, 21)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(txtUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8)
+                    .addComponent(jFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(19, 19, 19)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBox1))
+                .addGap(30, 30, 30)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAgregarPrevia)
+                    .addComponent(btnQuitarPrevia))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        cbInstitutos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel1.setText("Instituto:");
+
+        txtDescripcion.setColumns(20);
+        txtDescripcion.setRows(5);
+        jScrollPane1.setViewportView(txtDescripcion);
+
+        jLabel3.setText("Descripción");
+
+        jLabel2.setText("Nombre");
+
+        lblCategorias.setText("Categoria/s");
+
+        lsCategorias.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane3.setViewportView(lsCategorias);
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        btnSeleccionarImagen.setText("Seleccionar Imagen");
+        btnSeleccionarImagen.addActionListener(this::btnSeleccionarImagenActionPerformed);
+
+        lblImagen.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblImagen.setText("Imagen:");
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Imagen de Perfil"));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnSeleccionarImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnSeleccionarImagen)
+                            .addComponent(lblImagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(66, 66, 66))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2)
+                            .addComponent(lblCategorias))
+                        .addGap(26, 26, 26)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtNombreCurso)
+                            .addComponent(cbInstitutos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addGap(30, 30, 30))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3)))
+                        .addGap(0, 68, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(cbInstitutos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtNombreCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblCategorias)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(22, 22, 22)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25))
+        );
+
+        jLayeredPane2.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane2.setLayer(jPanel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        javax.swing.GroupLayout jLayeredPane2Layout = new javax.swing.GroupLayout(jLayeredPane2);
+        jLayeredPane2.setLayout(jLayeredPane2Layout);
+        jLayeredPane2Layout.setHorizontalGroup(
+            jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jLayeredPane2Layout.setVerticalGroup(
+            jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jLayeredPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jLayeredPane2Layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+
+        jLayeredPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+
+        jButton2.setText("Cancelar");
+        jButton2.addActionListener(this::jButton2ActionPerformed);
+
+        AltaCursoButton.setText("Aceptar");
+        AltaCursoButton.addActionListener(this::AltaCursoButtonActionPerformed);
+
+        jLayeredPane1.setLayer(jButton2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(AltaCursoButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
+        jLayeredPane1.setLayout(jLayeredPane1Layout);
+        jLayeredPane1Layout.setHorizontalGroup(
+            jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(AltaCursoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jLayeredPane1Layout.setVerticalGroup(
+            jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(AltaCursoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(337, 337, 337)
+                        .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addComponent(jLayeredPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(jLayeredPane2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void AltaCursoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AltaCursoButtonActionPerformed
+        // TODO add your handling code here:
+        try {
+            // 1. Validar Instituto
+            String nomInstituto = (String) cbInstitutos.getSelectedItem();
+            if (nomInstituto == null || nomInstituto.trim().isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Debe seleccionar un instituto.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 2. Validar Nombre del Curso
+            String nombreCurso = txtNombreCurso.getText().trim();
+            if (nombreCurso.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "El nombre del curso no puede estar vacío.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (Character.isDigit(nombreCurso.charAt(0))) {
+                javax.swing.JOptionPane.showMessageDialog(this, "El nombre del curso no puede comenzar con un número (Ingresado: '" + nombreCurso + "').", "Nombre Inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 3. Validar Descripción
+            String descripcion = txtDescripcion.getText().trim();
+            if (descripcion.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "La descripción no puede estar vacía.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 4. Validar Números (Duración, Horas, Créditos)
+            int duracion = (Integer) spnDuracion.getValue();
+            if (duracion <= 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, "La duración debe ser mayor a 0 (Valor ingresado: " + duracion + ").", "Valor Inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int horas = (Integer) spnCantHoras.getValue();
+            if (horas <= 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, "La cantidad de horas debe ser mayor a 0 (Valor ingresado: " + horas + ").", "Valor Inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int creditos = (Integer) spnCreditos.getValue();
+            if (creditos < 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Los créditos no pueden ser un valor negativo (Valor ingresado: " + creditos + ").", "Valor Inválido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            // 5. Validar URL
+            String url = txtUrl.getText().trim();
+            if (url.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "La URL no puede estar vacía.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+
+            // 6. Validar Fecha
+            if (jFecha.getDate() == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccione una fecha válida.", "Fecha Inválida", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            java.util.Date dateSelected = jFecha.getDate();
+            java.time.LocalDate fechaRegistro = dateSelected.toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate();
+
+            // 7. Extraer la lista de previas acumuladas (0, 1 o MÚLTIPLES)
+            java.util.List<String> previas = new java.util.ArrayList<>();
+            if (jCheckBox1.isSelected()) {
+                if (modelPrevias.isEmpty()) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Marcó la casilla de 'Previa' pero no agregó ningún curso a la lista.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                // Copiamos los elementos del DefaultListModel
+                for (int i = 0; i < modelPrevias.getSize(); i++) {
+                    previas.add(modelPrevias.getElementAt(i));
+                }
+            }
+
+            // 8. Registro a través del controlador
+
+
+            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+            List<String> categorias = lsCategorias.getSelectedValuesList();
+            if (categorias.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Seleccione al menos una categoría para el curso.", "Campo Requerido", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String imagenGuardada = GestorImagenes.guardarImagenLocalSiCorresponde(
+                    imagenPath, "curso_" + nombreCurso.replaceAll("[^A-Za-z0-9_-]", "_"));
+            icc.altaCurso(nomInstituto, nombreCurso, descripcion, duracion, horas, creditos, url, fechaRegistro, previas, categorias, imagenGuardada);
+
+            javax.swing.JOptionPane.showMessageDialog(this, "¡Curso registrado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            this.dispose();
+
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Duración, horas y créditos deben ser números válidos.", "Error de Formato", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error en los datos del curso: " + e.getMessage(), "Error de Negocio", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ocurrió un error inesperado: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_AltaCursoButtonActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        boolean habilitar = jCheckBox1.isSelected();
+
+        jComboBox1.setEnabled(habilitar);
+        btnAgregarPrevia.setEnabled(habilitar); // Cambia el nombre si tu botón se llama distinto (ej: jButton1)
+        btnQuitarPrevia.setEnabled(habilitar);  // Si pusiste botón de quitar
+        lstPreviasSeleccionadas.setEnabled(habilitar);       // Si pusiste la lista visual
+
+        if (!habilitar) {
+            modelPrevias.clear(); // Limpia las previas si el usuario desmarca la casilla
+        }
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void btnAgregarPreviaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPreviaActionPerformed
+        // TODO add your handling code here:
+        String cursoSeleccionado = (String) jComboBox1.getSelectedItem();
+
+        if (cursoSeleccionado == null || cursoSeleccionado.trim().isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un curso del desplegable.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Evitar agregar duplicados
+        if (modelPrevias.contains(cursoSeleccionado)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "El curso '" + cursoSeleccionado + "' ya está agregado en la lista de previas.", "Aviso", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            modelPrevias.addElement(cursoSeleccionado);
+        }
+    }//GEN-LAST:event_btnAgregarPreviaActionPerformed
+
+    private void btnQuitarPreviaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuitarPreviaActionPerformed
+        // TODO add your handling code here:
+        String seleccionado = lstPreviasSeleccionadas.getSelectedValue();
+
+        if (seleccionado != null) {
+            modelPrevias.removeElement(seleccionado);
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un curso de la lista para quitar.", "Atención", javax.swing.JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btnQuitarPreviaActionPerformed
+
+    private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed
+        // 1. Crear y configurar el selector de archivos
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes (JPG, PNG, JPEG)", "jpg", "png", "jpeg");
+        chooser.setFileFilter(filter);
+
+        // 2. Abrir la ventana
+        int returnVal = chooser.showOpenDialog(this);
+
+        // 3. Si el usuario seleccionó un archivo
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File archivo = chooser.getSelectedFile();
+
+            // ¡LO QUE FALTABA! Guardar la ruta absoluta para enviarla al ControladorUsuario
+            this.imagenPath = archivo.getAbsolutePath();
+
+
+            // B. Cargar y previsualizar la imagen escalada
+            try {
+                ImageIcon originalIcon = new ImageIcon(archivo.getAbsolutePath());
+
+                // Medidas seguras por si el label todavía no se ha renderizado completamente
+                int ancho = (lblFotoPerfil.getWidth() > 0) ? lblFotoPerfil.getWidth() : 120;
+                int alto = (lblFotoPerfil.getHeight() > 0) ? lblFotoPerfil.getHeight() : 120;
+
+                Image imagenEscalada = originalIcon.getImage().getScaledInstance(
+                    ancho,
+                    alto,
+                    Image.SCALE_SMOOTH
+                );
+
+                lblFotoPerfil.setIcon(new ImageIcon(imagenEscalada));
+                lblFotoPerfil.setText(""); // Borra el texto inicial ("Foto", "Sin imagen", etc.)
+                lblFotoPerfil.setBorder(null);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al previsualizar la imagen: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnSeleccionarImagenActionPerformed
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AltaCursoButton;
+    private javax.swing.JButton btnAgregarPrevia;
+    private javax.swing.JButton btnQuitarPrevia;
+    private javax.swing.JButton btnSeleccionarImagen;
+    private javax.swing.JComboBox<String> cbInstitutos;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private com.toedter.calendar.JDateChooser jFecha;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLayeredPane jLayeredPane1;
+    private javax.swing.JLayeredPane jLayeredPane2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel lblCategorias;
+    private javax.swing.JLabel lblFotoPerfil;
+    private javax.swing.JLabel lblImagen;
+    private javax.swing.JList<String> lsCategorias;
+    private javax.swing.JList<String> lstPreviasSeleccionadas;
+    private javax.swing.JSpinner spnCantHoras;
+    private javax.swing.JSpinner spnCreditos;
+    private javax.swing.JSpinner spnDuracion;
+    private javax.swing.JTextArea txtDescripcion;
+    private javax.swing.JTextField txtNombreCurso;
+    private javax.swing.JTextField txtUrl;
+    // End of variables declaration//GEN-END:variables
+}
