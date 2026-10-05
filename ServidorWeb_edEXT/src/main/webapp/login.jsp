@@ -37,6 +37,11 @@
                 <c:if test="${not empty error}">
                     <div class="alert alert-danger" role="alert"><c:out value="${error}"/></div>
                 </c:if>
+                <c:if test="${param.motivo eq 'docente'}">
+                    <div class="alert alert-info" role="status">
+                        Para dar de alta cursos, iniciá sesión con una cuenta docente.
+                    </div>
+                </c:if>
 
                 <!-- Se admite nickname o correo, igual que en el controlador central. -->
                 <form action="login" method="post">

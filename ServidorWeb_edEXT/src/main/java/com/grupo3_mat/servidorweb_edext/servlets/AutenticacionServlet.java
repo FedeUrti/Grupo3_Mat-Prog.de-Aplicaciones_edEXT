@@ -1,6 +1,7 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
 import jakarta.servlet.ServletException;
@@ -67,11 +68,16 @@ public class AutenticacionServlet extends HttpServlet {
             if (nickname == null) {
                 throw new IllegalStateException("La cuenta autenticada no se pudo identificar.");
             }
+            DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
+            if (usuario == null) {
+                throw new IllegalStateException("La cuenta autenticada ya no existe.");
+            }
 
             // 3. Regenerar el identificador antes de marcar la sesión como autenticada.
             HttpSession sesion = request.getSession(true);
             request.changeSessionId();
             sesion.setAttribute(CLAVE_USUARIO, nickname);
+            sesion.setAttribute("usuarioDocente", usuario instanceof DtDocente);
             response.sendRedirect(request.getContextPath() + "/mi-cuenta");
         } catch (Exception e) {
             // El detalle queda en el log del servidor; la pantalla no revela datos internos.

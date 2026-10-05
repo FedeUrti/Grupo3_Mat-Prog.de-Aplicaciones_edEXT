@@ -19,7 +19,7 @@
         <div class="container-fluid d-flex align-items-center justify-content-between">
             
             <!-- Logo edEXT -->
-            <a href="index.jsp" class="text-decoration-none">
+            <a href="inicio" class="text-decoration-none">
                 <div class="logo-circle">
                     edEXT
                 </div>
@@ -43,9 +43,11 @@
             <!-- La barra cambia sus acciones según exista una sesión autenticada. -->
             <div class="d-flex gap-2">
                 <a href="cursos" class="btn btn-outline-light px-3 py-1 fw-semibold">Cursos</a>
-                <a href="alta-curso" class="btn btn-light text-dark px-3 py-1 fw-semibold">Alta de curso</a>
                 <c:choose>
                     <c:when test="${not empty sessionScope.usuarioNickname}">
+                        <c:if test="${sessionScope.usuarioDocente}">
+                            <a href="alta-curso" class="btn btn-light text-dark px-3 py-1 fw-semibold">Alta de curso</a>
+                        </c:if>
                         <a href="mi-cuenta" class="btn btn-outline-light px-3 py-1 fw-semibold">Mi cuenta</a>
                         <form action="logout" method="post">
                             <button class="btn btn-light text-dark px-3 py-1 fw-semibold" type="submit">Cerrar sesión</button>
@@ -60,7 +62,7 @@
         </div>
     </header>
 
-    <!-- 2. CUERPO: filtros de catálogo y tarjetas de cursos destacados. -->
+    <!-- 2. CUERPO: filtros y cursos existentes cargados por InicioServlet. -->
     <div class="container-fluid my-4 px-4">
         <div class="row g-4">
 
@@ -71,97 +73,82 @@
                     <!-- SECCIÓN INSTITUTOS -->
                     <div class="sidebar-title text-uppercase">INSTITUTOS</div>
                     <div class="list-group list-group-flush">
-                        <a href="cursos?instituto=INCO" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-gear-wide-connected"></i> INCO
-                        </a>
-                        <a href="cursos?instituto=IMERL" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-gear"></i> IMERL
-                        </a>
-                        <a href="cursos?instituto=Física" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-compass"></i> Física
-                        </a>
-                        <a href="cursos?instituto=IMPII" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-cpu"></i> IMPII
-                        </a>
-                        <a href="cursos?instituto=Eléctrica" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-diagram-3"></i> Eléctrica
-                        </a>
-                        <a href="cursos?instituto=DISI" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-grid-3x3"></i> DISI
-                        </a>
+                        <c:forEach items="${institutos}" var="instituto">
+                            <c:url var="filtroInstitutoUrl" value="/cursos">
+                                <c:param name="instituto" value="${instituto}"/>
+                            </c:url>
+                            <a href="<c:out value='${filtroInstitutoUrl}'/>"
+                               class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                                <i class="bi bi-building" aria-hidden="true"></i> <c:out value="${instituto}"/>
+                            </a>
+                        </c:forEach>
                     </div>
 
-                    <hr class="my-3 text-muted">
+                    <c:if test="${not empty categorias}">
+                        <hr class="my-3 text-muted">
 
-                    <!-- SECCIÓN CATEGORÍAS -->
-                    <div class="sidebar-title text-uppercase">CATEGORÍAS</div>
-                    <div class="list-group list-group-flush">
-                        <a href="cursos?categoria=Inclusión" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-people"></i> Inclusión
-                        </a>
-                        <a href="cursos?categoria=Industria" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-bag"></i> Industria
-                        </a>
-                        <a href="cursos?categoria=Educación" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-mortarboard"></i> Educación
-                        </a>
-                        <a href="cursos?categoria=Extensión" class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
-                            <i class="bi bi-list-task"></i> Extensión
-                        </a>
-                    </div>
+                        <!-- SECCIÓN CATEGORÍAS: solo se muestran las que existen en la base. -->
+                        <div class="sidebar-title text-uppercase">CATEGORÍAS</div>
+                        <div class="list-group list-group-flush">
+                            <c:forEach items="${categorias}" var="categoria">
+                                <c:url var="filtroCategoriaUrl" value="/cursos">
+                                    <c:param name="categoria" value="${categoria}"/>
+                                </c:url>
+                                <a href="<c:out value='${filtroCategoriaUrl}'/>"
+                                   class="list-group-item list-group-item-action custom-item d-flex align-items-center gap-2">
+                                    <i class="bi bi-bookmark" aria-hidden="true"></i> <c:out value="${categoria}"/>
+                                </a>
+                            </c:forEach>
+                        </div>
+                    </c:if>
 
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA: TARJETAS DE CURSOS / PROYECTOS -->
+            <!-- COLUMNA DERECHA: tarjetas construidas únicamente con cursos de la base. -->
             <div class="col-md-9 col-lg-10">
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger" role="alert"><c:out value="${error}"/></div>
+                </c:if>
+                <c:if test="${empty error and empty cursos}">
+                    <div class="content-card p-4 text-center">
+                        <h2 class="h5 fw-bold">Todavía no hay cursos</h2>
+                        <p class="text-muted mb-0">Los cursos aparecerán aquí cuando se carguen en el sistema.</p>
+                    </div>
+                </c:if>
                 <div class="d-flex flex-column gap-3">
-
-                    <!-- Tarjeta 1: ButiáX -->
-                    <div class="card course-card p-3">
-                        <div class="row align-items-center g-3">
-                            <div class="col-md-4 text-center">
-                                <img src="https://via.placeholder.com/300x120?text=BUTIÁX" class="img-fluid rounded" alt="Robot Butiá">
+                    <c:forEach items="${cursos}" var="curso">
+                        <article class="card course-card p-3">
+                            <div class="row align-items-center g-3">
+                                <div class="col-md-4 text-center">
+                                    <c:choose>
+                                        <c:when test="${not empty curso.imagenPath}">
+                                            <c:url var="imagenUrl" value="/imagenes-curso">
+                                                <c:param name="nombre" value="${curso.imagenPath}"/>
+                                            </c:url>
+                                            <img src="<c:out value='${imagenUrl}'/>" class="img-fluid rounded"
+                                                 alt="Imagen de <c:out value='${curso.nombre}'/>">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="course-image-placeholder">
+                                                <i class="bi bi-mortarboard display-5" aria-hidden="true"></i>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div class="col-md-8">
+                                    <span class="badge text-bg-primary mb-2"><c:out value="${curso.nomInstituto}"/></span>
+                                    <h2 class="h5 fw-bold"><c:out value="${curso.nombre}"/></h2>
+                                    <p class="card-text text-dark mb-2"><c:out value="${curso.descripcion}"/></p>
+                                    <c:url var="detalleUrl" value="/consulta-curso">
+                                        <c:param name="nombre" value="${curso.nombre}"/>
+                                    </c:url>
+                                    <a href="<c:out value='${detalleUrl}'/>"
+                                       class="btn btn-read-more text-decoration-none">Ver curso</a>
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                <p class="card-text text-dark fs-5 fw-normal mb-2">
-                                    La segunda etapa consiste en que trabajen en grupo sobre el diseño e implementación de una experiencia didáctica de inclusión del robot Butiá en el aula, utilizando los conocimientos aprendidos en clase.
-                                </p>
-                                <a href="consulta-curso?nombre=Taller%20de%20rob%C3%B3tica%20educativa" class="btn btn-read-more text-decoration-none">Leer más</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta 2: Dalavuelta -->
-                    <div class="card course-card p-3">
-                        <div class="row align-items-center g-3">
-                            <div class="col-md-4 text-center">
-                                <img src="https://via.placeholder.com/300x120?text=Dalavuelta" class="img-fluid rounded" alt="Dalavuelta">
-                            </div>
-                            <div class="col-md-8">
-                                <p class="card-text text-dark fs-5 fw-normal mb-2">
-                                    <strong>Dalavuelta</strong> es un proyecto de extensión que nace en el Instituto de Ingeniería Mecánica y Producción Industrial (IIMPI) de Fing, que si bien inicia su trabajo en el desarrollo de bicicletas accesibles para...
-                                </p>
-                                <a href="consulta-curso?nombre=Dalavuelta" class="btn btn-read-more text-decoration-none">Leer más</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta 3: Flor del Ceibo -->
-                    <div class="card course-card p-3">
-                        <div class="row align-items-center g-3">
-                            <div class="col-md-4 text-center">
-                                <img src="https://via.placeholder.com/300x120?text=Flor+del+Ceibo" class="img-fluid rounded" alt="Flor del Ceibo">
-                            </div>
-                            <div class="col-md-8">
-                                <p class="card-text text-dark fs-5 fw-normal mb-2">
-                                    <strong>Flor del Ceibo</strong> es un proyecto central de la Universidad de la República, que tiene misión por movilizar la participación de estudiantes universitarios en...
-                                </p>
-                                <a href="consulta-curso?nombre=FlorDelCeibo" class="btn btn-read-more text-decoration-none">Leer más</a>
-                            </div>
-                        </div>
-                    </div>
-
+                        </article>
+                    </c:forEach>
                 </div>
             </div>
 

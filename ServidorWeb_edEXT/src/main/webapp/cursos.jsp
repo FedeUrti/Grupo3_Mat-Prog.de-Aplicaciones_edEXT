@@ -14,7 +14,7 @@
 <!-- Barra de navegación y búsqueda del catálogo. -->
 <header class="custom-header py-2 px-4 shadow-sm">
     <div class="container-fluid d-flex align-items-center justify-content-between gap-3">
-        <a href="index.jsp" class="text-decoration-none" aria-label="Inicio edEXT">
+        <a href="inicio" class="text-decoration-none" aria-label="Inicio edEXT">
             <div class="logo-circle">edEXT</div>
         </a>
         <form class="search-area flex-grow-1 mx-3" action="cursos" method="get" role="search">
@@ -31,9 +31,11 @@
         </form>
         <nav class="d-flex gap-2" aria-label="Navegación principal">
             <a href="cursos" class="btn btn-outline-light">Cursos</a>
-            <a href="alta-curso" class="btn btn-light text-dark">Alta de curso</a>
             <c:choose>
                 <c:when test="${not empty sessionScope.usuarioNickname}">
+                    <c:if test="${sessionScope.usuarioDocente}">
+                        <a href="alta-curso" class="btn btn-light text-dark">Alta de curso</a>
+                    </c:if>
                     <a href="mi-cuenta" class="btn btn-outline-light">Mi cuenta</a>
                 </c:when>
                 <c:otherwise>
@@ -52,9 +54,11 @@
             <h1 class="page-heading fw-bold mb-1">Cursos</h1>
             <p class="text-muted mb-0">Explorá cursos de extensión por instituto y categoría.</p>
         </div>
-        <a href="alta-curso" class="btn btn-dark">
-            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Dar de alta un curso
-        </a>
+        <c:if test="${sessionScope.usuarioDocente}">
+            <a href="alta-curso" class="btn btn-dark">
+                <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Dar de alta un curso
+            </a>
+        </c:if>
     </div>
 
     <div class="row g-4">
@@ -88,6 +92,9 @@
 
         <!-- Mostrar errores, estado vacío o tarjetas según la respuesta del backend. -->
         <section class="col-lg-9" aria-label="Resultados de cursos">
+            <c:if test="${param.acceso eq 'docente'}">
+                <div class="alert alert-warning" role="alert">Solo los docentes pueden dar de alta cursos.</div>
+            </c:if>
             <c:if test="${not empty error}">
                 <div class="alert alert-danger" role="alert"><c:out value="${error}"/></div>
             </c:if>
@@ -98,9 +105,11 @@
                     </div>
                     <h2 class="h4 fw-bold">No encontramos cursos</h2>
                     <p class="text-muted mx-auto mb-4" style="max-width: 560px;">
-                        Probá con otros filtros o registrá el primer curso del catálogo.
+                        Probá con otros filtros o volvé más tarde para consultar la oferta disponible.
                     </p>
-                    <a class="btn btn-read-more text-decoration-none" href="alta-curso">Registrar un curso</a>
+                    <c:if test="${sessionScope.usuarioDocente}">
+                        <a class="btn btn-read-more text-decoration-none" href="alta-curso">Registrar un curso</a>
+                    </c:if>
                 </div>
             </c:if>
             <div class="d-flex flex-column gap-3">

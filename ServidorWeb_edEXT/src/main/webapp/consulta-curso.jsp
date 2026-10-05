@@ -14,14 +14,16 @@
 <!-- Navegación común que mantiene el acceso al catálogo y las demás páginas. -->
 <header class="custom-header py-2 px-4 shadow-sm">
     <div class="container-fluid d-flex align-items-center justify-content-between">
-        <a href="index.jsp" class="text-decoration-none" aria-label="Inicio edEXT">
+        <a href="inicio" class="text-decoration-none" aria-label="Inicio edEXT">
             <div class="logo-circle">edEXT</div>
         </a>
         <nav class="d-flex gap-2" aria-label="Navegación principal">
             <a href="cursos" class="btn btn-outline-light">Cursos</a>
-            <a href="alta-curso" class="btn btn-light text-dark">Alta de curso</a>
             <c:choose>
                 <c:when test="${not empty sessionScope.usuarioNickname}">
+                    <c:if test="${sessionScope.usuarioDocente}">
+                        <a href="alta-curso" class="btn btn-light text-dark">Alta de curso</a>
+                    </c:if>
                     <a href="mi-cuenta" class="btn btn-outline-light">Mi cuenta</a>
                 </c:when>
                 <c:otherwise>

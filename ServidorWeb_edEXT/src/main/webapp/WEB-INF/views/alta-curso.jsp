@@ -14,7 +14,7 @@
 <!-- Navegación común hacia el catálogo, la página principal y la cuenta. -->
 <header class="custom-header py-2 px-4 shadow-sm">
     <div class="container-fluid d-flex align-items-center justify-content-between">
-        <a href="index.jsp" class="text-decoration-none" aria-label="Inicio edEXT">
+        <a href="inicio" class="text-decoration-none" aria-label="Inicio edEXT">
             <div class="logo-circle">edEXT</div>
         </a>
         <nav class="d-flex gap-2" aria-label="Navegación principal">

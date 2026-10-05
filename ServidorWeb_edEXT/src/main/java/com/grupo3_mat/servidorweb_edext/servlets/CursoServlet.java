@@ -1,16 +1,20 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,14 +39,18 @@ public class CursoServlet extends HttpServlet {
     private final IControladorCurso cursos = Fabrica.getInstance().getIControladorCurso();
     private final IControladorInstituto institutos = Fabrica.getInstance().getIControladorInstituto();
     private final IControladorCategoria categorias = Fabrica.getInstance().getIControladorCategoria();
+    private final IControladorUsuario usuarios = Fabrica.getInstance().getIControladorUsuario();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // 1. La ruta de alta prepara catálogos antes de mostrar el formulario.
         if ("/alta-curso".equals(request.getServletPath())) {
+            if (!requiereDocente(request, response)) {
+                return;
+            }
             cargarCatalogos(request, response);
-            request.getRequestDispatcher("/alta-curso.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/alta-curso.jsp").forward(request, response);
             return;
         }
 
@@ -72,6 +80,11 @@ public class CursoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Se verifica el rol también en el servidor antes de leer/procesar el alta.
+        if (!requiereDocente(request, response)) {
+            return;
+        }
+
         String imagenGuardada = null;
         try {
             request.setCharacterEncoding("UTF-8");
@@ -115,7 +128,7 @@ public class CursoServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             request.setAttribute("error", e.getMessage());
             conservarFormulario(request);
-            request.getRequestDispatcher("/alta-curso.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/alta-curso.jsp").forward(request, response);
         } catch (ServletException e) {
             borrarImagenSiExiste(imagenGuardada);
             getServletContext().log("No se pudo procesar la imagen del curso.", e);
@@ -123,7 +136,7 @@ public class CursoServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             request.setAttribute("error", "No se pudo procesar la imagen. Usá PNG, JPEG, GIF o WebP de hasta 5 MB.");
             conservarFormulario(request);
-            request.getRequestDispatcher("/alta-curso.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/alta-curso.jsp").forward(request, response);
         } catch (Exception e) {
             borrarImagenSiExiste(imagenGuardada);
             getServletContext().log("No se pudo registrar el curso.", e);
@@ -134,7 +147,7 @@ public class CursoServlet extends HttpServlet {
                     : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             request.setAttribute("error", mensaje);
             conservarFormulario(request);
-            request.getRequestDispatcher("/alta-curso.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/alta-curso.jsp").forward(request, response);
         }
     }
 
@@ -153,6 +166,36 @@ public class CursoServlet extends HttpServlet {
             getServletContext().log("No se pudieron cargar los datos para el formulario de curso.", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             request.setAttribute("error", "No se pudieron cargar institutos y categorías. Verificá la conexión con la base.");
+        }
+    }
+
+    // La sesión identifica la cuenta, pero el rol se confirma contra el controlador central.
+    private boolean requiereDocente(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        HttpSession sesion = request.getSession(false);
+        String nickname = sesion == null ? null : (String) sesion.getAttribute("usuarioNickname");
+        if (nickname == null) {
+            response.sendRedirect(request.getContextPath() + "/login?motivo=docente");
+            return false;
+        }
+
+        try {
+            DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
+            if (usuario == null) {
+                sesion.invalidate();
+                response.sendRedirect(request.getContextPath() + "/login?motivo=docente");
+                return false;
+            }
+            if (!(usuario instanceof DtDocente)) {
+                response.sendRedirect(request.getContextPath() + "/cursos?acceso=docente");
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            getServletContext().log("No se pudo verificar el permiso de alta del usuario.", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "No se pudo verificar el permiso para dar de alta cursos.");
+            return false;
         }
     }
 
