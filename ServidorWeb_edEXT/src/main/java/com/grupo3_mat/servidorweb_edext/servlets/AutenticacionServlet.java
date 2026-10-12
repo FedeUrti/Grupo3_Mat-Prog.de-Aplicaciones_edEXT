@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @WebServlet(urlPatterns = {"/login", "/logout", "/mi-cuenta"})
 public class AutenticacionServlet extends HttpServlet {
@@ -23,14 +25,17 @@ public class AutenticacionServlet extends HttpServlet {
             throws ServletException, IOException {
         // GET solo presenta el login o la cuenta; las operaciones de sesión usan POST.
         switch (request.getServletPath()) {
-            case "/login":
-                if (request.getSession(false) != null
-                        && request.getSession(false).getAttribute(CLAVE_USUARIO) != null) {
-                    response.sendRedirect(request.getContextPath() + "/mi-cuenta");
-                    return;
-                }
-                request.getRequestDispatcher("/login.jsp").forward(request, response);
+        case "/login": {
+            HttpSession sesion = request.getSession(false);
+            String nickname = sesion == null ? null : (String) sesion.getAttribute(CLAVE_USUARIO);
+            if (nickname != null) {
+                response.sendRedirect(request.getContextPath() + "/consulta-usuario?nickname="
+                        + URLEncoder.encode(nickname, StandardCharsets.UTF_8));
                 return;
+            }
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            return;
+        }
             case "/mi-cuenta":
                 mostrarCuenta(request, response);
                 return;
@@ -78,7 +83,10 @@ public class AutenticacionServlet extends HttpServlet {
             request.changeSessionId();
             sesion.setAttribute(CLAVE_USUARIO, nickname);
             sesion.setAttribute("usuarioDocente", usuario instanceof DtDocente);
-            response.sendRedirect(request.getContextPath() + "/mi-cuenta");
+            sesion.setAttribute("usuarioNombre", usuario.getNombre() + " " + usuario.getApellido());
+            sesion.setAttribute("usuarioTipo", usuario instanceof DtDocente ? "Docente" : "Estudiante");
+            response.sendRedirect(request.getContextPath() + "/consulta-usuario?nickname="
+                    + URLEncoder.encode(nickname, StandardCharsets.UTF_8));
         } catch (Exception e) {
             // El detalle queda en el log del servidor; la pantalla no revela datos internos.
             getServletContext().log("No se pudo validar el inicio de sesión.", e);
@@ -104,11 +112,13 @@ public class AutenticacionServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        request.setAttribute("usuario", usuario);
-        request.getRequestDispatcher("/mi-cuenta.jsp").forward(request, response);
+        // El perfil propio reutiliza exactamente la vista de consulta, incluidos sus datos y acciones.
+        response.sendRedirect(request.getContextPath() + "/consulta-usuario?nickname="
+                + URLEncoder.encode(nickname, StandardCharsets.UTF_8));
     }
 
     private String resolverNickname(String identificador) {
+        // iniciarSesion valida credenciales pero no devuelve el identificador interno necesario para la sesión web.
         for (String nickname : usuarios.listarNicknamesUsuarios()) {
             DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
             if (nickname.equals(identificador)

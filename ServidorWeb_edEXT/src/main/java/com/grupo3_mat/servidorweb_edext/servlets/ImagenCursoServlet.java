@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@WebServlet("/imagenes-curso/*")
+@WebServlet(urlPatterns = {"/imagenes-curso/*", "/imagenes-usuario"})
 public class ImagenCursoServlet extends HttpServlet {
 
     @Override
@@ -32,7 +32,7 @@ public class ImagenCursoServlet extends HttpServlet {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                     return;
                 }
-                response.setContentType("image/png");
+                response.setContentType(tipoImagen(recursoPredeterminado));
                 response.setHeader("X-Content-Type-Options", "nosniff");
                 response.setHeader("Cache-Control", "public, max-age=86400");
                 imagen.transferTo(response.getOutputStream());
@@ -83,9 +83,17 @@ public class ImagenCursoServlet extends HttpServlet {
             case "imagen_predeterminada_curso_1.png":
             case "imagen_predeterminada_curso_2.png":
             case "imagen_predeterminada_curso_3.png":
+            case "docente_placeholder.png":
+            case "estudiante_placeholder.png":
                 return "Presentacion/Recursos/" + archivo;
             default:
                 return null;
         }
+    }
+
+    private static String tipoImagen(String recurso) {
+        return recurso.toLowerCase(java.util.Locale.ROOT).endsWith(".jpg")
+                || recurso.toLowerCase(java.util.Locale.ROOT).endsWith(".jpeg")
+                ? "image/jpeg" : "image/png";
     }
 }

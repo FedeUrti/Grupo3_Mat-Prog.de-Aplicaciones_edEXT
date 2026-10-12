@@ -1,0 +1,89 @@
+<aside class="col-12 col-md-auto sidebar-column" aria-label="Navegación y filtros">
+    <div class="site-sidebar">
+        <section class="sidebar-group">
+            <h2 class="sidebar-title">Mi perfil</h2>
+            <c:url var="miPerfilUrl" value="/mi-cuenta"/>
+            <a href="<c:out value='${miPerfilUrl}'/>" class="custom-item">
+                <i class="bi bi-person" aria-hidden="true"></i>
+                <span>Mi perfil</span>
+            </a>
+            <c:if test="${sessionScope.usuarioTipo eq 'Estudiante'}">
+                <div class="sidebar-subtitle">Inscripciones</div>
+                <button class="custom-item" type="button" disabled
+                        title="La inscripción web estará disponible próximamente">
+                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                    <span>Inscribirme</span>
+                </button>
+                <button class="custom-item" type="button" disabled
+                        title="La consulta de resultados estará disponible próximamente">
+                    <i class="bi bi-card-list" aria-hidden="true"></i>
+                    <span>Ver resultados</span>
+                </button>
+            </c:if>
+        </section>
+
+        <%-- Cada filtro conserva el otro seleccionado para permitir combinarlos sin perder el contexto. --%>
+        <section class="sidebar-group">
+            <h2 class="sidebar-title">Institutos</h2>
+            <c:url var="todosUrl" value="/inicio">
+                <c:if test="${not empty filtroCategoria}">
+                    <c:param name="categoria" value="${filtroCategoria}"/>
+                </c:if>
+            </c:url>
+            <a href="<c:out value='${todosUrl}'/>"
+               class="custom-item ${empty filtroInstituto ? 'active' : ''}">
+                <i class="bi bi-grid" aria-hidden="true"></i><span>Todos</span>
+            </a>
+            <c:forEach items="${institutos}" var="instituto">
+                <c:url var="filtroInstitutoUrl" value="/inicio">
+                    <c:param name="instituto" value="${instituto}"/>
+                    <c:if test="${not empty filtroCategoria}">
+                        <c:param name="categoria" value="${filtroCategoria}"/>
+                    </c:if>
+                </c:url>
+                <a href="<c:out value='${filtroInstitutoUrl}'/>"
+                   class="custom-item ${instituto eq filtroInstituto ? 'active' : ''}">
+                    <i class="bi bi-building" aria-hidden="true"></i>
+                    <span><c:out value="${instituto}"/></span>
+                </a>
+            </c:forEach>
+        </section>
+
+        <section class="sidebar-group">
+            <h2 class="sidebar-title">Categorías</h2>
+            <c:url var="todasCategoriasUrl" value="/inicio">
+                <c:if test="${not empty filtroInstituto}">
+                    <c:param name="instituto" value="${filtroInstituto}"/>
+                </c:if>
+            </c:url>
+            <a href="<c:out value='${todasCategoriasUrl}'/>"
+               class="custom-item ${empty filtroCategoria ? 'active' : ''}">
+                <i class="bi bi-bookmarks" aria-hidden="true"></i><span>Todas</span>
+            </a>
+            <c:forEach items="${categorias}" var="categoria">
+                <c:url var="filtroCategoriaUrl" value="/inicio">
+                    <c:param name="categoria" value="${categoria}"/>
+                    <c:if test="${not empty filtroInstituto}">
+                        <c:param name="instituto" value="${filtroInstituto}"/>
+                    </c:if>
+                </c:url>
+                <a href="<c:out value='${filtroCategoriaUrl}'/>"
+                   class="custom-item ${categoria eq filtroCategoria ? 'active' : ''}">
+                    <i class="bi bi-bookmark" aria-hidden="true"></i>
+                    <span><c:out value="${categoria}"/></span>
+                </a>
+            </c:forEach>
+        </section>
+
+        <c:if test="${not empty sessionScope.usuarioNickname}">
+            <section class="sidebar-group sidebar-logout">
+                <c:url var="salirUrl" value="/logout"/>
+                <form action="<c:out value='${salirUrl}'/>" method="post">
+                    <button class="custom-item" type="submit">
+                        <i class="bi bi-box-arrow-left" aria-hidden="true"></i><span>Salir</span>
+                    </button>
+                </form>
+            </section>
+        </c:if>
+    </div>
+</aside>

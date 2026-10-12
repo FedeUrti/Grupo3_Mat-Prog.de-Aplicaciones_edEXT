@@ -1,0 +1,65 @@
+<%-- El menú cambia según exista una sesión; las acciones docentes solo se muestran a ese rol. --%>
+<c:choose>
+    <c:when test="${not empty sessionScope.usuarioNickname}">
+        <div class="dropdown user-menu">
+            <button class="btn btn-outline-light dropdown-toggle user-menu-trigger text-end"
+                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="d-block fw-semibold"><c:out value="${sessionScope.usuarioNombre}"/></span>
+                <span class="small"><c:out value="${sessionScope.usuarioTipo}"/></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li>
+                    <c:url var="perfilUrl" value="/mi-cuenta"/>
+                    <a class="dropdown-item" href="<c:out value='${perfilUrl}'/>">
+                        <i class="bi bi-person me-2" aria-hidden="true"></i>Mi perfil
+                    </a>
+                </li>
+                <li>
+                    <c:url var="consultaUsuariosUrl" value="/consulta-usuario"/>
+                    <a class="dropdown-item" href="<c:out value='${consultaUsuariosUrl}'/>">
+                        <i class="bi bi-people me-2" aria-hidden="true"></i>Consultar usuarios
+                    </a>
+                </li>
+                <c:if test="${sessionScope.usuarioDocente}">
+                    <li>
+                        <c:url var="altaCursoUrl" value="/alta-curso"/>
+                        <a class="dropdown-item" href="<c:out value='${altaCursoUrl}'/>">
+                            <i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Alta de curso
+                        </a>
+                    </li>
+                </c:if>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <c:url var="logoutUrl" value="/logout"/>
+                    <form action="<c:out value='${logoutUrl}'/>" method="post" class="m-0">
+                        <button class="dropdown-item" type="submit">
+                            <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i>Salir
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </c:when>
+    <c:otherwise>
+        <div class="dropdown access-menu">
+            <button class="btn btn-outline-light dropdown-toggle" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                Acceso
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li>
+                    <c:url var="loginUrl" value="/login"/>
+                    <a class="dropdown-item" href="<c:out value='${loginUrl}'/>">
+                        <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Iniciar sesión
+                    </a>
+                </li>
+                <li>
+                    <c:url var="altaUsuarioUrl" value="/alta-usuario"/>
+                    <a class="dropdown-item" href="<c:out value='${altaUsuarioUrl}'/>">
+                        <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Crear cuenta
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </c:otherwise>
+</c:choose>

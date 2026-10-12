@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="es">
@@ -8,34 +8,21 @@
     <title>Alta de curso | edEXT</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="assets/css/edext.css" rel="stylesheet">
+    <c:url var="estilosUrl" value="/assets/css/edext.css">
+        <c:param name="v" value="20261012-1"/>
+    </c:url>
+    <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
 <body>
-<!-- Navegación común hacia el catálogo, la página principal y la cuenta. -->
-<header class="custom-header py-2 px-4 shadow-sm">
-    <div class="container-fluid d-flex align-items-center justify-content-between">
-        <a href="inicio" class="text-decoration-none" aria-label="Inicio edEXT">
-            <div class="logo-circle">edEXT</div>
-        </a>
-        <nav class="d-flex gap-2" aria-label="Navegación principal">
-            <a href="cursos" class="btn btn-outline-light">Cursos</a>
-            <c:choose>
-                <c:when test="${not empty sessionScope.usuarioNickname}">
-                    <a href="mi-cuenta" class="btn btn-light text-dark">Mi cuenta</a>
-                </c:when>
-                <c:otherwise>
-                    <a href="login" class="btn btn-light text-dark">Iniciar sesión</a>
-                </c:otherwise>
-            </c:choose>
-        </nav>
-    </div>
-</header>
+<!-- Navegación compartida con búsqueda de cursos, ediciones, programas y usuarios. -->
+<%@ include file="/WEB-INF/views/buscador-global.jspf" %>
+<c:url var="inicioUrl" value="/inicio"/>
 
 <!-- El formulario se publica al servlet, que valida y guarda usando el controlador central. -->
 <main class="container my-4 my-lg-5">
     <div class="mb-4">
-        <a href="cursos" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver a cursos
+        <a href="<c:out value='${inicioUrl}'/>" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver al inicio
         </a>
         <p class="text-uppercase fw-bold small text-muted mt-3 mb-1">Gestión académica</p>
         <h1 class="page-heading fw-bold">Alta de curso</h1>
@@ -45,12 +32,14 @@
     <c:if test="${not empty error}">
         <div class="alert alert-danger" role="alert"><c:out value="${error}"/></div>
     </c:if>
-    <c:if test="${empty institutos or empty categorias}">
+    <c:if test="${empty institutos and empty error}">
         <div class="alert alert-warning" role="status">
-            <c:choose>
-                <c:when test="${not empty error}"><c:out value="${error}"/></c:when>
-                <c:otherwise>Primero cargá institutos y categorías en el sistema para registrar cursos.</c:otherwise>
-            </c:choose>
+            No tenés institutos asociados a tu cuenta; consultá con el administrador para que te asigne uno.
+        </div>
+    </c:if>
+    <c:if test="${empty categorias and empty error}">
+        <div class="alert alert-warning" role="status">
+            No hay categorías disponibles para asociar al curso.
         </div>
     </c:if>
 
@@ -64,7 +53,8 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="instituto" class="form-label">Instituto <span class="required-mark">*</span></label>
-                    <select class="form-select" id="instituto" name="instituto" required>
+                    <select class="form-select" id="instituto" name="instituto" required
+                            <c:if test="${empty institutos}">disabled</c:if>>
                         <option value="" disabled <c:if test="${empty form_instituto}">selected</c:if>>Seleccioná un instituto</option>
                         <c:forEach items="${institutos}" var="instituto">
                             <option value="<c:out value='${instituto}'/>"
@@ -161,8 +151,9 @@
         </section>
 
         <div class="d-flex flex-wrap justify-content-end gap-2">
-            <a href="cursos" class="btn btn-outline-secondary px-4">Cancelar</a>
-            <button class="btn btn-dark px-4" type="submit">
+            <a href="<c:out value='${inicioUrl}'/>" class="btn btn-outline-secondary px-4">Cancelar</a>
+            <button class="btn btn-dark px-4" type="submit"
+                    <c:if test="${empty institutos or empty categorias}">disabled</c:if>>
                 <i class="bi bi-check2-circle me-1" aria-hidden="true"></i> Registrar curso
             </button>
         </div>

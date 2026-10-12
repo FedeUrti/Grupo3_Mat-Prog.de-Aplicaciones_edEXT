@@ -24,16 +24,38 @@ public class InicioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String institutoSeleccionado = valor(request.getParameter("instituto"));
+        String categoriaSeleccionada = valor(request.getParameter("categoria"));
+
         try {
             // La portada obtiene los filtros y cursos del backend; no carga datos de ejemplo al iniciar.
             request.setAttribute("institutos", institutos.listarInstitutos());
             request.setAttribute("categorias", categorias.listarCategorias());
 
+            // Se consultan candidatos por el filtro más específico y luego se aplican los restantes.
+            List<String> nombres;
+            if (!institutoSeleccionado.isEmpty()) {
+                nombres = cursos.listarCursosPorInstituto(institutoSeleccionado);
+            } else if (!categoriaSeleccionada.isEmpty()) {
+                nombres = cursos.listarCursosPorCategoria(categoriaSeleccionada);
+            } else {
+                nombres = cursos.listarCursos();
+            }
+
             List<DtCurso> cursosPortada = new ArrayList<>();
-            for (String nombre : cursos.listarCursos()) {
-                cursosPortada.add(cursos.consultarCurso(nombre));
+            for (String nombre : nombres) {
+                DtCurso curso = cursos.consultarCurso(nombre);
+                boolean coincideInstituto = institutoSeleccionado.isEmpty()
+                        || institutoSeleccionado.equals(curso.getNomInstituto());
+                boolean coincideCategoria = categoriaSeleccionada.isEmpty()
+                        || curso.getCategorias().contains(categoriaSeleccionada);
+                if (coincideInstituto && coincideCategoria) {
+                    cursosPortada.add(curso);
+                }
             }
             request.setAttribute("cursos", cursosPortada);
+            request.setAttribute("filtroInstituto", institutoSeleccionado);
+            request.setAttribute("filtroCategoria", categoriaSeleccionada);
         } catch (Exception e) {
             getServletContext().log("No se pudo cargar la página principal.", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -41,5 +63,9 @@ public class InicioServlet extends HttpServlet {
         }
 
         request.getRequestDispatcher("/index.jsp").forward(request, response);
+    }
+
+    private static String valor(String value) {
+        return value == null ? "" : value.trim();
     }
 }

@@ -1,0 +1,49 @@
+<%-- Las URL se construyen con el contexto de la aplicación para que funcione también bajo un prefijo de despliegue. --%>
+<c:url var="buscadorInicioUrl" value="/inicio"/>
+<c:url var="buscadorResultadosUrl" value="/inicio"/>
+<c:url var="buscadorApiUrl" value="/buscar"/>
+<c:url var="buscadorScriptUrl" value="/assets/js/busqueda-global.js"/>
+<%-- Este encabezado se incluye en cada página para mantener un único buscador y una navegación consistente. --%>
+<header class="custom-header py-2 px-3 px-lg-4 shadow-sm">
+    <div class="container-fluid global-header-content">
+        <a href="<c:out value='${buscadorInicioUrl}'/>" class="text-decoration-none flex-shrink-0"
+           aria-label="Inicio edEXT">
+            <div class="logo-circle">edEXT</div>
+        </a>
+        <%-- El envío normal lleva a inicio; allí el script actualiza el contenido sin navegar entre páginas. --%>
+        <div class="global-search" data-global-search data-search-url="<c:out value='${buscadorApiUrl}'/>">
+            <form action="<c:out value='${buscadorResultadosUrl}'/>" method="get" role="search" data-global-search-form>
+                <label class="visually-hidden" for="busqueda-global">Buscar en edEXT</label>
+                <div class="input-group global-search-controls">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3 text-muted"
+                          aria-hidden="true">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input id="busqueda-global" name="query" value="<c:out value='${param.query}'/>"
+                           class="form-control border-start-0 py-2"
+                           type="search" placeholder="Cursos, ediciones, programas, usuarios..."
+                           autocomplete="off"
+                           data-global-search-input>
+                    <select class="form-select global-search-filter" name="tipo" aria-label="Filtrar tipo de resultado"
+                            data-search-filter>
+                        <option value="todos" <c:if test="${empty param.tipo or param.tipo eq 'todos'}">selected</c:if>>Todo</option>
+                        <option value="curso" <c:if test="${param.tipo eq 'curso'}">selected</c:if>>Cursos</option>
+                        <option value="usuario" <c:if test="${param.tipo eq 'usuario'}">selected</c:if>>Usuarios</option>
+                        <option value="programa" <c:if test="${param.tipo eq 'programa'}">selected</c:if>>Programas</option>
+                        <option value="edicion" <c:if test="${param.tipo eq 'edicion'}">selected</c:if>>Ediciones</option>
+                    </select>
+                </div>
+            </form>
+            <%-- En páginas secundarias se conserva el desplegable; en inicio los resultados van en el contenido principal. --%>
+            <div id="resultados-busqueda-global" class="global-search-results shadow"
+                 role="listbox" aria-label="Resultados de búsqueda" hidden data-global-search-results></div>
+            <p class="visually-hidden" aria-live="polite" data-global-search-status></p>
+        </div>
+        <nav class="d-flex align-items-center gap-2 flex-shrink-0" aria-label="Navegación principal">
+            <a href="<c:out value='${buscadorInicioUrl}'/>" class="btn btn-outline-light">Cursos</a>
+            <%@ include file="/WEB-INF/views/menu-usuario.jspf" %>
+        </nav>
+    </div>
+</header>
+<%-- defer permite cargar el comportamiento sin bloquear el renderizado del encabezado. --%>
+<script src="<c:out value='${buscadorScriptUrl}'/>" defer></script>

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="es">
@@ -8,18 +8,14 @@
     <title>Iniciar sesión | edEXT</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="assets/css/edext.css" rel="stylesheet">
+    <c:url var="estilosUrl" value="/assets/css/edext.css">
+        <c:param name="v" value="20261012-1"/>
+    </c:url>
+    <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
 <body>
-<!-- Encabezado con acceso al inicio y al catálogo público. -->
-<header class="custom-header py-2 px-4 shadow-sm">
-    <div class="container-fluid d-flex align-items-center justify-content-between">
-        <a href="./" class="text-decoration-none" aria-label="Inicio edEXT">
-            <div class="logo-circle">edEXT</div>
-        </a>
-        <a href="cursos" class="btn btn-outline-light">Explorar cursos</a>
-    </div>
-</header>
+<!-- También se puede buscar contenido desde la pantalla de inicio de sesión. -->
+<%@ include file="/WEB-INF/views/buscador-global.jspf" %>
 
 <!-- El formulario envía credenciales por POST; el servlet inicia o rechaza la sesión. -->
 <main class="container my-5">
@@ -27,7 +23,7 @@
         <section class="col-sm-10 col-md-7 col-lg-5">
             <div class="content-card p-4 p-md-5">
                 <div class="text-center mb-4">
-                    <div class="course-image-placeholder mx-auto mb-3" style="width: 76px; min-height: 76px;">
+                    <div class="course-image-placeholder login-avatar-placeholder mx-auto mb-3">
                         <i class="bi bi-person-circle fs-2" aria-hidden="true"></i>
                     </div>
                     <h1 class="page-heading h3 fw-bold">Iniciar sesión</h1>
@@ -59,7 +55,9 @@
                 </form>
 
                 <p class="small text-muted text-center mt-4 mb-0">
-                    ¿Aún no tenés una cuenta? El registro web todavía no está habilitado.
+                    ¿Aún no tenés una cuenta?
+                    <c:url var="altaUsuarioUrl" value="/alta-usuario"/>
+                    <a href="<c:out value='${altaUsuarioUrl}'/>">Registrate acá</a>.
                 </p>
             </div>
         </section>

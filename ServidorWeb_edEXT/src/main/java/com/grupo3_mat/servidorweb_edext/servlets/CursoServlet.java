@@ -46,10 +46,11 @@ public class CursoServlet extends HttpServlet {
             throws ServletException, IOException {
         // 1. La ruta de alta prepara catálogos antes de mostrar el formulario.
         if ("/alta-curso".equals(request.getServletPath())) {
-            if (!requiereDocente(request, response)) {
+            DtDocente docente = requiereDocente(request, response);
+            if (docente == null) {
                 return;
             }
-            cargarCatalogos(request, response);
+            cargarCatalogos(request, response, docente);
             request.getRequestDispatcher("/WEB-INF/views/alta-curso.jsp").forward(request, response);
             return;
         }
@@ -62,6 +63,8 @@ public class CursoServlet extends HttpServlet {
         }
 
         try {
+            request.setAttribute("institutos", institutos.listarInstitutos());
+            request.setAttribute("categorias", categorias.listarCategorias());
             request.setAttribute("curso", cursos.consultarCurso(nombre));
             request.getRequestDispatcher("/consulta-curso.jsp").forward(request, response);
         } catch (Exception e) {
@@ -81,7 +84,8 @@ public class CursoServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Se verifica el rol también en el servidor antes de leer/procesar el alta.
-        if (!requiereDocente(request, response)) {
+        DtDocente docente = requiereDocente(request, response);
+        if (docente == null) {
             return;
         }
 
@@ -99,7 +103,7 @@ public class CursoServlet extends HttpServlet {
             int cantHoras = entero(request, "cantHoras", 1);
             int creditos = entero(request, "creditos", 0);
 
-            validarInstituto(instituto);
+            validarInstituto(instituto, docente);
             if (Character.isDigit(nombre.codePointAt(0))) {
                 throw new IllegalArgumentException("El nombre del curso no puede comenzar con un número.");
             }
@@ -124,7 +128,7 @@ public class CursoServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/consulta-curso?nombre=" + nombreUrl + "&registrado=1");
         } catch (IllegalArgumentException | java.time.DateTimeException e) {
             borrarImagenSiExiste(imagenGuardada);
-            cargarCatalogos(request, response);
+            cargarCatalogos(request, response, docente);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             request.setAttribute("error", e.getMessage());
             conservarFormulario(request);
@@ -132,7 +136,7 @@ public class CursoServlet extends HttpServlet {
         } catch (ServletException e) {
             borrarImagenSiExiste(imagenGuardada);
             getServletContext().log("No se pudo procesar la imagen del curso.", e);
-            cargarCatalogos(request, response);
+            cargarCatalogos(request, response, docente);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             request.setAttribute("error", "No se pudo procesar la imagen. Usá PNG, JPEG, GIF o WebP de hasta 5 MB.");
             conservarFormulario(request);
@@ -140,7 +144,7 @@ public class CursoServlet extends HttpServlet {
         } catch (Exception e) {
             borrarImagenSiExiste(imagenGuardada);
             getServletContext().log("No se pudo registrar el curso.", e);
-            cargarCatalogos(request, response);
+            cargarCatalogos(request, response, docente);
             String mensaje = mensajeAlta(e);
             response.setStatus(mensaje.startsWith("El curso '")
                     ? HttpServletResponse.SC_CONFLICT
@@ -151,11 +155,11 @@ public class CursoServlet extends HttpServlet {
         }
     }
 
-    private void cargarCatalogos(HttpServletRequest request, HttpServletResponse response)
+    private void cargarCatalogos(HttpServletRequest request, HttpServletResponse response, DtDocente docente)
             throws ServletException, IOException {
         try {
-            // Los selectores se alimentan de la base; la JSP no mantiene listas duplicadas.
-            request.setAttribute("institutos", institutos.listarInstitutos());
+            // El formulario solo ofrece institutos asociados al docente autenticado.
+            request.setAttribute("institutos", docente.getInstitutos());
             request.setAttribute("categorias", categorias.listarCategorias());
             List<DtCurso> cursosDisponibles = new ArrayList<>();
             for (String nombre : cursos.listarCursos()) {
@@ -170,13 +174,13 @@ public class CursoServlet extends HttpServlet {
     }
 
     // La sesión identifica la cuenta, pero el rol se confirma contra el controlador central.
-    private boolean requiereDocente(HttpServletRequest request, HttpServletResponse response)
+    private DtDocente requiereDocente(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         HttpSession sesion = request.getSession(false);
         String nickname = sesion == null ? null : (String) sesion.getAttribute("usuarioNickname");
         if (nickname == null) {
             response.sendRedirect(request.getContextPath() + "/login?motivo=docente");
-            return false;
+            return null;
         }
 
         try {
@@ -184,24 +188,25 @@ public class CursoServlet extends HttpServlet {
             if (usuario == null) {
                 sesion.invalidate();
                 response.sendRedirect(request.getContextPath() + "/login?motivo=docente");
-                return false;
+                return null;
             }
-            if (!(usuario instanceof DtDocente)) {
-                response.sendRedirect(request.getContextPath() + "/cursos?acceso=docente");
-                return false;
+            if (!(usuario instanceof DtDocente docente)) {
+                response.sendRedirect(request.getContextPath() + "/inicio?acceso=docente");
+                return null;
             }
-            return true;
+            return docente;
         } catch (Exception e) {
             getServletContext().log("No se pudo verificar el permiso de alta del usuario.", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     "No se pudo verificar el permiso para dar de alta cursos.");
-            return false;
+            return null;
         }
     }
 
-    private void validarInstituto(String instituto) {
-        if (!institutos.listarInstitutos().contains(instituto)) {
-            throw new IllegalArgumentException("Seleccioná un instituto válido.");
+    private void validarInstituto(String instituto, DtDocente docente) {
+        if (!institutos.listarInstitutos().contains(instituto)
+                || !docente.getInstitutos().contains(instituto)) {
+            throw new IllegalArgumentException("Solo podés registrar cursos en un instituto al que pertenecés.");
         }
     }
 
@@ -213,6 +218,7 @@ public class CursoServlet extends HttpServlet {
     }
 
     private void validarPrevias(List<String> previas, String instituto, String nombre) throws Exception {
+        // El servidor vuelve a imponer las reglas aunque el formulario filtre las opciones en el navegador.
         Set<String> unicas = new HashSet<>();
         for (String previa : previas) {
             if (!unicas.add(previa)) {
