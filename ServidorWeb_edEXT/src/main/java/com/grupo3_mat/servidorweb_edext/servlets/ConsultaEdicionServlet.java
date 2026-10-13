@@ -10,6 +10,7 @@ import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -114,6 +115,10 @@ public class ConsultaEdicionServlet extends HttpServlet {
 
                 if (dtEdicion != null) {
                     request.setAttribute("edicion", dtEdicion);
+                    DtCurso cursoDetalle = controladorCurso.consultarCurso(nombreCurso);
+                    if (cursoDetalle != null) {
+                        request.setAttribute("institutoCurso", cursoDetalle.getNomInstituto());
+                    }
                     Map<String, DtDocente> docentesEdicion = obtenerDocentes(dtEdicion);
                     request.setAttribute("docentesEdicion", new ArrayList<>(docentesEdicion.values()));
                     Map<String, String> imagenesDocentesEdicion = new LinkedHashMap<>();
@@ -121,6 +126,21 @@ public class ConsultaEdicionServlet extends HttpServlet {
                         imagenesDocentesEdicion.put(docente.getKey(), UsuarioServlet.imagenPerfil(docente.getValue()));
                     }
                     request.setAttribute("imagenesDocentesEdicion", imagenesDocentesEdicion);
+
+                    String nicknameSesion = request.getSession(false) == null
+                            ? null : (String) request.getSession(false).getAttribute("usuarioNickname");
+                    DtUsuario usuarioSesion = nicknameSesion == null
+                            ? null : controladorUsuario.obtenerInfoUsuario(nicknameSesion);
+                    boolean docenteParticipante = usuarioSesion instanceof DtDocente
+                            && dtEdicion.getDocentes().contains(nicknameSesion);
+                    request.setAttribute("puedeVerAceptados", docenteParticipante);
+                    if (docenteParticipante && "true".equalsIgnoreCase(
+                            limpiar(request.getParameter("verAceptados")))) {
+                        List<DTInscripcionEdicion> aceptados = controladorEdicion.listarAceptadosAEdicion(
+                                nicknameSesion, nombreEdicion);
+                        request.setAttribute("inscripcionesAceptadas", aceptados);
+                        request.setAttribute("mostrarAceptados", true);
+                    }
                 } else {
                     request.setAttribute("error", "No se encontró la edición especificada.");
                 }

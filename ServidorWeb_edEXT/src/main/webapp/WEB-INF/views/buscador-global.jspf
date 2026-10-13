@@ -5,7 +5,7 @@
 <c:url var="seguirUsuarioUrl" value="/seguir-usuario"/>
 <c:url var="dejarDeSeguirUsuarioUrl" value="/dejar-de-seguir-usuario"/>
 <c:url var="buscadorScriptUrl" value="/assets/js/busqueda-global.js">
-    <c:param name="v" value="20261013-5"/>
+    <c:param name="v" value="20261013-6"/>
 </c:url>
 <%-- Este encabezado se incluye en cada página para mantener un único buscador y una navegación consistente. --%>
 <header class="custom-header py-2 px-3 px-lg-4 shadow-sm">

@@ -60,7 +60,9 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
         }
 
         String instituto = limpiar(request.getParameter("instituto"));
+        String categoria = limpiar(request.getParameter("categoria"));
         String nombreCurso = limpiar(request.getParameter("curso"));
+        String nombreEdicion = limpiar(request.getParameter("edicion"));
         String criterioParam = limpiar(request.getParameter("criterio"));
 
         try {
@@ -70,6 +72,7 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
                     : docente.getInstitutos();
             request.setAttribute("institutos", institutosDocente);
             request.setAttribute("categorias", controladorCategoria.listarCategorias());
+            request.setAttribute("filtroCategoria", categoria);
 
             // Si el instituto seleccionado no pertenece al docente, limpiarlo
             if (!instituto.isEmpty() && !institutosDocente.contains(instituto)) {
@@ -86,15 +89,22 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
             // 3. Edición vigente y validación de participación del docente
             if (!nombreCurso.isEmpty()) {
                 request.setAttribute("cursoSeleccionado", nombreCurso);
+                String nombreEdicionGestion = nombreEdicion;
+                if (!nombreEdicionGestion.isEmpty()) {
+                    String cursoDeEdicion = controladorEdicion.obtenerCursoDeEdicion(nombreEdicionGestion);
+                    if (!nombreCurso.equals(cursoDeEdicion)) {
+                        throw new IllegalArgumentException("La edición seleccionada no pertenece al curso indicado.");
+                    }
+                } else {
+                    nombreEdicionGestion = controladorCurso.obtenerEdicionVigente(nombreCurso, LocalDate.now());
+                }
 
-                String nombreEdicionVigente = controladorCurso.obtenerEdicionVigente(nombreCurso, LocalDate.now());
-
-                if (nombreEdicionVigente != null && !nombreEdicionVigente.trim().isEmpty()) {
+                if (nombreEdicionGestion != null && !nombreEdicionGestion.trim().isEmpty()) {
                     // Obtener las ediciones en las que participa el docente para validar
                     List<String> edicionesDocente = controladorEdicion.listarEdicionesDeDocente(usuarioNickname);
 
-                    if (edicionesDocente != null && edicionesDocente.contains(nombreEdicionVigente)) {
-                        DTEdicionCurso edicionVigente = controladorEdicion.mostrarDetalleEdicion(nombreEdicionVigente);
+                    if (edicionesDocente != null && edicionesDocente.contains(nombreEdicionGestion)) {
+                        DTEdicionCurso edicionVigente = controladorEdicion.mostrarDetalleEdicion(nombreEdicionGestion);
 
                         if (edicionVigente != null) {
                             request.setAttribute("edicionVigente", edicionVigente);
@@ -115,7 +125,7 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
                             request.setAttribute("mensajeInfo", "No se pudieron recuperar los detalles de la edición vigente.");
                         }
                     } else {
-                        request.setAttribute("mensajeInfo", "No participás como docente en la edición vigente de este curso.");
+                        request.setAttribute("mensajeInfo", "No participás como docente en la edición seleccionada.");
                     }
                 } else {
                     request.setAttribute("mensajeInfo", "El curso seleccionado no posee una edición vigente actualmente.");

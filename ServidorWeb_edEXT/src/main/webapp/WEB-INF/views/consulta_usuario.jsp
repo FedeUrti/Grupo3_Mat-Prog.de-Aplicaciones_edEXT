@@ -75,7 +75,7 @@
                                 <c:url var="seguirUsuarioUrl" value="${siguiendoUsuario ? '/dejar-de-seguir-usuario' : '/seguir-usuario'}"/>
                                 <form action="<c:out value='${seguirUsuarioUrl}'/>" method="post"
                                       data-follow-form data-following="${siguiendoUsuario}"
-                                      data-profile-follow-target>
+                                      data-profile-follow-target data-profile-refresh>
                                     <input type="hidden" name="nicknameASeguir"
                                            value="<c:out value='${usuario.nickname}'/>">
                                     <button class="btn ${siguiendoUsuario ? 'btn-siguiendo' : 'btn-primary'}"
@@ -207,7 +207,8 @@
                                                         <form action="<c:out value='${seguirSeguidoUrl}'/>" method="post"
                                                               data-follow-form
                                                               data-following="${siguiendoRelacionados[nicknameSeguido]}"
-                                                              data-profile-remove-on-unfollow="${esPropietario}">
+                                                              data-profile-remove-on-unfollow="${esPropietario}"
+                                                              data-profile-refresh>
                                                             <input type="hidden" name="nicknameASeguir"
                                                                    value="<c:out value='${nicknameSeguido}'/>">
                                                             <button class="btn btn-sm ${siguiendoRelacionados[nicknameSeguido] ? 'btn-siguiendo' : 'btn-primary'}"
@@ -259,7 +260,8 @@
                                                         <form action="<c:out value='${seguirSeguidorUrl}'/>" method="post"
                                                               data-follow-form
                                                               data-following="${siguiendoRelacionados[nicknameSeguidor]}"
-                                                              data-profile-owner="${esPropietario}">
+                                                              data-profile-owner="${esPropietario}"
+                                                              data-profile-refresh>
                                                             <input type="hidden" name="nicknameASeguir"
                                                                    value="<c:out value='${nicknameSeguidor}'/>">
                                                             <button class="btn btn-sm ${siguiendoRelacionados[nicknameSeguidor] ? 'btn-siguiendo' : 'btn-primary'}"
@@ -289,9 +291,17 @@
                                             <div>
                                                 <strong><c:out value="${edicion.nombre}"/></strong>
                                                 <c:if test="${not empty estadosPorEdicion[edicion.nombre]}">
-                                                    <span class="badge text-bg-secondary ms-2">
-                                                        <c:out value="${estadosPorEdicion[edicion.nombre]}"/>
-                                                    </span>
+                                                    <c:choose>
+                                                        <c:when test="${estadosPorEdicion[edicion.nombre] eq 'RECHAZADA'}">
+                                                            <span class="badge text-bg-danger ms-2">Rechazada</span>
+                                                        </c:when>
+                                                        <c:when test="${estadosPorEdicion[edicion.nombre] eq 'ACEPTADA'}">
+                                                            <span class="badge text-bg-success ms-2">Aceptada</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="badge text-bg-secondary ms-2">Inscripto</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </c:if>
                                                 <div class="small text-muted">
                                                     <c:out value="${edicion.fechaInicio}"/> –

@@ -21,9 +21,24 @@
         <div class="col main-content-column">
     <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
         <div>
-            <a href="inicio" class="text-decoration-none text-muted">
-                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver al inicio
-            </a>
+            <c:choose>
+                <c:when test="${not empty edicionVigente}">
+                    <c:url var="volverEdicionUrl" value="/consulta-edicion-curso">
+                        <c:if test="${not empty filtroInstituto}"><c:param name="instituto" value="${filtroInstituto}"/></c:if>
+                        <c:if test="${not empty filtroCategoria}"><c:param name="categoria" value="${filtroCategoria}"/></c:if>
+                        <c:param name="curso" value="${cursoSeleccionado}"/>
+                        <c:param name="edicion" value="${edicionVigente.nombre}"/>
+                    </c:url>
+                    <a href="<c:out value='${volverEdicionUrl}'/>" class="text-decoration-none text-muted">
+                        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver a la edición
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <a href="inicio" class="text-decoration-none text-muted">
+                        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver al inicio
+                    </a>
+                </c:otherwise>
+            </c:choose>
             <p class="text-uppercase fw-bold small text-muted mb-1">Gestión Docente</p>
             <h1 class="page-heading fw-bold mb-1">Selección de Estudiantes</h1>
             <p class="text-muted mb-0">Seleccioná un instituto y curso para administrar el estado de las inscripciones de sus ediciones vigentes.</p>
@@ -61,6 +76,9 @@
                 <h2 class="h6 text-uppercase fw-bold text-muted mb-3">1. Filtrar Cursos</h2>
 
                 <form action="seleccion-estudiantes" method="get" class="mb-3">
+                    <c:if test="${not empty filtroCategoria}">
+                        <input type="hidden" name="categoria" value="${filtroCategoria}"/>
+                    </c:if>
                     <label for="selectInstituto" class="form-label fw-semibold">Por Instituto</label>
                     <select class="form-select mb-2" id="selectInstituto" name="instituto" onchange="this.form.submit()">
                         <option value="">-- Seleccionar Instituto --</option>
@@ -84,6 +102,9 @@
                     <form action="seleccion-estudiantes" method="get">
                         <c:if test="${not empty filtroInstituto}">
                             <input type="hidden" name="instituto" value="${filtroInstituto}"/>
+                        </c:if>
+                        <c:if test="${not empty filtroCategoria}">
+                            <input type="hidden" name="categoria" value="${filtroCategoria}"/>
                         </c:if>
                         <select class="form-select mb-3" name="curso" onchange="this.form.submit()">
                             <option value="">-- Seleccionar Curso --</option>
@@ -125,6 +146,8 @@
                             <form action="seleccion-estudiantes" method="get" class="d-flex align-items-center gap-2">
                                 <input type="hidden" name="instituto" value="${filtroInstituto}"/>
                                 <input type="hidden" name="curso" value="${cursoSeleccionado}"/>
+                                <input type="hidden" name="edicion" value="${edicionVigente.nombre}"/>
+                                <input type="hidden" name="categoria" value="${filtroCategoria}"/>
                                 <label for="criterio" class="small text-muted fw-semibold text-nowrap">Ordenar por:</label>
                                 <select class="form-select form-select-sm" id="criterio" name="criterio" onchange="this.form.submit()">
                                     <option value="fecha" <c:if test="${criterioSeleccionado eq 'fecha'}">selected</c:if>>Fecha de Inscripción</option>
@@ -182,6 +205,7 @@
                                                                     <input type="hidden" name="instituto" value="${filtroInstituto}"/>
                                                                     <input type="hidden" name="curso" value="${cursoSeleccionado}"/>
                                                                     <input type="hidden" name="criterio" value="${criterioSeleccionado}"/>
+                                                                    <input type="hidden" name="categoria" value="${filtroCategoria}"/>
 
                                                                     <button type="submit" name="nuevoEstado" value="ACEPTADA" class="btn btn-sm btn-outline-success" title="Aceptar">
                                                                         <i class="bi bi-check-lg"></i> Aceptar

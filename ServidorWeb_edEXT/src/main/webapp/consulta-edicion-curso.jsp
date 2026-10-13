@@ -234,7 +234,70 @@
                                 </a>
                             </div>
                         </c:if>
+                        <c:if test="${puedeVerAceptados}">
+                            <c:url var="aceptadosEdicionUrl" value="/consulta-edicion-curso">
+                                <c:if test="${not empty filtroInstituto}"><c:param name="instituto" value="${filtroInstituto}"/></c:if>
+                                <c:if test="${not empty filtroCategoria}"><c:param name="categoria" value="${filtroCategoria}"/></c:if>
+                                <c:param name="curso" value="${cursoSeleccionado}"/>
+                                <c:param name="edicion" value="${edicion.nombre}"/>
+                                <c:param name="verAceptados" value="true"/>
+                            </c:url>
+                            <div class="border-top pt-4 mt-4">
+                                <a class="btn btn-outline-primary" href="<c:out value='${aceptadosEdicionUrl}'/>">
+                                    <i class="bi bi-people me-1" aria-hidden="true"></i>
+                                    Ver estudiantes aceptados
+                                </a>
+                            </div>
+                            <c:url var="gestionInscriptosUrl" value="/seleccion-estudiantes">
+                                <c:param name="instituto" value="${institutoCurso}"/>
+                                <c:if test="${not empty filtroCategoria}"><c:param name="categoria" value="${filtroCategoria}"/></c:if>
+                                <c:param name="curso" value="${cursoSeleccionado}"/>
+                                <c:param name="edicion" value="${edicion.nombre}"/>
+                            </c:url>
+                            <div class="border-top pt-4 mt-4">
+                                <a class="btn btn-outline-secondary" href="<c:out value='${gestionInscriptosUrl}'/>">
+                                    <i class="bi bi-gear me-1" aria-hidden="true"></i>
+                                    Gestionar inscriptos
+                                </a>
+                            </div>
+                        </c:if>
                     </article>
+                    <c:if test="${mostrarAceptados}">
+                        <section class="content-card p-4 p-md-5 mt-4" aria-labelledby="aceptados-heading">
+                            <h3 class="h5 fw-bold mb-3" id="aceptados-heading">
+                                Estudiantes aceptados en <c:out value="${edicion.nombre}"/>
+                            </h3>
+                            <c:choose>
+                                <c:when test="${not empty inscripcionesAceptadas}">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Estudiante</th>
+                                                    <th>Fecha de inscripción</th>
+                                                    <th>Prioridad</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <c:forEach items="${inscripcionesAceptadas}" var="inscripcionAceptada">
+                                                    <tr>
+                                                        <td><c:out value="${inscripcionAceptada.nicknameEstudiante}"/></td>
+                                                        <td><c:out value="${inscripcionAceptada.fechaInscripcion}"/></td>
+                                                        <td><c:out value="${empty inscripcionAceptada.prioridad ? '-' : inscripcionAceptada.prioridad}"/></td>
+                                                        <td><span class="badge text-bg-success">Aceptada</span></td>
+                                                    </tr>
+                                                </c:forEach>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <p class="text-muted mb-0">Todavía no hay estudiantes aceptados en esta edición.</p>
+                                </c:otherwise>
+                            </c:choose>
+                        </section>
+                    </c:if>
                 </c:when>
 
                 <c:when test="${not empty cursoSeleccionado and empty ediciones}">

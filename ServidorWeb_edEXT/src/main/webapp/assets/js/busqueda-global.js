@@ -378,6 +378,11 @@
                 return;
             }
 
+            if (formulario.hasAttribute("data-profile-refresh")) {
+                window.location.reload();
+                return;
+            }
+
             const nuevoEstado = !siguiendo;
             formulario.dataset.following = String(nuevoEstado);
             formulario.action = nuevoEstado ? urlDejarDeSeguirUsuario : urlSeguirUsuario;
