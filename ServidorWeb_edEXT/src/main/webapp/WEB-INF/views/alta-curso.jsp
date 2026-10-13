@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-1"/>
+        <c:param name="v" value="20261012-6"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -19,7 +19,10 @@
 <c:url var="inicioUrl" value="/inicio"/>
 
 <!-- El formulario se publica al servlet, que valida y guarda usando el controlador central. -->
-<main class="container my-4 my-lg-5">
+<main class="container-fluid page-layout py-4 px-3 px-lg-4">
+    <div class="row g-4">
+        <%@ include file="/WEB-INF/views/sidebar-principal.jspf" %>
+        <div class="col main-content-column">
     <div class="mb-4">
         <a href="<c:out value='${inicioUrl}'/>" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Volver al inicio
@@ -158,6 +161,8 @@
             </button>
         </div>
     </form>
+        </div>
+    </div>
 </main>
 <script>
     // Mantener solo previas del instituto elegido y validar categorías antes del envío.

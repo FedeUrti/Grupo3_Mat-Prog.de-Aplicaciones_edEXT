@@ -158,6 +158,9 @@ public class UsuarioServlet extends HttpServlet {
             usuarios.altaUsuarioConInstitutos(nickname, nombre, apellido, correo, fechaNacimiento,
                     imagenGuardada, nombresInstitutos, password);
 
+            AutenticacionServlet.establecerSesionUsuario(
+                    request, nickname, nombre, apellido, "docente".equals(tipo),
+                    imagenPerfil(imagenGuardada, "docente".equals(tipo)));
             response.sendRedirect(request.getContextPath() + "/consulta-usuario?nickname="
                     + codificar(nickname) + "&registrado=1");
         } catch (IllegalArgumentException e) {
@@ -275,14 +278,17 @@ public class UsuarioServlet extends HttpServlet {
         return perfiles;
     }
 
-    private static String imagenPerfil(DtUsuario usuario) {
-        String imagen = usuario.getImagenPath();
+    static String imagenPerfil(DtUsuario usuario) {
+        return imagenPerfil(usuario.getImagenPath(), usuario instanceof DtDocente);
+    }
+
+    private static String imagenPerfil(String imagen, boolean esDocente) {
         if (imagen != null && (imagen.matches("[a-f0-9-]{36}\\.(png|jpg|gif|webp)")
                 || imagen.endsWith("docente_placeholder.png")
                 || imagen.endsWith("estudiante_placeholder.png"))) {
             return imagen;
         }
-        return usuario instanceof DtDocente ? "docente_placeholder.png" : "estudiante_placeholder.png";
+        return esDocente ? "docente_placeholder.png" : "estudiante_placeholder.png";
     }
 
     private void mostrarModificacion(HttpServletRequest request, HttpServletResponse response)
@@ -337,6 +343,11 @@ public class UsuarioServlet extends HttpServlet {
             // Si no se eligió otra imagen, se conserva la que ya tenía el perfil.
             String imagenPath = imagenGuardada != null ? imagenGuardada : usuarioActual.getImagenPath();
             usuarios.modificarDatosUsuario(nickname, nombre, apellido, fechaNacimiento, imagenPath);
+            HttpSession sesion = request.getSession(false);
+            if (sesion != null) {
+                sesion.setAttribute("usuarioImagen", imagenPerfil(imagenPath, usuarioActual instanceof DtDocente));
+                sesion.setAttribute("usuarioNombre", nombre + " " + apellido);
+            }
             if (esSolicitudAjax(request)) {
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 return;
@@ -367,9 +378,15 @@ public class UsuarioServlet extends HttpServlet {
         if (nicknameSeguidor == null) {
             return;
         }
+        boolean solicitudAjax = esSolicitudAjax(request);
         String nicknameASeguir = limpiar(request.getParameter("nicknameASeguir"));
         if (nicknameASeguir.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta el nickname del usuario.");
+            if (solicitudAjax) {
+                responderErrorSeguimiento(response, HttpServletResponse.SC_BAD_REQUEST,
+                        "Falta el nickname del usuario.");
+            } else {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta el nickname del usuario.");
+            }
             return;
         }
 
@@ -380,13 +397,37 @@ public class UsuarioServlet extends HttpServlet {
             } else {
                 usuarios.dejarDeSeguirUsuario(nicknameSeguidor, nicknameASeguir);
             }
-            guardarMensaje(request, CLAVE_MENSAJE,
-                    seguir ? "Ahora seguís a @" + nicknameASeguir + "." : "Dejaste de seguir a @" + nicknameASeguir + ".");
+            if (!solicitudAjax) {
+                guardarMensaje(request, CLAVE_MENSAJE,
+                        seguir ? "Ahora seguís a @" + nicknameASeguir + "."
+                                : "Dejaste de seguir a @" + nicknameASeguir + ".");
+            }
         } catch (Exception e) {
             getServletContext().log("No se pudo actualizar el seguimiento de " + nicknameSeguidor + ".", e);
+            if (solicitudAjax) {
+                int estado = esConflictoUsuario(e)
+                        || (e.getMessage() != null && e.getMessage().contains("Uno o ambos usuarios no existen."))
+                        ? HttpServletResponse.SC_CONFLICT : HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+                responderErrorSeguimiento(response, estado, mensajeSeguro(e));
+                return;
+            }
             guardarMensaje(request, CLAVE_ERROR, mensajeSeguro(e));
         }
-        response.sendRedirect(request.getContextPath() + "/consulta-usuario?nickname=" + codificar(nicknameASeguir));
+        if (solicitudAjax) {
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            return;
+        }
+        String retorno = urlRetornoLocal(request.getParameter("volverA"), request.getContextPath());
+        response.sendRedirect(retorno == null
+                ? request.getContextPath() + "/consulta-usuario?nickname=" + codificar(nicknameASeguir)
+                : retorno);
+    }
+
+    private static void responderErrorSeguimiento(HttpServletResponse response, int estado, String mensaje)
+            throws IOException {
+        response.setStatus(estado);
+        response.setContentType("text/plain;charset=UTF-8");
+        response.getWriter().write(mensaje);
     }
 
     private boolean cargarInstitutos(HttpServletRequest request, HttpServletResponse response)
@@ -451,9 +492,22 @@ public class UsuarioServlet extends HttpServlet {
         HttpSession sesion = request.getSession(false);
         String nickname = sesion == null ? null : (String) sesion.getAttribute(CLAVE_USUARIO);
         if (nickname == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            if (esSolicitudAjax(request)) {
+                responderErrorSeguimiento(response, HttpServletResponse.SC_UNAUTHORIZED,
+                        "Tu sesión expiró. Iniciá sesión para seguir usuarios.");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/login");
+            }
         }
         return nickname;
+    }
+
+    private static String urlRetornoLocal(String url, String contextPath) {
+        if (url == null || url.indexOf('\r') >= 0 || url.indexOf('\n') >= 0) {
+            return null;
+        }
+        String prefijo = contextPath + "/";
+        return url.startsWith(prefijo) && !url.startsWith(contextPath + "//") ? url : null;
     }
 
     private void tomarMensajes(HttpServletRequest request) {

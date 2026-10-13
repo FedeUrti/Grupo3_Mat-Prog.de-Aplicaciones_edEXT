@@ -9,18 +9,50 @@
             </a>
             <c:if test="${sessionScope.usuarioTipo eq 'Estudiante'}">
                 <div class="sidebar-subtitle">Inscripciones</div>
-                <button class="custom-item" type="button" disabled
-                        title="La inscripción web estará disponible próximamente">
+                <c:url var="inscripcionUrl" value="/inscripcion-edicion"/>
+                <a class="custom-item" href="<c:out value='${inscripcionUrl}'/>">
                     <i class="bi bi-pencil-square" aria-hidden="true"></i>
                     <span>Inscribirme</span>
-                </button>
-                <button class="custom-item" type="button" disabled
-                        title="La consulta de resultados estará disponible próximamente">
+                </a>
+                <c:url var="resultadosUrl" value="/mi-cuenta">
+                    <c:param name="nickname" value="${sessionScope.usuarioNickname}"/>
+                </c:url>
+                <a class="custom-item" href="<c:out value='${resultadosUrl}'/>#ediciones-panel">
                     <i class="bi bi-card-list" aria-hidden="true"></i>
                     <span>Ver resultados</span>
-                </button>
+                </a>
             </c:if>
         </section>
+
+        <section class="sidebar-group">
+            <h2 class="sidebar-title">Ediciones</h2>
+            <c:url var="consultaEdicionesUrl" value="/consulta-edicion-curso"/>
+            <a href="<c:out value='${consultaEdicionesUrl}'/>" class="custom-item">
+                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                <span>Consultar ediciones</span>
+            </a>
+        </section>
+
+        <c:if test="${sessionScope.usuarioDocente}">
+            <section class="sidebar-group">
+                <h2 class="sidebar-title">Gestión docente</h2>
+                <c:url var="altaCursoUrl" value="/alta-curso"/>
+                <a href="<c:out value='${altaCursoUrl}'/>" class="custom-item">
+                    <i class="bi bi-plus-circle" aria-hidden="true"></i>
+                    <span>Alta de curso</span>
+                </a>
+                <c:url var="altaEdicionUrl" value="/alta-edicion-curso"/>
+                <a href="<c:out value='${altaEdicionUrl}'/>" class="custom-item">
+                    <i class="bi bi-calendar-plus" aria-hidden="true"></i>
+                    <span>Crear edición</span>
+                </a>
+                <c:url var="inscripcionesDocenteUrl" value="/seleccion-estudiantes"/>
+                <a href="<c:out value='${inscripcionesDocenteUrl}'/>" class="custom-item">
+                    <i class="bi bi-people" aria-hidden="true"></i>
+                    <span>Gestionar inscripciones</span>
+                </a>
+            </section>
+        </c:if>
 
         <%-- Cada filtro conserva el otro seleccionado para permitir combinarlos sin perder el contexto. --%>
         <section class="sidebar-group">

@@ -284,22 +284,6 @@ public class ControladorUsuario implements IControladorUsuario {
 
     @Override
     public void dejarDeSeguirUsuario(String nicknameSeguidor, String nicknameASeguir) throws Exception {
-        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
-        Usuario seguidor = mu.buscarUsuarioPorNickname(nicknameSeguidor);
-        Usuario seguido = mu.buscarUsuarioPorNickname(nicknameASeguir);
-
-        if (seguidor == null || seguido == null) {
-            throw new Exception("Uno o ambos usuarios no existen.");
-        }
-
-        if (!seguidor.sigueA(nicknameASeguir)) {
-            throw new Exception("No sigues a este usuario.");
-        }
-
-        seguidor.removerSeguido(seguido);
-        seguido.removerSeguidor(seguidor);
-
-        mu.modificarUsuario(seguidor);
-        mu.modificarUsuario(seguido);
+        ManejadorUsuario.getInstancia().dejarDeSeguirUsuario(nicknameSeguidor, nicknameASeguir);
     }
 }

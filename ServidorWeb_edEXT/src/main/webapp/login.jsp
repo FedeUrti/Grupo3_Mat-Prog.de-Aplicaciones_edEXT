@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-1"/>
+        <c:param name="v" value="20261012-6"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -36,6 +36,11 @@
                 <c:if test="${param.motivo eq 'docente'}">
                     <div class="alert alert-info" role="status">
                         Para dar de alta cursos, iniciá sesión con una cuenta docente.
+                    </div>
+                </c:if>
+                <c:if test="${param.motivo eq 'inscripcion'}">
+                    <div class="alert alert-info" role="status">
+                        Para inscribirte a una edición, iniciá sesión con una cuenta de estudiante.
                     </div>
                 </c:if>
 

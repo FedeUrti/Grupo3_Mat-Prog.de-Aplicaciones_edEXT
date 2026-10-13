@@ -104,14 +104,25 @@ public class EdicionCurso implements Serializable {
         if (this.cupo <= 0) {
             return true;
         }
-        return this.inscripciones.size() < this.cupo;
+        return cantidadInscripcionesAceptadas() < this.cupo;
     }
 
     public int getCupoDisponible() {
         if (this.cupo <= 0) {
             return -1;
         }
-        return this.cupo - this.inscripciones.size();
+        return this.cupo - cantidadInscripcionesAceptadas();
+    }
+
+    private int cantidadInscripcionesAceptadas() {
+        if (this.inscripciones == null) {
+            return 0;
+        }
+        long aceptadas = this.inscripciones.values().stream()
+                .filter(inscripcion -> inscripcion != null
+                        && inscripcion.getEstado() == EstadoInscripcion.ACEPTADA)
+                .count();
+        return Math.toIntExact(aceptadas);
     }
 
     public void cambiarEstadoInscripcion(String nicknameEstudiante, EstadoInscripcion nuevoEstado) {
@@ -127,6 +138,9 @@ public class EdicionCurso implements Serializable {
         // El docente puede aceptar o rechazar, pero no volver a dejarla como Inscripto.
         if (nuevoEstado != EstadoInscripcion.ACEPTADA && nuevoEstado != EstadoInscripcion.RECHAZADA) {
             throw new IllegalArgumentException("El estado de destino debe ser Aceptada o Rechazada.");
+        }
+        if (nuevoEstado == EstadoInscripcion.ACEPTADA && !tieneCupoDisponible()) {
+            throw new IllegalStateException("No hay cupos disponibles para aceptar esta inscripción.");
         }
         insc.setEstado(nuevoEstado);
     }

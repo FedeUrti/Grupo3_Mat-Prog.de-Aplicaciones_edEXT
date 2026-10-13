@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-3"/>
+        <c:param name="v" value="20261012-6"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -155,7 +155,20 @@
                                     <dd class="col-sm-8"><c:out value="${usuario.fechaNacimiento}"/></dd>
                                     <c:if test="${tipoUsuario eq 'Docente'}">
                                         <dt class="col-sm-4">Institutos</dt>
-                                        <dd class="col-sm-8"><c:out value="${usuario.institutos}"/></dd>
+                                        <dd class="col-sm-8">
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <c:forEach items="${usuario.institutos}" var="instituto">
+                                                    <c:url var="institutoUrl" value="/inicio">
+                                                        <c:param name="instituto" value="${instituto}"/>
+                                                    </c:url>
+                                                    <a class="badge rounded-pill text-bg-light border text-decoration-none"
+                                                       href="<c:out value='${institutoUrl}'/>">
+                                                        <i class="bi bi-building me-1" aria-hidden="true"></i>
+                                                        <c:out value="${instituto}"/>
+                                                    </a>
+                                                </c:forEach>
+                                            </div>
+                                        </dd>
                                     </c:if>
                                 </dl>
                             </div>
@@ -173,18 +186,37 @@
                                                 <c:url var="imagenSeguidoUrl" value="/imagenes-usuario">
                                                     <c:param name="nombre" value="${imagenesRelacionadas[nicknameSeguido]}"/>
                                                 </c:url>
-                                                <a class="list-group-item list-group-item-action"
-                                                   href="<c:out value='${perfilSeguidoUrl}'/>">
-                                                    <img class="profile-follow-avatar me-3"
-                                                         src="<c:out value='${imagenSeguidoUrl}'/>"
-                                                         alt="Foto de <c:out value='${perfilesRelacionados[nicknameSeguido].nombre}'/>">
-                                                    <span class="profile-follow-name">
-                                                        <strong><c:out value="${perfilesRelacionados[nicknameSeguido].nombre}"/>
-                                                            <c:out value="${perfilesRelacionados[nicknameSeguido].apellido}"/></strong>
-                                                        <small>@<c:out value="${nicknameSeguido}"/></small>
-                                                    </span>
-                                                    <i class="bi bi-arrow-up-right ms-auto text-muted" aria-hidden="true"></i>
-                                                </a>
+                                                <div class="list-group-item d-flex align-items-center gap-3"
+                                                     data-follow-row="<c:out value='${nicknameSeguido}'/>">
+                                                    <a class="list-group-item-action d-flex align-items-center gap-3 p-0 flex-grow-1 text-decoration-none"
+                                                       href="<c:out value='${perfilSeguidoUrl}'/>">
+                                                        <img class="profile-follow-avatar"
+                                                             src="<c:out value='${imagenSeguidoUrl}'/>"
+                                                             alt="Foto de <c:out value='${perfilesRelacionados[nicknameSeguido].nombre}'/>">
+                                                        <span class="profile-follow-name">
+                                                            <strong><c:out value="${perfilesRelacionados[nicknameSeguido].nombre}"/>
+                                                                <c:out value="${perfilesRelacionados[nicknameSeguido].apellido}"/></strong>
+                                                            <small>@<c:out value="${nicknameSeguido}"/></small>
+                                                        </span>
+                                                        <i class="bi bi-arrow-up-right ms-auto text-muted" aria-hidden="true"></i>
+                                                    </a>
+                                                    <c:if test="${esPropietario and not empty sessionScope.usuarioNickname}">
+                                                        <c:url var="dejarDeSeguirUrl" value="/dejar-de-seguir-usuario"/>
+                                                        <c:url var="volverSeguidosUrl" value="/consulta-usuario">
+                                                            <c:param name="nickname" value="${usuario.nickname}"/>
+                                                        </c:url>
+                                                        <form action="<c:out value='${dejarDeSeguirUrl}'/>" method="post"
+                                                              data-follow-form data-following="true" data-follow-redirect>
+                                                            <input type="hidden" name="nicknameASeguir"
+                                                                   value="<c:out value='${nicknameSeguido}'/>">
+                                                            <input type="hidden" name="volverA"
+                                                                   value="<c:out value='${volverSeguidosUrl}'/>#seguidos-panel">
+                                                            <button class="btn btn-sm btn-siguiendo" type="submit">
+                                                                Dejar de seguir
+                                                            </button>
+                                                        </form>
+                                                    </c:if>
+                                                </div>
                                             </c:forEach>
                                         </div>
                                     </c:when>
@@ -248,18 +280,32 @@
                                                 </div>
                                             </div>
                                             <c:if test="${not empty cursosPorEdicion[edicion.nombre]}">
+                                                <c:url var="detalleEdicionUrl" value="/consulta-edicion-curso">
+                                                    <c:param name="curso" value="${cursosPorEdicion[edicion.nombre]}"/>
+                                                    <c:param name="edicion" value="${edicion.nombre}"/>
+                                                </c:url>
                                                 <c:url var="cursoEdicionUrl" value="/consulta-curso">
                                                     <c:param name="nombre" value="${cursosPorEdicion[edicion.nombre]}"/>
                                                 </c:url>
-                                                <a class="btn btn-sm btn-outline-primary"
-                                                   href="<c:out value='${cursoEdicionUrl}'/>">Ver curso</a>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <a class="btn btn-sm btn-outline-primary"
+                                                       href="<c:out value='${detalleEdicionUrl}'/>">Ver edición</a>
+                                                    <a class="btn btn-sm btn-outline-secondary"
+                                                       href="<c:out value='${cursoEdicionUrl}'/>">Ver curso</a>
+                                                </div>
                                             </c:if>
                                         </div>
                                     </c:forEach>
                                 </div>
                             </c:when>
                             <c:otherwise>
-                                <p class="text-muted mb-0">No hay ediciones asociadas para mostrar.</p>
+                                <p class="text-muted mb-3">No hay ediciones asociadas para mostrar.</p>
+                                <c:if test="${esPropietario and tipoUsuario eq 'Estudiante'}">
+                                    <c:url var="inscripcionUrl" value="/inscripcion-edicion"/>
+                                    <a class="btn btn-primary" href="<c:out value='${inscripcionUrl}'/>">
+                                        Buscar ediciones e inscribirme
+                                    </a>
+                                </c:if>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -314,7 +360,9 @@
     </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<c:url var="perfilScriptUrl" value="/assets/js/perfil-usuario.js"/>
+<c:url var="perfilScriptUrl" value="/assets/js/perfil-usuario.js">
+    <c:param name="v" value="20261012-6"/>
+</c:url>
 <script src="<c:out value='${perfilScriptUrl}'/>" defer></script>
 </body>
 </html>

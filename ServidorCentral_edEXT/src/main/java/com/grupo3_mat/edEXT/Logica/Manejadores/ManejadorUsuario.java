@@ -64,6 +64,32 @@ public class ManejadorUsuario {
         }
     }
 
+    public void dejarDeSeguirUsuario(String nicknameSeguidor, String nicknameASeguir) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Usuario seguidor = em.find(Usuario.class, nicknameSeguidor);
+            Usuario seguido = em.find(Usuario.class, nicknameASeguir);
+            if (seguidor == null || seguido == null) {
+                throw new IllegalArgumentException("Uno o ambos usuarios no existen.");
+            }
+            if (!seguidor.sigueA(nicknameASeguir)) {
+                throw new IllegalArgumentException("No sigues a este usuario.");
+            }
+
+            seguidor.removerSeguido(seguido);
+            seguido.removerSeguidor(seguidor);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
     public Usuario buscarUsuarioPorNickname(String nickname) {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {

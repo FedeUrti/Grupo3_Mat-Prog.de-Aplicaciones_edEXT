@@ -2,7 +2,11 @@
 <c:url var="buscadorInicioUrl" value="/inicio"/>
 <c:url var="buscadorResultadosUrl" value="/inicio"/>
 <c:url var="buscadorApiUrl" value="/buscar"/>
-<c:url var="buscadorScriptUrl" value="/assets/js/busqueda-global.js"/>
+<c:url var="seguirUsuarioUrl" value="/seguir-usuario"/>
+<c:url var="dejarDeSeguirUsuarioUrl" value="/dejar-de-seguir-usuario"/>
+<c:url var="buscadorScriptUrl" value="/assets/js/busqueda-global.js">
+    <c:param name="v" value="20261012-6"/>
+</c:url>
 <%-- Este encabezado se incluye en cada página para mantener un único buscador y una navegación consistente. --%>
 <header class="custom-header py-2 px-3 px-lg-4 shadow-sm">
     <div class="container-fluid global-header-content">
@@ -11,7 +15,10 @@
             <div class="logo-circle">edEXT</div>
         </a>
         <%-- El envío normal lleva a inicio; allí el script actualiza el contenido sin navegar entre páginas. --%>
-        <div class="global-search" data-global-search data-search-url="<c:out value='${buscadorApiUrl}'/>">
+        <div class="global-search" data-global-search data-search-url="<c:out value='${buscadorApiUrl}'/>"
+             data-follow-url="<c:out value='${seguirUsuarioUrl}'/>"
+             data-unfollow-url="<c:out value='${dejarDeSeguirUsuarioUrl}'/>"
+             data-authenticated="${not empty sessionScope.usuarioNickname}">
             <form action="<c:out value='${buscadorResultadosUrl}'/>" method="get" role="search" data-global-search-form>
                 <label class="visually-hidden" for="busqueda-global">Buscar en edEXT</label>
                 <div class="input-group global-search-controls">
@@ -40,7 +47,6 @@
             <p class="visually-hidden" aria-live="polite" data-global-search-status></p>
         </div>
         <nav class="d-flex align-items-center gap-2 flex-shrink-0" aria-label="Navegación principal">
-            <a href="<c:out value='${buscadorInicioUrl}'/>" class="btn btn-outline-light">Cursos</a>
             <%@ include file="/WEB-INF/views/menu-usuario.jspf" %>
         </nav>
     </div>

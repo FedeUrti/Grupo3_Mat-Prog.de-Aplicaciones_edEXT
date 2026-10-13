@@ -15,6 +15,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -57,8 +58,9 @@ public class BusquedaServlet extends HttpServlet {
         }
 
         try {
+            String nicknameSesion = nicknameSesion(request);
             List<Resultado> resultados = filtrarTipo(
-                    buscar(query, request.getContextPath()), tipo);
+                    buscar(query, request.getContextPath(), nicknameSesion), tipo);
             // No se cachean coincidencias para que el autocompletado refleje cambios recientes en la base.
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setContentType("application/json");
@@ -86,18 +88,22 @@ public class BusquedaServlet extends HttpServlet {
             request.setAttribute("error", "La búsqueda no puede superar los 100 caracteres.");
         } else if (!query.isBlank()) {
             try {
+                String nicknameSesion = nicknameSesion(request);
                 request.setAttribute("resultadosBusqueda",
-                        filtrarTipo(buscar(query, request.getContextPath()), tipo));
+                        filtrarTipo(buscar(query, request.getContextPath(), nicknameSesion), tipo));
+                request.setAttribute("urlRetornoBusqueda", urlBusqueda(request.getContextPath(), query,
+                        tipo.isBlank() ? "todos" : tipo));
             } catch (Exception e) {
                 getServletContext().log("No se pudo completar la búsqueda global.", e);
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 request.setAttribute("error", "No se pudo completar la búsqueda. Intentá nuevamente.");
             }
         }
+        tomarMensajes(request);
         request.getRequestDispatcher("/WEB-INF/views/busqueda.jsp").forward(request, response);
     }
 
-    private List<Resultado> buscar(String consulta, String contextPath) throws Exception {
+    private List<Resultado> buscar(String consulta, String contextPath, String nicknameSesion) throws Exception {
         List<Resultado> resultados = new ArrayList<>();
         if (consulta.isBlank()) {
             return resultados;
@@ -124,7 +130,8 @@ public class BusquedaServlet extends HttpServlet {
                 detalle = combinar(detalle, curso.getDescripcion());
             }
             resultados.add(new Resultado(curso.getNombre(), "Curso", detalle,
-                    urlCurso(contextPath, curso.getNombre())));
+                    urlCurso(contextPath, curso.getNombre()), urlImagen(contextPath,
+                            imagenCurso(curso.getImagenPath(), false))));
             encontrados++;
         }
 
@@ -144,7 +151,8 @@ public class BusquedaServlet extends HttpServlet {
                 }
                 String fechas = fechas(edicion.getFechaInicio(), edicion.getFechaFin());
                 resultados.add(new Resultado(edicion.getNombre(), "Edición",
-                        combinar("Curso: " + nombreCurso, fechas), urlCurso(contextPath, nombreCurso)));
+                        combinar("Curso: " + nombreCurso, fechas), urlCurso(contextPath, nombreCurso),
+                        urlImagen(contextPath, imagenCurso(edicion.getImagenPath(), true))));
                 encontrados++;
             }
         }
@@ -190,7 +198,10 @@ public class BusquedaServlet extends HttpServlet {
                     + (usuario instanceof DtDocente ? "Docente" : "Estudiante")
                     + " · edEXT";
             resultados.add(new Resultado(nombre, "Usuario", detalle,
-                    urlUsuario(contextPath, usuario.getNickname())));
+                    urlUsuario(contextPath, usuario.getNickname()),
+                    urlImagen(contextPath, UsuarioServlet.imagenPerfil(usuario)), usuario.getNickname(),
+                    nicknameSesion != null && usuario.getSeguidores().contains(nicknameSesion),
+                    nicknameSesion != null && usuario.getNickname().equals(nicknameSesion)));
             encontrados++;
         }
         return resultados;
@@ -277,6 +288,26 @@ public class BusquedaServlet extends HttpServlet {
                 + URLEncoder.encode(nickname, StandardCharsets.UTF_8);
     }
 
+    private static String urlImagen(String contextPath, String nombre) {
+        String servlet = nombre.equals("docente_placeholder.png") || nombre.equals("estudiante_placeholder.png")
+                ? "/imagenes-usuario" : "/imagenes-curso";
+        return contextPath + servlet + "?nombre=" + URLEncoder.encode(nombre, StandardCharsets.UTF_8);
+    }
+
+    private static String imagenCurso(String ruta, boolean edicion) {
+        String rutaNormalizada = ruta == null ? "" : ruta.replace('\\', '/');
+        String nombre = rutaNormalizada.substring(rutaNormalizada.lastIndexOf('/') + 1);
+        if (nombre.matches("[a-f0-9-]{36}\\.(png|jpg|gif|webp)")
+                || nombre.equals("imagen_predeterminada_curso_1.png")
+                || nombre.equals("imagen_predeterminada_curso_2.png")
+                || nombre.equals("imagen_predeterminada_curso_3.png")
+                || nombre.equals("imagen_predeterminada_edCurso_1.png")
+                || nombre.equals("imagen_predeterminada_edCurso_2.jpg")) {
+            return nombre;
+        }
+        return edicion ? "imagen_predeterminada_edCurso_1.png" : "imagen_predeterminada_curso_1.png";
+    }
+
     private static String urlBusqueda(String contextPath, String consulta, String tipo) {
         // Si todavía no existe una vista de detalle, se abre la búsqueda acotada a ese programa.
         return contextPath + "/buscar?query=" + URLEncoder.encode(consulta, StandardCharsets.UTF_8)
@@ -300,6 +331,20 @@ public class BusquedaServlet extends HttpServlet {
             } else {
                 json.append('"').append(jsonEscapar(resultado.url)).append('"');
             }
+            json.append(",\"imagenUrl\":");
+            if (resultado.imagenUrl == null) {
+                json.append("null");
+            } else {
+                json.append('"').append(jsonEscapar(resultado.imagenUrl)).append('"');
+            }
+            json.append(",\"nickname\":");
+            if (resultado.nickname == null) {
+                json.append("null");
+            } else {
+                json.append('"').append(jsonEscapar(resultado.nickname)).append('"');
+            }
+            json.append(",\"siguiendo\":").append(resultado.siguiendo)
+                    .append(",\"propio\":").append(resultado.propio);
             json.append('}');
         }
         return json.append("]}").toString();
@@ -355,12 +400,30 @@ public class BusquedaServlet extends HttpServlet {
         private final String tipo;
         private final String detalle;
         private final String url;
+        private final String imagenUrl;
+        private final String nickname;
+        private final boolean siguiendo;
+        private final boolean propio;
 
         private Resultado(String nombre, String tipo, String detalle, String url) {
+            this(nombre, tipo, detalle, url, null, null, false, false);
+        }
+
+        private Resultado(String nombre, String tipo, String detalle, String url,
+                String imagenUrl) {
+            this(nombre, tipo, detalle, url, imagenUrl, null, false, false);
+        }
+
+        private Resultado(String nombre, String tipo, String detalle, String url,
+                String imagenUrl, String nickname, boolean siguiendo, boolean propio) {
             this.nombre = nombre == null ? "" : nombre;
             this.tipo = tipo == null ? "" : tipo;
             this.detalle = detalle == null ? "" : detalle;
             this.url = url;
+            this.imagenUrl = imagenUrl;
+            this.nickname = nickname;
+            this.siguiendo = siguiendo;
+            this.propio = propio;
         }
 
         public String getNombre() {
@@ -377,6 +440,44 @@ public class BusquedaServlet extends HttpServlet {
 
         public String getUrl() {
             return url;
+        }
+
+        public String getImagenUrl() {
+            return imagenUrl;
+        }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public boolean isSiguiendo() {
+            return siguiendo;
+        }
+
+        public boolean isPropio() {
+            return propio;
+        }
+    }
+
+    private static String nicknameSesion(HttpServletRequest request) {
+        HttpSession sesion = request.getSession(false);
+        return sesion == null ? null : (String) sesion.getAttribute("usuarioNickname");
+    }
+
+    private static void tomarMensajes(HttpServletRequest request) {
+        HttpSession sesion = request.getSession(false);
+        if (sesion == null) {
+            return;
+        }
+        Object mensaje = sesion.getAttribute("mensajeUsuario");
+        Object error = sesion.getAttribute("errorUsuario");
+        if (mensaje != null) {
+            request.setAttribute("mensaje", mensaje);
+            sesion.removeAttribute("mensajeUsuario");
+        }
+        if (error != null) {
+            request.setAttribute("error", error);
+            sesion.removeAttribute("errorUsuario");
         }
     }
 }

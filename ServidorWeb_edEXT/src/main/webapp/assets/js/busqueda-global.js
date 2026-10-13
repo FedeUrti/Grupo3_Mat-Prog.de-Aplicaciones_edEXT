@@ -13,6 +13,9 @@
     const cursosInicio = document.querySelector("[data-home-course-list]");
     const filtro = contenedor.querySelector("[data-search-filter]");
     const urlBusqueda = contenedor.dataset.searchUrl;
+    const urlSeguirUsuario = contenedor.dataset.followUrl;
+    const urlDejarDeSeguirUsuario = contenedor.dataset.unfollowUrl;
+    const usuarioAutenticado = contenedor.dataset.authenticated === "true";
     const categorias = [
         { tipo: "Curso", etiqueta: "Cursos" },
         { tipo: "Edición", etiqueta: "Ediciones" },
@@ -132,20 +135,37 @@
         }
 
         lista.forEach((resultado, indice) => {
-            const opcion = resultado.url ? document.createElement("a") : document.createElement("div");
-            opcion.className = "global-search-result";
+            const fila = document.createElement("div");
+            fila.className = "global-search-result";
+            fila.setAttribute("role", "group");
+            const opcion = document.createElement("div");
+            opcion.className = "global-search-result-option";
             opcion.id = `resultado-busqueda-${indice}`;
             opcion.setAttribute("role", "option");
             opcion.setAttribute("aria-selected", "false");
-            if (resultado.url) {
-                opcion.href = resultado.url;
+
+            if (resultado.imagenUrl) {
+                const imagen = document.createElement("img");
+                imagen.className = `search-result-image${resultado.tipo === "Usuario" ? " search-result-avatar" : ""}`;
+                imagen.src = resultado.imagenUrl;
+                imagen.alt = `${resultado.tipo === "Usuario" ? "Foto de " : "Imagen de "}${resultado.nombre}`;
+                imagen.loading = "lazy";
+                opcion.append(imagen);
             }
 
             const texto = document.createElement("span");
             texto.className = "global-search-result-text";
             const titulo = document.createElement("span");
             titulo.className = "global-search-result-title";
-            titulo.textContent = resultado.nombre;
+            if (resultado.url) {
+                const enlaceTitulo = document.createElement("a");
+                enlaceTitulo.href = resultado.url;
+                enlaceTitulo.textContent = resultado.nombre;
+                enlaceTitulo.addEventListener("click", (evento) => evento.stopPropagation());
+                titulo.append(enlaceTitulo);
+            } else {
+                titulo.textContent = resultado.nombre;
+            }
             const detalle = document.createElement("span");
             detalle.className = "global-search-result-detail";
             detalle.textContent = resultado.detalle;
@@ -155,7 +175,12 @@
             tipo.className = "global-search-result-type";
             tipo.textContent = resultado.tipo;
             opcion.append(texto, tipo);
-            resultados.append(opcion);
+            const formularioSeguimiento = crearFormularioSeguimiento(resultado);
+            if (formularioSeguimiento) {
+                fila.append(formularioSeguimiento);
+            }
+            fila.prepend(opcion);
+            resultados.append(fila);
         });
 
         resultados.hidden = false;
@@ -227,9 +252,17 @@
                 listaResultados.className = "d-flex flex-column gap-2";
                 coincidencias.forEach((resultado) => {
                     const tarjeta = document.createElement("article");
-                    tarjeta.className = "content-card search-result-card p-3 d-flex align-items-center justify-content-between gap-3";
+                    tarjeta.className = "content-card search-result-card p-3 d-flex align-items-center gap-3";
+                    if (resultado.imagenUrl) {
+                        const imagen = document.createElement("img");
+                        imagen.className = `search-result-image${categoria.tipo === "Usuario" ? " search-result-avatar" : ""}`;
+                        imagen.src = resultado.imagenUrl;
+                        imagen.alt = `${categoria.tipo === "Usuario" ? "Foto de " : "Imagen de "}${resultado.nombre}`;
+                        imagen.loading = "lazy";
+                        tarjeta.append(imagen);
+                    }
                     const texto = document.createElement("div");
-                    texto.className = "min-w-0";
+                    texto.className = "min-w-0 flex-grow-1";
                     const titulo = document.createElement("h3");
                     titulo.className = "h6 fw-bold mb-1";
                     if (resultado.url) {
@@ -252,6 +285,10 @@
                         enlaceAccion.href = resultado.url;
                         enlaceAccion.textContent = categoria.tipo === "Usuario" ? "Ver perfil" : "Ver";
                         tarjeta.append(enlaceAccion);
+                    }
+                    const formularioSeguimiento = crearFormularioSeguimiento(resultado);
+                    if (formularioSeguimiento) {
+                        tarjeta.append(formularioSeguimiento);
                     }
                     listaResultados.append(tarjeta);
                 });
@@ -277,6 +314,90 @@
 
         resultadosInicio.append(navegacion, paneles);
     };
+
+    const crearFormularioSeguimiento = (resultado) => {
+        if (resultado.tipo !== "Usuario" || !resultado.nickname || resultado.propio
+                || !usuarioAutenticado || !urlSeguirUsuario || !urlDejarDeSeguirUsuario) {
+            return null;
+        }
+        const formulario = document.createElement("form");
+        formulario.method = "post";
+        formulario.action = resultado.siguiendo ? urlDejarDeSeguirUsuario : urlSeguirUsuario;
+        formulario.dataset.followForm = "";
+        formulario.dataset.following = String(Boolean(resultado.siguiendo));
+
+        const nickname = document.createElement("input");
+        nickname.type = "hidden";
+        nickname.name = "nicknameASeguir";
+        nickname.value = resultado.nickname;
+        formulario.append(nickname);
+
+        const boton = document.createElement("button");
+        boton.className = `btn btn-sm flex-shrink-0 ${resultado.siguiendo ? "btn-siguiendo" : "btn-primary"}`;
+        boton.type = "submit";
+        boton.textContent = resultado.siguiendo ? "Dejar de seguir" : "Seguir";
+        formulario.append(boton);
+        return formulario;
+    };
+
+    document.addEventListener("submit", async (evento) => {
+        const formulario = evento.target.closest("[data-follow-form]");
+        if (!formulario) {
+            return;
+        }
+        evento.preventDefault();
+        const boton = formulario.querySelector("button[type='submit']");
+        const estado = formulario.querySelector("[data-follow-status]");
+        const siguiendo = formulario.dataset.following === "true";
+        boton.disabled = true;
+        boton.setAttribute("aria-busy", "true");
+        if (estado) {
+            estado.textContent = "";
+        }
+
+        try {
+            const respuesta = await fetch(formulario.action, {
+                method: "POST",
+                body: new FormData(formulario),
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            });
+            if (respuesta.status === 401 || (respuesta.redirected
+                    && new URL(respuesta.url).pathname.endsWith("/login"))) {
+                window.location.assign(respuesta.url);
+                return;
+            }
+            if (!respuesta.ok) {
+                const mensaje = (await respuesta.text()).trim();
+                throw new Error(mensaje || "No se pudo actualizar el seguimiento.");
+            }
+
+            if (formulario.hasAttribute("data-follow-redirect")) {
+                const volverA = formulario.querySelector("[name='volverA']")?.value;
+                window.location.assign(volverA || window.location.href);
+                return;
+            }
+
+            const nuevoEstado = !siguiendo;
+            formulario.dataset.following = String(nuevoEstado);
+            formulario.action = nuevoEstado ? urlDejarDeSeguirUsuario : urlSeguirUsuario;
+            boton.className = `btn btn-sm flex-shrink-0 ${nuevoEstado ? "btn-siguiendo" : "btn-primary"}`;
+            boton.textContent = nuevoEstado ? "Dejar de seguir" : "Seguir";
+        } catch (error) {
+            if (estado) {
+                estado.textContent = error.message || "No se pudo actualizar el seguimiento.";
+            } else {
+                const aviso = document.createElement("span");
+                aviso.className = "small text-danger";
+                aviso.dataset.followStatus = "";
+                aviso.setAttribute("role", "status");
+                aviso.textContent = error.message || "No se pudo actualizar el seguimiento.";
+                formulario.append(aviso);
+            }
+        } finally {
+            boton.disabled = false;
+            boton.removeAttribute("aria-busy");
+        }
+    });
 
     const buscar = async () => {
         const consulta = entrada.value.trim();
@@ -383,9 +504,12 @@
         } else if (evento.key === "ArrowUp" && opciones.length) {
             evento.preventDefault();
             activarOpcion(opciones, indiceActivo < 0 ? opciones.length - 1 : indiceActivo - 1);
-        } else if (evento.key === "Enter" && indiceActivo >= 0 && opciones[indiceActivo].href) {
+        } else if (evento.key === "Enter" && indiceActivo >= 0) {
             evento.preventDefault();
-            window.location.assign(opciones[indiceActivo].href);
+            const enlace = opciones[indiceActivo].querySelector("a[href]");
+            if (enlace) {
+                window.location.assign(enlace.href);
+            }
         } else if (evento.key === "Escape") {
             if (resultadosInicio) {
                 entrada.value = "";

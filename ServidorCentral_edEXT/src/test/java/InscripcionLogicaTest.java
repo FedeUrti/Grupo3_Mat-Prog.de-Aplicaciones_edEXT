@@ -6,7 +6,9 @@ import com.grupo3_mat.edEXT.Logica.Clases.InscripcionEC;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InscripcionLogicaTest {
 
@@ -43,6 +45,62 @@ class InscripcionLogicaTest {
                 () -> edicion.cambiarEstadoInscripcion(estudiante.getNickname(), EstadoInscripcion.RECHAZADA));
         assertThrows(IllegalArgumentException.class,
                 () -> edicion.cambiarEstadoInscripcion("desconocido", EstadoInscripcion.RECHAZADA));
+    }
+
+    @Test
+    void cupoSoloSeConsumeCuandoElDocenteAceptaLaInscripcion() {
+        LocalDate hoy = LocalDate.now();
+        Curso curso = new Curso(null, "Curso A", "", 1, 1, 1, "", hoy);
+        EdicionCurso edicion = new EdicionCurso("Edición", hoy, hoy.plusDays(1), 1, hoy, curso);
+        Estudiante pendiente = new Estudiante("pendiente", "Nombre", "Apellido", "correo", hoy, "", "");
+        Estudiante aceptado = new Estudiante("aceptado", "Nombre", "Apellido", "correo", hoy, "", "");
+        InscripcionEC solicitudPendiente = new InscripcionEC(pendiente, edicion, hoy);
+        InscripcionEC solicitudAceptada = new InscripcionEC(aceptado, edicion, hoy);
+        edicion.agregarInscripcion(solicitudPendiente);
+        edicion.agregarInscripcion(solicitudAceptada);
+
+        assertEquals(1, edicion.getCupoDisponible());
+        assertTrue(edicion.tieneCupoDisponible());
+
+        edicion.cambiarEstadoInscripcion("aceptado", EstadoInscripcion.ACEPTADA);
+        assertEquals(0, edicion.getCupoDisponible());
+        assertFalse(edicion.tieneCupoDisponible());
+        assertThrows(IllegalStateException.class,
+                () -> edicion.cambiarEstadoInscripcion("pendiente", EstadoInscripcion.ACEPTADA));
+        assertEquals(EstadoInscripcion.INSCRIPTO, solicitudPendiente.getEstado());
+    }
+
+    @Test
+    void rechazarInscripcionPendienteNoCambiaLosCupos() {
+        LocalDate hoy = LocalDate.now();
+        Curso curso = new Curso(null, "Curso A", "", 1, 1, 1, "", hoy);
+        EdicionCurso edicion = new EdicionCurso("Edición", hoy, hoy.plusDays(1), 1, hoy, curso);
+        Estudiante estudiante = new Estudiante("estudiante", "Nombre", "Apellido", "correo", hoy, "", "");
+        edicion.agregarInscripcion(new InscripcionEC(estudiante, edicion, hoy));
+
+        edicion.cambiarEstadoInscripcion("estudiante", EstadoInscripcion.RECHAZADA);
+
+        assertEquals(1, edicion.getCupoDisponible());
+        assertTrue(edicion.tieneCupoDisponible());
+    }
+
+    @Test
+    void tresSolicitudesConDosRechazosYUnaAceptacionDejanDiecinueveDeVeinteCupos() {
+        LocalDate hoy = LocalDate.now();
+        Curso curso = new Curso(null, "Curso A", "", 1, 1, 1, "", hoy);
+        EdicionCurso edicion = new EdicionCurso("Edición", hoy, hoy.plusDays(1), 20, hoy, curso);
+        Estudiante aceptado = new Estudiante("aceptado", "Nombre", "Apellido", "correo", hoy, "", "");
+        Estudiante rechazadoUno = new Estudiante("rechazado1", "Nombre", "Apellido", "correo", hoy, "", "");
+        Estudiante rechazadoDos = new Estudiante("rechazado2", "Nombre", "Apellido", "correo", hoy, "", "");
+        edicion.agregarInscripcion(new InscripcionEC(aceptado, edicion, hoy));
+        edicion.agregarInscripcion(new InscripcionEC(rechazadoUno, edicion, hoy));
+        edicion.agregarInscripcion(new InscripcionEC(rechazadoDos, edicion, hoy));
+
+        edicion.cambiarEstadoInscripcion("aceptado", EstadoInscripcion.ACEPTADA);
+        edicion.cambiarEstadoInscripcion("rechazado1", EstadoInscripcion.RECHAZADA);
+        edicion.cambiarEstadoInscripcion("rechazado2", EstadoInscripcion.RECHAZADA);
+
+        assertEquals(19, edicion.getCupoDisponible());
     }
 
     private InscripcionEC inscripcion(Estudiante estudiante, Curso curso, String nombreEdicion, LocalDate fechaFin, EstadoInscripcion estado) {

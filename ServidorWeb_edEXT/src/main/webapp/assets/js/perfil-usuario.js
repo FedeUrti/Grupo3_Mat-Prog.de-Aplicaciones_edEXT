@@ -20,6 +20,18 @@ document.addEventListener("click", (event) => {
     }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const panelTabs = {
+        "#ediciones-panel": "#ediciones-tab",
+        "#seguidos-panel": "#seguidos-tab"
+    };
+    const tabSelector = panelTabs[window.location.hash];
+    const tab = tabSelector && document.querySelector(tabSelector);
+    if (tab) {
+        bootstrap.Tab.getOrCreateInstance(tab).show();
+    }
+});
+
 document.addEventListener("submit", async (event) => {
     const form = event.target.closest("[data-profile-edit-form]");
     if (!form) {

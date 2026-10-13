@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -97,7 +98,7 @@ public abstract class Usuario {
 
     public void removerSeguido(Usuario seguido) {
         if (seguido != null) {
-            this.seguidos.remove(seguido);
+            removerPorNickname(this.seguidos, seguido.getNickname());
         }
     }
 
@@ -109,7 +110,21 @@ public abstract class Usuario {
 
     public void removerSeguidor(Usuario seguidor) {
         if (seguidor != null) {
-            this.seguidores.remove(seguidor);
+            removerPorNickname(this.seguidores, seguidor.getNickname());
+        }
+    }
+
+    private void removerPorNickname(Set<Usuario> usuarios, String nickname) {
+        if (nickname == null) {
+            return;
+        }
+        Iterator<Usuario> iterator = usuarios.iterator();
+        while (iterator.hasNext()) {
+            Usuario usuario = iterator.next();
+            if (nickname.equals(usuario.getNickname())) {
+                iterator.remove();
+                return;
+            }
         }
     }
 

@@ -3,9 +3,11 @@ package com.grupo3_mat.servidorweb_edext.servlets;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
 import jakarta.servlet.ServletException;
@@ -28,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,6 +41,7 @@ import java.util.UUID;
 public class CursoServlet extends HttpServlet {
 
     private final IControladorCurso cursos = Fabrica.getInstance().getIControladorCurso();
+    private final IControladorEdicion ediciones = Fabrica.getInstance().getIControladorEdicion();
     private final IControladorInstituto institutos = Fabrica.getInstance().getIControladorInstituto();
     private final IControladorCategoria categorias = Fabrica.getInstance().getIControladorCategoria();
     private final IControladorUsuario usuarios = Fabrica.getInstance().getIControladorUsuario();
@@ -65,7 +70,27 @@ public class CursoServlet extends HttpServlet {
         try {
             request.setAttribute("institutos", institutos.listarInstitutos());
             request.setAttribute("categorias", categorias.listarCategorias());
-            request.setAttribute("curso", cursos.consultarCurso(nombre));
+            DtCurso curso = cursos.consultarCurso(nombre);
+            request.setAttribute("curso", curso);
+            List<DTEdicionCurso> ediciones = new ArrayList<>();
+            for (String nombreEdicion : curso.getEdiciones()) {
+                DTEdicionCurso edicion = this.ediciones.mostrarDetalleEdicion(nombreEdicion);
+                if (edicion != null) {
+                    ediciones.add(edicion);
+                }
+            }
+            request.setAttribute("edicionesCurso", ediciones);
+            Map<String, List<DtDocente>> docentesPorEdicion = new LinkedHashMap<>();
+            Map<String, String> imagenesDocentes = new LinkedHashMap<>();
+            for (DTEdicionCurso edicion : ediciones) {
+                List<DtDocente> docentes = obtenerDocentes(edicion);
+                docentesPorEdicion.put(edicion.getNombre(), docentes);
+                for (DtDocente docente : docentes) {
+                    imagenesDocentes.put(docente.getNickname(), UsuarioServlet.imagenPerfil(docente));
+                }
+            }
+            request.setAttribute("docentesPorEdicion", docentesPorEdicion);
+            request.setAttribute("imagenesDocentes", imagenesDocentes);
             request.getRequestDispatcher("/consulta-curso.jsp").forward(request, response);
         } catch (Exception e) {
             getServletContext().log("No se pudo consultar el curso " + nombre + ".", e);
@@ -201,6 +226,20 @@ public class CursoServlet extends HttpServlet {
                     "No se pudo verificar el permiso para dar de alta cursos.");
             return null;
         }
+    }
+
+    private List<DtDocente> obtenerDocentes(DTEdicionCurso edicion) {
+        List<DtDocente> resultado = new ArrayList<>();
+        for (String nickname : edicion.getDocentes()) {
+            DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
+            if (usuario instanceof DtDocente docente) {
+                resultado.add(docente);
+            } else {
+                getServletContext().log("No se encontró el perfil del docente asignado " + nickname
+                        + " en la edición " + edicion.getNombre() + ".");
+            }
+        }
+        return resultado;
     }
 
     private void validarInstituto(String instituto, DtDocente docente) {

@@ -2,10 +2,28 @@
 <c:choose>
     <c:when test="${not empty sessionScope.usuarioNickname}">
         <div class="dropdown user-menu">
+            <c:choose>
+                <c:when test="${not empty sessionScope.usuarioImagen}">
+                    <c:set var="imagenMenuNombre" value="${sessionScope.usuarioImagen}"/>
+                </c:when>
+                <c:when test="${sessionScope.usuarioDocente}">
+                    <c:set var="imagenMenuNombre" value="docente_placeholder.png"/>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="imagenMenuNombre" value="estudiante_placeholder.png"/>
+                </c:otherwise>
+            </c:choose>
             <button class="btn btn-outline-light dropdown-toggle user-menu-trigger text-end"
                     type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="d-block fw-semibold"><c:out value="${sessionScope.usuarioNombre}"/></span>
-                <span class="small"><c:out value="${sessionScope.usuarioTipo}"/></span>
+                <c:url var="imagenMenuUrl" value="/imagenes-usuario">
+                    <c:param name="nombre" value="${imagenMenuNombre}"/>
+                </c:url>
+                <img class="user-menu-avatar" src="<c:out value='${imagenMenuUrl}'/>"
+                     alt="" aria-hidden="true">
+                <span class="user-menu-label">
+                    <span class="d-block fw-semibold"><c:out value="${sessionScope.usuarioNombre}"/></span>
+                    <span class="small"><c:out value="${sessionScope.usuarioTipo}"/></span>
+                </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow">
                 <li>
@@ -14,20 +32,6 @@
                         <i class="bi bi-person me-2" aria-hidden="true"></i>Mi perfil
                     </a>
                 </li>
-                <li>
-                    <c:url var="consultaUsuariosUrl" value="/consulta-usuario"/>
-                    <a class="dropdown-item" href="<c:out value='${consultaUsuariosUrl}'/>">
-                        <i class="bi bi-people me-2" aria-hidden="true"></i>Consultar usuarios
-                    </a>
-                </li>
-                <c:if test="${sessionScope.usuarioDocente}">
-                    <li>
-                        <c:url var="altaCursoUrl" value="/alta-curso"/>
-                        <a class="dropdown-item" href="<c:out value='${altaCursoUrl}'/>">
-                            <i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Alta de curso
-                        </a>
-                    </li>
-                </c:if>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <c:url var="logoutUrl" value="/logout"/>

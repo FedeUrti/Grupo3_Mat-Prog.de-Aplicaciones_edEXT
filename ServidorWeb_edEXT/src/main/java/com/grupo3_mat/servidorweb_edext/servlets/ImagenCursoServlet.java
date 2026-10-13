@@ -83,6 +83,8 @@ public class ImagenCursoServlet extends HttpServlet {
             case "imagen_predeterminada_curso_1.png":
             case "imagen_predeterminada_curso_2.png":
             case "imagen_predeterminada_curso_3.png":
+            case "imagen_predeterminada_edCurso_1.png":
+            case "imagen_predeterminada_edCurso_2.jpg":
             case "docente_placeholder.png":
             case "estudiante_placeholder.png":
                 return "Presentacion/Recursos/" + archivo;
@@ -92,8 +94,8 @@ public class ImagenCursoServlet extends HttpServlet {
     }
 
     private static String tipoImagen(String recurso) {
-        return recurso.toLowerCase(java.util.Locale.ROOT).endsWith(".jpg")
-                || recurso.toLowerCase(java.util.Locale.ROOT).endsWith(".jpeg")
+        String recursoNormalizado = recurso.toLowerCase(java.util.Locale.ROOT);
+        return recursoNormalizado.endsWith(".jpg") || recursoNormalizado.endsWith(".jpeg")
                 ? "image/jpeg" : "image/png";
     }
 }

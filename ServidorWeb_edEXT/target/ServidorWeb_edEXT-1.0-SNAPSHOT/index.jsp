@@ -12,7 +12,7 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-1"/>
+        <c:param name="v" value="20261012-6"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -35,6 +35,9 @@
                 <div data-home-course-list>
                     <c:if test="${param.acceso eq 'docente'}">
                         <div class="alert alert-warning" role="alert">Solo los docentes pueden dar de alta cursos.</div>
+                    </c:if>
+                    <c:if test="${param.acceso eq 'estudiante'}">
+                        <div class="alert alert-warning" role="alert">Esta acción está disponible únicamente para estudiantes.</div>
                     </c:if>
                     <c:if test="${not empty error}">
                         <div class="alert alert-danger" role="alert"><c:out value="${error}"/></div>

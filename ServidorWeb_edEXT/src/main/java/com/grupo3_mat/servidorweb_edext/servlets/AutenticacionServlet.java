@@ -78,13 +78,8 @@ public class AutenticacionServlet extends HttpServlet {
                 throw new IllegalStateException("La cuenta autenticada ya no existe.");
             }
 
-            // 3. Regenerar el identificador antes de marcar la sesión como autenticada.
-            HttpSession sesion = request.getSession(true);
-            request.changeSessionId();
-            sesion.setAttribute(CLAVE_USUARIO, nickname);
-            sesion.setAttribute("usuarioDocente", usuario instanceof DtDocente);
-            sesion.setAttribute("usuarioNombre", usuario.getNombre() + " " + usuario.getApellido());
-            sesion.setAttribute("usuarioTipo", usuario instanceof DtDocente ? "Docente" : "Estudiante");
+            establecerSesionUsuario(request, nickname, usuario.getNombre(), usuario.getApellido(),
+                    usuario instanceof DtDocente, UsuarioServlet.imagenPerfil(usuario));
             response.sendRedirect(request.getContextPath() + "/consulta-usuario?nickname="
                     + URLEncoder.encode(nickname, StandardCharsets.UTF_8));
         } catch (Exception e) {
@@ -128,5 +123,16 @@ public class AutenticacionServlet extends HttpServlet {
             }
         }
         return null;
+    }
+
+    static void establecerSesionUsuario(HttpServletRequest request, String nickname, String nombre,
+            String apellido, boolean esDocente, String imagenPerfil) {
+        HttpSession sesion = request.getSession(true);
+        request.changeSessionId();
+        sesion.setAttribute(CLAVE_USUARIO, nickname);
+        sesion.setAttribute("usuarioDocente", esDocente);
+        sesion.setAttribute("usuarioNombre", nombre + " " + apellido);
+        sesion.setAttribute("usuarioTipo", esDocente ? "Docente" : "Estudiante");
+        sesion.setAttribute("usuarioImagen", imagenPerfil);
     }
 }
