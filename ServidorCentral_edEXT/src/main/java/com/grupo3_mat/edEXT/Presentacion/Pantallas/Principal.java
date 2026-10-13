@@ -388,6 +388,7 @@ public class Principal extends javax.swing.JFrame {
 
         } catch (Exception e) {
             // 5. Si algo falla, le avisamos al usuario por pantalla
+            e.printStackTrace();
             javax.swing.JOptionPane.showMessageDialog(this,
                     "Ocurrió un error durante la carga de datos:\n" + e.getMessage(),
                     "Error en la Carga",

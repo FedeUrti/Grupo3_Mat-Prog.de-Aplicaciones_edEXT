@@ -59,8 +59,7 @@ public class BusquedaServlet extends HttpServlet {
 
         try {
             String nicknameSesion = nicknameSesion(request);
-            List<Resultado> resultados = filtrarTipo(
-                    buscar(query, request.getContextPath(), nicknameSesion), tipo);
+            List<Resultado> resultados = buscar(query, request.getContextPath(), nicknameSesion, tipo);
             // No se cachean coincidencias para que el autocompletado refleje cambios recientes en la base.
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setContentType("application/json");
@@ -90,7 +89,7 @@ public class BusquedaServlet extends HttpServlet {
             try {
                 String nicknameSesion = nicknameSesion(request);
                 request.setAttribute("resultadosBusqueda",
-                        filtrarTipo(buscar(query, request.getContextPath(), nicknameSesion), tipo));
+                        buscar(query, request.getContextPath(), nicknameSesion, tipo));
                 request.setAttribute("urlRetornoBusqueda", urlBusqueda(request.getContextPath(), query,
                         tipo.isBlank() ? "todos" : tipo));
             } catch (Exception e) {
@@ -103,105 +102,119 @@ public class BusquedaServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/busqueda.jsp").forward(request, response);
     }
 
-    private List<Resultado> buscar(String consulta, String contextPath, String nicknameSesion) throws Exception {
+    private List<Resultado> buscar(String consulta, String contextPath, String nicknameSesion, String tipo)
+            throws Exception {
         List<Resultado> resultados = new ArrayList<>();
         if (consulta.isBlank()) {
             return resultados;
         }
         // La misma consulta normalizada se usa en todos los tipos sin distinguir mayúsculas.
         String query = normalizar(consulta);
-        // Se obtiene el catálogo una vez y se reutiliza para recorrer cursos y sus ediciones.
-        List<String> nombresCursos = cursos.listarCursos();
+        boolean buscarTodo = tipo == null || tipo.isBlank() || tipo.equalsIgnoreCase("todos");
+        boolean buscarCursos = buscarTodo || tipo.equalsIgnoreCase("curso");
+        boolean buscarEdiciones = buscarTodo || tipo.equalsIgnoreCase("edicion");
+        boolean buscarProgramas = buscarTodo || tipo.equalsIgnoreCase("programa");
+        boolean buscarUsuarios = buscarTodo || tipo.equalsIgnoreCase("usuario");
+        // Solo se carga el catálogo cuando el filtro necesita cursos o ediciones.
+        List<String> nombresCursos = buscarCursos || buscarEdiciones ? cursos.listarCursos() : List.of();
 
         // Cursos: se buscan coincidencias en el nombre, descripción, instituto y categorías.
-        int encontrados = 0;
-        for (String nombreCurso : nombresCursos) {
-            if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
-                break;
-            }
-            DtCurso curso = cursos.consultarCurso(nombreCurso);
-            if (!coincide(query, curso.getNombre(), curso.getDescripcion(),
-                    curso.getNomInstituto(), String.join(" ", curso.getCategorias()))) {
-                continue;
-            }
-
-            String detalle = curso.getNomInstituto();
-            if (curso.getDescripcion() != null && !curso.getDescripcion().isBlank()) {
-                detalle = combinar(detalle, curso.getDescripcion());
-            }
-            resultados.add(new Resultado(curso.getNombre(), "Curso", detalle,
-                    urlCurso(contextPath, curso.getNombre()), urlImagen(contextPath,
-                            imagenCurso(curso.getImagenPath(), false))));
-            encontrados++;
-        }
-
-        // Las ediciones se consultan desde cada curso, que es la relación expuesta por el controlador.
-        encontrados = 0;
-        for (String nombreCurso : nombresCursos) {
-            if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
-                break;
-            }
-            for (String nombreEdicion : ediciones.listarEdicionesPorCurso(nombreCurso)) {
+        if (buscarCursos) {
+            int encontrados = 0;
+            for (String nombreCurso : nombresCursos) {
                 if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
-                DTEdicionCurso edicion = ediciones.mostrarDetalleEdicion(nombreEdicion);
-                if (edicion == null || !coincide(query, edicion.getNombre(), nombreCurso)) {
+                DtCurso curso = cursos.consultarCurso(nombreCurso);
+                if (!coincide(query, curso.getNombre(), curso.getDescripcion(),
+                        curso.getNomInstituto(), String.join(" ", curso.getCategorias()))) {
                     continue;
                 }
-                String fechas = fechas(edicion.getFechaInicio(), edicion.getFechaFin());
-                resultados.add(new Resultado(edicion.getNombre(), "Edición",
-                        combinar("Curso: " + nombreCurso, fechas), urlCurso(contextPath, nombreCurso),
-                        urlImagen(contextPath, imagenCurso(edicion.getImagenPath(), true))));
+
+                String detalle = curso.getNomInstituto();
+                if (curso.getDescripcion() != null && !curso.getDescripcion().isBlank()) {
+                    detalle = combinar(detalle, curso.getDescripcion());
+                }
+                resultados.add(new Resultado(curso.getNombre(), "Curso", detalle,
+                        urlCurso(contextPath, curso.getNombre()), urlImagen(contextPath,
+                                imagenCurso(curso.getImagenPath(), false))));
                 encontrados++;
             }
         }
 
-        // Programas: además de su nombre y descripción se consideran sus cursos, institutos y categorías.
-        encontrados = 0;
-        for (DTProgramaFormacion programa : programas.listarProgramas()) {
-            if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
-                break;
+        // Las ediciones se consultan desde cada curso, que es la relación expuesta por el controlador.
+        if (buscarEdiciones) {
+            int encontrados = 0;
+            for (String nombreCurso : nombresCursos) {
+                if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                    break;
+                }
+                for (String nombreEdicion : ediciones.listarEdicionesPorCurso(nombreCurso)) {
+                    if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                        break;
+                    }
+                    DTEdicionCurso edicion = ediciones.mostrarDetalleEdicion(nombreEdicion);
+                    if (edicion == null || !coincide(query, edicion.getNombre(), nombreCurso)) {
+                        continue;
+                    }
+                    String fechas = fechas(edicion.getFechaInicio(), edicion.getFechaFin());
+                    resultados.add(new Resultado(edicion.getNombre(), "Edición",
+                            combinar("Curso: " + nombreCurso, fechas), urlCurso(contextPath, nombreCurso),
+                            urlImagen(contextPath, imagenCurso(edicion.getImagenPath(), true))));
+                    encontrados++;
+                }
             }
-            if (!coincide(query, programa.getNombre(), programa.getDescripcion(),
-                    String.join(" ", programa.getCategorias()), String.join(" ", programa.getInstitutos()),
-                    String.join(" ", programa.getCursos()), programa.getNicknameDocente())) {
-                continue;
-            }
+        }
 
-            String detalle = programa.getDescripcion();
-            if (programa.getNicknameDocente() != null && !programa.getNicknameDocente().isBlank()) {
-                detalle = combinar(detalle, "Docente: " + programa.getNicknameDocente());
+        // Programas: además de su nombre y descripción se consideran sus cursos, institutos y categorías.
+        if (buscarProgramas) {
+            int encontrados = 0;
+            for (DTProgramaFormacion programa : programas.listarProgramas()) {
+                if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                    break;
+                }
+                if (!coincide(query, programa.getNombre(), programa.getDescripcion(),
+                        String.join(" ", programa.getCategorias()), String.join(" ", programa.getInstitutos()),
+                        String.join(" ", programa.getCursos()), programa.getNicknameDocente())) {
+                    continue;
+                }
+
+                String detalle = programa.getDescripcion();
+                if (programa.getNicknameDocente() != null && !programa.getNicknameDocente().isBlank()) {
+                    detalle = combinar(detalle, "Docente: " + programa.getNicknameDocente());
+                }
+                resultados.add(new Resultado(programa.getNombre(), "Programa", detalle,
+                        urlPrograma(contextPath, programa.getNombre()),
+                        urlImagen(contextPath, imagenPrograma(programa.getImagenPath()))));
+                encontrados++;
             }
-            resultados.add(new Resultado(programa.getNombre(), "Programa", detalle,
-                    urlPrograma(contextPath, programa.getNombre()),
-                    urlImagen(contextPath, imagenPrograma(programa.getImagenPath()))));
-            encontrados++;
         }
 
         // Los usuarios se buscan por identidad y, para docentes, también por instituto asociado.
-        encontrados = 0;
-        for (String nickname : usuarios.listarNicknamesUsuarios()) {
-            if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
-                break;
+        if (buscarUsuarios) {
+            int encontrados = 0;
+            for (String nickname : usuarios.listarNicknamesUsuarios()) {
+                if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                    break;
+                }
+                DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
+                String institutosUsuario = usuario instanceof DtDocente docente
+                        ? String.join(" ", docente.getInstitutos()) : "";
+                if (usuario == null || !coincide(query, usuario.getNickname(),
+                        usuario.getNombre(), usuario.getApellido(), usuario.getCorreo(), institutosUsuario)) {
+                    continue;
+                }
+                String nombre = combinar(usuario.getNombre(), usuario.getApellido());
+                String detalle = "@" + usuario.getNickname() + " · "
+                        + (usuario instanceof DtDocente ? "Docente" : "Estudiante")
+                        + " · edEXT";
+                resultados.add(new Resultado(nombre, "Usuario", detalle,
+                        urlUsuario(contextPath, usuario.getNickname()),
+                        urlImagen(contextPath, UsuarioServlet.imagenPerfil(usuario)), usuario.getNickname(),
+                        nicknameSesion != null && usuario.getSeguidores().contains(nicknameSesion),
+                        nicknameSesion != null && usuario.getNickname().equals(nicknameSesion)));
+                encontrados++;
             }
-            DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
-            String institutosUsuario = usuario instanceof DtDocente docente
-                    ? String.join(" ", docente.getInstitutos()) : "";
-            if (usuario == null || !coincide(query, usuario.getNickname(),
-                    usuario.getNombre(), usuario.getApellido(), usuario.getCorreo(), institutosUsuario)) {
-                continue;
-            }
-            String nombre = combinar(usuario.getNombre(), usuario.getApellido());
-            String detalle = "@" + usuario.getNickname() + " · "
-                    + (usuario instanceof DtDocente ? "Docente" : "Estudiante")
-                    + " · edEXT";
-            resultados.add(new Resultado(nombre, "Usuario", detalle,
-                    urlUsuario(contextPath, usuario.getNickname()),
-                    urlImagen(contextPath, UsuarioServlet.imagenPerfil(usuario)), usuario.getNickname(),
-                    nicknameSesion != null && usuario.getSeguidores().contains(nicknameSesion),
-                    nicknameSesion != null && usuario.getNickname().equals(nicknameSesion)));
-            encontrados++;
         }
         return resultados;
     }
@@ -214,36 +227,6 @@ public class BusquedaServlet extends HttpServlet {
             }
         }
         return false;
-    }
-
-    private static List<Resultado> filtrarTipo(List<Resultado> resultados, String tipo) {
-        if (tipo == null || tipo.isBlank() || tipo.equalsIgnoreCase("todos")) {
-            return resultados;
-        }
-        String esperado;
-        switch (tipo.toLowerCase(Locale.ROOT)) {
-            case "curso":
-                esperado = "Curso";
-                break;
-            case "usuario":
-                esperado = "Usuario";
-                break;
-            case "programa":
-                esperado = "Programa";
-                break;
-            case "edicion":
-                esperado = "Edición";
-                break;
-            default:
-                return resultados;
-        }
-        List<Resultado> filtrados = new ArrayList<>();
-        for (Resultado resultado : resultados) {
-            if (resultado.tipo.equals(esperado)) {
-                filtrados.add(resultado);
-            }
-        }
-        return filtrados;
     }
 
     private static boolean tipoValido(String tipo) {

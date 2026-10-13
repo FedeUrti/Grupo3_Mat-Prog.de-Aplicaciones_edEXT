@@ -144,6 +144,7 @@
                                             <tr>
                                                 <th>Estudiante</th>
                                                 <th>Fecha</th>
+                                                <th>Prioridad</th>
                                                 <th>Estado Actual</th>
                                                 <th class="text-end">Acciones</th>
                                             </tr>
@@ -155,6 +156,7 @@
                                                         <div class="fw-semibold"><c:out value="${ins.nicknameEstudiante}"/></div>
                                                     </td>
                                                     <td><c:out value="${ins.fechaInscripcion}"/></td>
+                                                    <td><c:out value="${empty ins.prioridad ? '-' : ins.prioridad}"/></td>
                                                     <td>
                                                         <span class="badge
                                                             <c:choose>

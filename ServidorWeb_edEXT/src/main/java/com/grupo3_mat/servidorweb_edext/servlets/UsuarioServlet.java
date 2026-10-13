@@ -217,6 +217,17 @@ public class UsuarioServlet extends HttpServlet {
                     HttpSession sesion = request.getSession(false);
                     String nicknameSesion = sesion == null ? null
                             : (String) sesion.getAttribute(CLAVE_USUARIO);
+                    Map<String, Boolean> siguiendoRelacionados = new HashMap<>();
+                    if (nicknameSesion != null) {
+                        DtUsuario usuarioSesion = usuarios.obtenerInfoUsuario(nicknameSesion);
+                        if (usuarioSesion != null) {
+                            for (String nicknameRelacionado : perfilesRelacionados.keySet()) {
+                                siguiendoRelacionados.put(nicknameRelacionado,
+                                        usuarioSesion.getSeguidos().contains(nicknameRelacionado));
+                            }
+                        }
+                    }
+                    request.setAttribute("siguiendoRelacionados", siguiendoRelacionados);
                     request.setAttribute("esPropietario", nickname.equals(nicknameSesion));
                     request.setAttribute("siguiendoUsuario",
                             nicknameSesion != null && usuario.getSeguidores().contains(nicknameSesion));

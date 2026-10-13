@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-6"/>
+        <c:param name="v" value="20261013-1"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -54,12 +54,12 @@
                             <button class="profile-stat" id="seguidos-resumen" type="button"
                                     data-profile-tab="#seguidos-panel"
                                     aria-controls="seguidos-panel">
-                                <strong><c:out value="${usuario.seguidos.size()}"/></strong> seguidos
+                                <strong data-profile-following-count><c:out value="${usuario.seguidos.size()}"/></strong> seguidos
                             </button>
                             <button class="profile-stat" id="seguidores-resumen" type="button"
                                     data-profile-tab="#seguidores-panel"
                                     aria-controls="seguidores-panel">
-                                <strong><c:out value="${usuario.seguidores.size()}"/></strong> seguidores
+                                <strong data-profile-target-follower-count><c:out value="${usuario.seguidores.size()}"/></strong> seguidores
                             </button>
                         </div>
                     </div>
@@ -73,14 +73,16 @@
                             </c:when>
                             <c:when test="${not empty sessionScope.usuarioNickname}">
                                 <c:url var="seguirUsuarioUrl" value="${siguiendoUsuario ? '/dejar-de-seguir-usuario' : '/seguir-usuario'}"/>
-                                <form action="<c:out value='${seguirUsuarioUrl}'/>" method="post">
+                                <form action="<c:out value='${seguirUsuarioUrl}'/>" method="post"
+                                      data-follow-form data-following="${siguiendoUsuario}"
+                                      data-profile-follow-target>
                                     <input type="hidden" name="nicknameASeguir"
                                            value="<c:out value='${usuario.nickname}'/>">
                                     <button class="btn ${siguiendoUsuario ? 'btn-siguiendo' : 'btn-primary'}"
                                             type="submit">
                                         <i class="bi ${siguiendoUsuario ? 'bi-person-check-fill' : 'bi-person-plus-fill'} me-1"
                                            aria-hidden="true"></i>
-                                        <c:out value="${siguiendoUsuario ? 'Dejar de seguir' : 'Seguir'}"/>
+                                        <span data-follow-label><c:out value="${siguiendoUsuario ? 'Dejar de seguir' : 'Seguir'}"/></span>
                                     </button>
                                 </form>
                             </c:when>
@@ -129,14 +131,14 @@
                                 <button class="nav-link" id="seguidos-tab" data-bs-toggle="tab"
                                         data-bs-target="#seguidos-panel" type="button" role="tab"
                                         aria-controls="seguidos-panel" aria-selected="false">
-                                    Seguidos <span class="badge text-bg-light"><c:out value="${usuario.seguidos.size()}"/></span>
+                                    Seguidos <span class="badge text-bg-light" data-profile-following-count><c:out value="${usuario.seguidos.size()}"/></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="seguidores-tab" data-bs-toggle="tab"
                                         data-bs-target="#seguidores-panel" type="button" role="tab"
                                         aria-controls="seguidores-panel" aria-selected="false">
-                                    Seguidores <span class="badge text-bg-light"><c:out value="${usuario.seguidores.size()}"/></span>
+                                    Seguidores <span class="badge text-bg-light" data-profile-target-follower-count><c:out value="${usuario.seguidores.size()}"/></span>
                                 </button>
                             </li>
                         </ul>
@@ -178,7 +180,7 @@
                                 <c:choose>
                                     <c:when test="${not empty usuario.seguidos}">
                                         <%-- Los perfiles y las imágenes se cargan juntos en el servlet para evitar consultas por cada campo. --%>
-                                        <div class="list-group list-group-flush profile-follow-list">
+                                        <div class="list-group list-group-flush profile-follow-list" data-profile-follow-list="following">
                                             <c:forEach items="${usuario.seguidos}" var="nicknameSeguido">
                                                 <c:url var="perfilSeguidoUrl" value="/consulta-usuario">
                                                     <c:param name="nickname" value="${nicknameSeguido}"/>
@@ -187,7 +189,7 @@
                                                     <c:param name="nombre" value="${imagenesRelacionadas[nicknameSeguido]}"/>
                                                 </c:url>
                                                 <div class="list-group-item d-flex align-items-center gap-3"
-                                                     data-follow-row="<c:out value='${nicknameSeguido}'/>">
+                                                     data-profile-follow-row="following">
                                                     <a class="list-group-item-action d-flex align-items-center gap-3 p-0 flex-grow-1 text-decoration-none"
                                                        href="<c:out value='${perfilSeguidoUrl}'/>">
                                                         <img class="profile-follow-avatar"
@@ -200,25 +202,26 @@
                                                         </span>
                                                         <i class="bi bi-arrow-up-right ms-auto text-muted" aria-hidden="true"></i>
                                                     </a>
-                                                    <c:if test="${esPropietario and not empty sessionScope.usuarioNickname}">
-                                                        <c:url var="dejarDeSeguirUrl" value="/dejar-de-seguir-usuario"/>
-                                                        <c:url var="volverSeguidosUrl" value="/consulta-usuario">
-                                                            <c:param name="nickname" value="${usuario.nickname}"/>
-                                                        </c:url>
-                                                        <form action="<c:out value='${dejarDeSeguirUrl}'/>" method="post"
-                                                              data-follow-form data-following="true" data-follow-redirect>
+                                                    <c:if test="${not empty sessionScope.usuarioNickname and sessionScope.usuarioNickname ne nicknameSeguido}">
+                                                        <c:url var="seguirSeguidoUrl" value="${siguiendoRelacionados[nicknameSeguido] ? '/dejar-de-seguir-usuario' : '/seguir-usuario'}"/>
+                                                        <form action="<c:out value='${seguirSeguidoUrl}'/>" method="post"
+                                                              data-follow-form
+                                                              data-following="${siguiendoRelacionados[nicknameSeguido]}"
+                                                              data-profile-remove-on-unfollow="${esPropietario}">
                                                             <input type="hidden" name="nicknameASeguir"
                                                                    value="<c:out value='${nicknameSeguido}'/>">
-                                                            <input type="hidden" name="volverA"
-                                                                   value="<c:out value='${volverSeguidosUrl}'/>#seguidos-panel">
-                                                            <button class="btn btn-sm btn-siguiendo" type="submit">
-                                                                Dejar de seguir
+                                                            <button class="btn btn-sm ${siguiendoRelacionados[nicknameSeguido] ? 'btn-siguiendo' : 'btn-primary'}"
+                                                                    type="submit">
+                                                                <c:out value="${siguiendoRelacionados[nicknameSeguido] ? 'Dejar de seguir' : 'Seguir'}"/>
                                                             </button>
                                                         </form>
                                                     </c:if>
                                                 </div>
                                             </c:forEach>
                                         </div>
+                                        <p class="text-muted mb-0" data-profile-follow-empty hidden>
+                                            Este usuario todavía no sigue a nadie.
+                                        </p>
                                     </c:when>
                                     <c:otherwise>
                                         <p class="text-muted mb-0">Este usuario todavía no sigue a nadie.</p>
@@ -230,7 +233,7 @@
                                 <h2 class="h5 fw-bold mb-3">Seguidores</h2>
                                 <c:choose>
                                     <c:when test="${not empty usuario.seguidores}">
-                                        <div class="list-group list-group-flush profile-follow-list">
+                                        <div class="list-group list-group-flush profile-follow-list" data-profile-follow-list="followers">
                                             <c:forEach items="${usuario.seguidores}" var="nicknameSeguidor">
                                                 <c:url var="perfilSeguidorUrl" value="/consulta-usuario">
                                                     <c:param name="nickname" value="${nicknameSeguidor}"/>
@@ -238,18 +241,34 @@
                                                 <c:url var="imagenSeguidorUrl" value="/imagenes-usuario">
                                                     <c:param name="nombre" value="${imagenesRelacionadas[nicknameSeguidor]}"/>
                                                 </c:url>
-                                                <a class="list-group-item list-group-item-action"
-                                                   href="<c:out value='${perfilSeguidorUrl}'/>">
-                                                    <img class="profile-follow-avatar me-3"
-                                                         src="<c:out value='${imagenSeguidorUrl}'/>"
-                                                         alt="Foto de <c:out value='${perfilesRelacionados[nicknameSeguidor].nombre}'/>">
-                                                    <span class="profile-follow-name">
-                                                        <strong><c:out value="${perfilesRelacionados[nicknameSeguidor].nombre}"/>
-                                                            <c:out value="${perfilesRelacionados[nicknameSeguidor].apellido}"/></strong>
-                                                        <small>@<c:out value="${nicknameSeguidor}"/></small>
-                                                    </span>
-                                                    <i class="bi bi-arrow-up-right ms-auto text-muted" aria-hidden="true"></i>
-                                                </a>
+                                                <div class="list-group-item d-flex align-items-center gap-3">
+                                                    <a class="list-group-item-action d-flex align-items-center gap-3 p-0 flex-grow-1 text-decoration-none"
+                                                       href="<c:out value='${perfilSeguidorUrl}'/>">
+                                                        <img class="profile-follow-avatar"
+                                                             src="<c:out value='${imagenSeguidorUrl}'/>"
+                                                             alt="Foto de <c:out value='${perfilesRelacionados[nicknameSeguidor].nombre}'/>">
+                                                        <span class="profile-follow-name">
+                                                            <strong><c:out value="${perfilesRelacionados[nicknameSeguidor].nombre}"/>
+                                                                <c:out value="${perfilesRelacionados[nicknameSeguidor].apellido}"/></strong>
+                                                            <small>@<c:out value="${nicknameSeguidor}"/></small>
+                                                        </span>
+                                                        <i class="bi bi-arrow-up-right ms-auto text-muted" aria-hidden="true"></i>
+                                                    </a>
+                                                    <c:if test="${not empty sessionScope.usuarioNickname and sessionScope.usuarioNickname ne nicknameSeguidor}">
+                                                        <c:url var="seguirSeguidorUrl" value="${siguiendoRelacionados[nicknameSeguidor] ? '/dejar-de-seguir-usuario' : '/seguir-usuario'}"/>
+                                                        <form action="<c:out value='${seguirSeguidorUrl}'/>" method="post"
+                                                              data-follow-form
+                                                              data-following="${siguiendoRelacionados[nicknameSeguidor]}"
+                                                              data-profile-owner="${esPropietario}">
+                                                            <input type="hidden" name="nicknameASeguir"
+                                                                   value="<c:out value='${nicknameSeguidor}'/>">
+                                                            <button class="btn btn-sm ${siguiendoRelacionados[nicknameSeguidor] ? 'btn-siguiendo' : 'btn-primary'}"
+                                                                    type="submit">
+                                                                <c:out value="${siguiendoRelacionados[nicknameSeguidor] ? 'Dejar de seguir' : 'Seguir'}"/>
+                                                            </button>
+                                                        </form>
+                                                    </c:if>
+                                                </div>
                                             </c:forEach>
                                         </div>
                                     </c:when>
@@ -385,7 +404,7 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <c:url var="perfilScriptUrl" value="/assets/js/perfil-usuario.js">
-    <c:param name="v" value="20261012-6"/>
+    <c:param name="v" value="20261013-3"/>
 </c:url>
 <script src="<c:out value='${perfilScriptUrl}'/>" defer></script>
 </body>

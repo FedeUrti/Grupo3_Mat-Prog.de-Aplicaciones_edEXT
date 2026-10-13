@@ -1,8 +1,11 @@
 package com.grupo3_mat.edEXT.Logica.Manejadores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
+import com.grupo3_mat.edEXT.Logica.Clases.Curso;
+import com.grupo3_mat.edEXT.Logica.Clases.Docente;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import jakarta.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ManejadorEdicion {
@@ -23,6 +26,17 @@ public class ManejadorEdicion {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
+            Curso curso = edicion.getCurso();
+            if (curso != null) {
+                edicion.setCurso(em.getReference(Curso.class, curso.getNombre()));
+            }
+
+            List<Docente> docentesGestionados = new ArrayList<>();
+            for (Docente docente : edicion.getDocentes()) {
+                docentesGestionados.add(em.getReference(Docente.class, docente.getNickname()));
+            }
+            edicion.setDocentes(docentesGestionados);
+
             em.persist(edicion);
             em.getTransaction().commit();
         } catch (Exception e) {

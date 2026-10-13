@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CargadorDatosPrueba {
     
-    public void cargarDatosTotales() {
+    public void cargarDatosTotales() throws Exception {
         Fabrica fabrica = Fabrica.getInstance();
         IControladorInstituto ctrlInst = fabrica.getIControladorInstituto();
         IControladorUsuario ctrlUsu = fabrica.getIControladorUsuario();
@@ -19,22 +19,30 @@ public class CargadorDatosPrueba {
         IControladorEdicion ctrlEdi = fabrica.getIControladorEdicion();
         IControladorProgramaFormacion ctrlProg = fabrica.getIControladorProgramaFormacion();
         IControladorCategoria ctrlCat = fabrica.getIControladorCategoria();
-        
+
+        String faseCarga = "institutos";
         try {
             System.out.println("Iniciando carga masiva de datos...");
             cargarInstitutos(ctrlInst);
+            faseCarga = "categorías";
             cargarCategorias(ctrlCat);
+            faseCarga = "usuarios";
             cargarUsuarios(ctrlUsu);
+            faseCarga = "seguimientos";
             cargarSeguimientos(ctrlUsu);
+            faseCarga = "cursos";
             cargarCursos(ctrlCurso);
+            faseCarga = "ediciones";
             cargarEdiciones(ctrlEdi);
+            faseCarga = "inscripciones a ediciones";
             cargarInscripciones(ctrlEdi);
+            faseCarga = "programas de formación";
             cargarProgramas(ctrlProg);
+            faseCarga = "inscripciones a programas";
             cargarInscripcionesPF(ctrlProg);
             System.out.println("¡Datos de prueba cargados con éxito!");
         } catch (Exception e) {
-            System.err.println("Error en la carga: " + e.getMessage());
-            e.printStackTrace();
+            throw new Exception("Error al cargar " + faseCarga + ": " + e.getMessage(), e);
         }
     }
 

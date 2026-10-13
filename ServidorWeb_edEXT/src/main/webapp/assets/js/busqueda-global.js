@@ -22,6 +22,7 @@
         { tipo: "Programa", etiqueta: "Programas" },
         { tipo: "Usuario", etiqueta: "Usuarios" }
     ];
+    const cacheBusqueda = new Map();
     let temporizador;
     let solicitud;
     let indiceActivo = -1;
@@ -380,8 +381,61 @@
             const nuevoEstado = !siguiendo;
             formulario.dataset.following = String(nuevoEstado);
             formulario.action = nuevoEstado ? urlDejarDeSeguirUsuario : urlSeguirUsuario;
-            boton.className = `btn btn-sm flex-shrink-0 ${nuevoEstado ? "btn-siguiendo" : "btn-primary"}`;
-            boton.textContent = nuevoEstado ? "Dejar de seguir" : "Seguir";
+            const nicknameSeguido = formulario.dataset.followNickname
+                    || formulario.querySelector("[name='nicknameASeguir']")?.value;
+            const formulariosRelacionados = [...document.querySelectorAll("[data-follow-form]")]
+                .filter((formularioRelacionado) => {
+                    const destino = formularioRelacionado.dataset.followNickname
+                            || formularioRelacionado.querySelector("[name='nicknameASeguir']")?.value;
+                    return destino === nicknameSeguido;
+                });
+            formulariosRelacionados.forEach((formularioRelacionado) => {
+                formularioRelacionado.dataset.following = String(nuevoEstado);
+                formularioRelacionado.action = nuevoEstado ? urlDejarDeSeguirUsuario : urlSeguirUsuario;
+                const botonRelacionado = formularioRelacionado.querySelector("button[type='submit']");
+                botonRelacionado?.classList.toggle("btn-siguiendo", nuevoEstado);
+                botonRelacionado?.classList.toggle("btn-primary", !nuevoEstado);
+                const etiqueta = botonRelacionado?.querySelector("[data-follow-label]");
+                if (etiqueta) {
+                    etiqueta.textContent = nuevoEstado ? "Dejar de seguir" : "Seguir";
+                } else if (botonRelacionado) {
+                    botonRelacionado.textContent = nuevoEstado ? "Dejar de seguir" : "Seguir";
+                }
+                const icono = botonRelacionado?.querySelector(".bi-person-check-fill, .bi-person-plus-fill");
+                icono?.classList.toggle("bi-person-check-fill", nuevoEstado);
+                icono?.classList.toggle("bi-person-plus-fill", !nuevoEstado);
+            });
+
+            const variacion = nuevoEstado ? 1 : -1;
+            if (formulario.hasAttribute("data-profile-follow-target")) {
+                document.querySelectorAll("[data-profile-target-follower-count]").forEach((contador) => {
+                    contador.textContent = String(Math.max(0, Number(contador.textContent) + variacion));
+                });
+            }
+            if (formulario.dataset.profileOwner === "true"
+                    || formulario.dataset.profileRemoveOnUnfollow === "true") {
+                document.querySelectorAll("[data-profile-following-count]").forEach((contador) => {
+                    contador.textContent = String(Math.max(0, Number(contador.textContent) + variacion));
+                });
+            }
+            if (!nuevoEstado) {
+                const formularioDeSeguidos = formulariosRelacionados.find((formularioRelacionado) =>
+                    formularioRelacionado.dataset.profileRemoveOnUnfollow === "true");
+                const fila = formularioDeSeguidos?.closest("[data-profile-follow-row='following']");
+                const lista = fila?.closest("[data-profile-follow-list='following']");
+                fila?.remove();
+                if (lista && !lista.querySelector("[data-profile-follow-row='following']")) {
+                    lista.hidden = true;
+                    const mensajeVacio = lista.parentElement.querySelector("[data-profile-follow-empty]");
+                    if (mensajeVacio) {
+                        mensajeVacio.hidden = false;
+                    }
+                }
+            }
+            if (formulario.dataset.profileOwner === "true"
+                    && formulario.closest("[data-profile-follow-list='followers']")) {
+                history.replaceState(null, "", `${window.location.pathname}${window.location.search}#seguidores-panel`);
+            }
         } catch (error) {
             if (estado) {
                 estado.textContent = error.message || "No se pudo actualizar el seguimiento.";
@@ -415,6 +469,21 @@
             estado.textContent = "";
             return;
         }
+        if (consulta.length < 2) {
+            if (solicitud) {
+                solicitud.abort();
+                solicitud = null;
+            }
+            resultados.replaceChildren();
+            cerrar();
+            if (resultadosInicio) {
+                resultadosInicio.replaceChildren();
+                resultadosInicio.hidden = true;
+                cursosInicio.hidden = false;
+            }
+            estado.textContent = "Escribí al menos 2 caracteres para buscar.";
+            return;
+        }
         if (consulta.length > 100) {
             mostrarMensaje("La búsqueda no puede superar los 100 caracteres.");
             estado.textContent = "La búsqueda no puede superar los 100 caracteres.";
@@ -437,6 +506,15 @@
         }
         solicitud = new AbortController();
         const tipoSolicitado = filtro ? filtro.value : "todos";
+        const claveCache = `${tipoSolicitado}:${consulta.toLocaleLowerCase()}`;
+        const cacheado = cacheBusqueda.get(claveCache);
+        if (cacheado && cacheado.vence > Date.now()) {
+            mostrarResultados(cacheado.resultados);
+            estado.textContent = cacheado.resultados.length
+                ? `Se encontraron ${cacheado.resultados.length} resultados.`
+                : "No se encontraron resultados.";
+            return;
+        }
         estado.textContent = "Buscando...";
         try {
             // Se construye la URL con la API de parámetros para codificar correctamente espacios y acentos.
@@ -458,7 +536,12 @@
                     || (filtro && filtro.value !== tipoSolicitado)) {
                 return;
             }
-            mostrarResultados(Array.isArray(datos.results) ? datos.results : []);
+            const listaResultados = Array.isArray(datos.results) ? datos.results : [];
+            cacheBusqueda.set(claveCache, { resultados: listaResultados, vence: Date.now() + 10000 });
+            if (cacheBusqueda.size > 30) {
+                cacheBusqueda.delete(cacheBusqueda.keys().next().value);
+            }
+            mostrarResultados(listaResultados);
             estado.textContent = datos.results && datos.results.length
                 ? `Se encontraron ${datos.results.length} resultados.`
                 : "No se encontraron resultados.";
@@ -476,7 +559,7 @@
         // Espera brevemente entre teclas para evitar enviar una petición por cada carácter escrito.
         window.clearTimeout(temporizador);
         actualizarDireccion();
-        temporizador = window.setTimeout(buscar, 160);
+        temporizador = window.setTimeout(buscar, 100);
     });
 
     filtro?.addEventListener("change", () => {
