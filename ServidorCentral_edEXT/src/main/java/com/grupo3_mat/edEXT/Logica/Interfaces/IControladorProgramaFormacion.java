@@ -12,6 +12,7 @@ public interface IControladorProgramaFormacion {
     @Deprecated
     void crearProgramaFormacion(String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaFin, LocalDate fechaAlta, String imagenPath) throws Exception;
     void agregarCursoAPrograma(String nombrePrograma, String nombreCurso) throws Exception;
+    void agregarCursoAPrograma(String nicknameDocente, String nombrePrograma, String nombreCurso) throws Exception;
     List<DTProgramaFormacion> listarProgramas() throws Exception;
     DTProgramaFormacion seleccionarPrograma(String nombre) throws Exception;
     DtCurso seleccionarCurso(String nombreCurso) throws Exception;

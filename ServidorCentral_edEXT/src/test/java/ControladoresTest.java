@@ -352,8 +352,12 @@ public class ControladoresTest {
         assertNotNull(curso);
         assertEquals("Prog1", curso.getNombre());
 
+        assertThrows(Exception.class,
+                () -> ctrlPrograma.agregarCursoAPrograma("estudiante1", "Desarrollo Java", "Prog1"));
+        assertTrue(ctrlPrograma.consultarPrograma("Desarrollo Java").getCursos().isEmpty());
+
         // Agregar Curso a Programa
-        ctrlPrograma.agregarCursoAPrograma("Desarrollo Java", "Prog1");
+        ctrlPrograma.agregarCursoAPrograma("docente1", "Desarrollo Java", "Prog1");
         DTProgramaFormacion programaConCurso = ctrlPrograma.consultarPrograma("Desarrollo Java");
         assertEquals(List.of("INCO"), programaConCurso.getInstitutos());
     }

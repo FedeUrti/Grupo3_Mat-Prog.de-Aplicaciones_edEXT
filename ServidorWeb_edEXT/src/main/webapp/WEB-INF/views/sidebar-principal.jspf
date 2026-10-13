@@ -33,6 +33,22 @@
             </a>
         </section>
 
+        <section class="sidebar-group">
+            <h2 class="sidebar-title">Programas</h2>
+            <c:url var="consultaProgramasUrl" value="/programas"/>
+            <a href="<c:out value='${consultaProgramasUrl}'/>" class="custom-item">
+                <i class="bi bi-journal-bookmark" aria-hidden="true"></i>
+                <span>Consultar programas</span>
+            </a>
+            <c:if test="${sessionScope.usuarioDocente}">
+                <c:url var="crearProgramaUrl" value="/crear-programa"/>
+                <a href="<c:out value='${crearProgramaUrl}'/>" class="custom-item">
+                    <i class="bi bi-plus-circle" aria-hidden="true"></i>
+                    <span>Crear programa</span>
+                </a>
+            </c:if>
+        </section>
+
         <c:if test="${sessionScope.usuarioDocente}">
             <section class="sidebar-group">
                 <h2 class="sidebar-title">Gestión docente</h2>

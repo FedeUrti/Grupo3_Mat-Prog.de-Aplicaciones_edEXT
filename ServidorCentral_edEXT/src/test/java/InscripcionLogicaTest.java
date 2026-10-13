@@ -4,6 +4,7 @@ import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
 import com.grupo3_mat.edEXT.Logica.Clases.Estudiante;
 import com.grupo3_mat.edEXT.Logica.Clases.InscripcionEC;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -67,7 +68,31 @@ class InscripcionLogicaTest {
         assertFalse(edicion.tieneCupoDisponible());
         assertThrows(IllegalStateException.class,
                 () -> edicion.cambiarEstadoInscripcion("pendiente", EstadoInscripcion.ACEPTADA));
-        assertEquals(EstadoInscripcion.INSCRIPTO, solicitudPendiente.getEstado());
+        assertEquals(EstadoInscripcion.RECHAZADA, solicitudPendiente.getEstado());
+    }
+
+    @Test
+    void alCompletarElCupoLasSolicitudesPendientesRestantesSeRechazanAutomaticamente() {
+        LocalDate hoy = LocalDate.now();
+        Curso curso = new Curso(null, "Curso A", "", 1, 1, 1, "", hoy);
+        EdicionCurso edicion = new EdicionCurso("Edición", hoy, hoy.plusDays(1), 5, hoy, curso);
+        List<InscripcionEC> solicitudes = new java.util.ArrayList<>();
+        for (int i = 1; i <= 6; i++) {
+            Estudiante estudiante = new Estudiante("estudiante" + i, "Nombre", "Apellido", "correo", hoy, "", "");
+            InscripcionEC solicitud = new InscripcionEC(estudiante, edicion, hoy);
+            solicitudes.add(solicitud);
+            edicion.agregarInscripcion(solicitud);
+        }
+
+        for (int i = 0; i < 5; i++) {
+            edicion.cambiarEstadoInscripcion("estudiante" + (i + 1), EstadoInscripcion.ACEPTADA);
+        }
+
+        assertEquals(5, solicitudes.stream()
+                .filter(solicitud -> solicitud.getEstado() == EstadoInscripcion.ACEPTADA)
+                .count());
+        assertEquals(EstadoInscripcion.RECHAZADA, solicitudes.get(5).getEstado());
+        assertEquals(0, edicion.getCupoDisponible());
     }
 
     @Test

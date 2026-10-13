@@ -159,8 +159,17 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
             if (nuevoEstado != EstadoInscripcion.ACEPTADA && nuevoEstado != EstadoInscripcion.RECHAZADA) {
                 throw new IllegalArgumentException("El estado seleccionado no es válido.");
             }
+            DTEdicionCurso edicionAntes = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
+            boolean seCompletaCupo = nuevoEstado == EstadoInscripcion.ACEPTADA
+                    && edicionAntes != null
+                    && edicionAntes.getCupo() > 0
+                    && edicionAntes.getCupoDisponible() == 1;
             controladorEdicion.cambiarEstadoInscripcion(usuarioNickname, nombreEdicion, estudianteNickname, nuevoEstado);
-            request.setAttribute("mensajeExito", "Se actualizó el estado de la inscripción del estudiante " + estudianteNickname + ".");
+            String mensajeExito = "Se actualizó el estado de la inscripción del estudiante " + estudianteNickname + ".";
+            if (seCompletaCupo) {
+                mensajeExito += " Se completó el cupo y las solicitudes pendientes restantes quedaron rechazadas.";
+            }
+            request.setAttribute("mensajeExito", mensajeExito);
 
             doGet(request, response);
 

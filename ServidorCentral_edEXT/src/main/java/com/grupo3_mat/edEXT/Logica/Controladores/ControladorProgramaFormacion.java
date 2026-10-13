@@ -63,6 +63,15 @@ public class ControladorProgramaFormacion implements IControladorProgramaFormaci
         mpf.agregarCursoAPrograma(nombrePrograma, nombreCurso);
     }
 
+    @Override
+    public void agregarCursoAPrograma(String nicknameDocente, String nombrePrograma, String nombreCurso) throws Exception {
+        if (nicknameDocente == null || nicknameDocente.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar el docente responsable.");
+        }
+        ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();
+        mpf.agregarCursoAPrograma(nicknameDocente, nombrePrograma, nombreCurso);
+    }
+
   @Override
     public List<DTProgramaFormacion> listarProgramas() throws Exception {
         ManejadorProgramaFormacion mpf = ManejadorProgramaFormacion.getInstancia();

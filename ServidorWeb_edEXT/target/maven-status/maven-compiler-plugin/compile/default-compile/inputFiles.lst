@@ -4,10 +4,14 @@ C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\AltaEdicionServlet.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\AutenticacionServlet.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\ImagenCursoServlet.java
+C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\ProgramaServlet.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\JakartaRestConfiguration.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\UsuarioServlet.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\ConsultaEdicionServlet.java
+C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\InscribirProgramaServlet.java
+C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\ConsultarProgramaServlet.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\InicioServlet.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\InscripcionEdicionServlet.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\CursosServlet.java
+C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\AgregarCursoProgramaServlet.java
 C:\Users\fede1\Documents\NetBeansProjects\Grupo3_Mat-Prog.de-Aplicaciones_edEXT\ServidorWeb_edEXT\src\main\java\com\grupo3_mat\servidorweb_edext\servlets\SeleccionarEstudiantesServlet.java

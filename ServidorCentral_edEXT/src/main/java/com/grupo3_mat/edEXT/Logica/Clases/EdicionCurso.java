@@ -84,7 +84,7 @@ public class EdicionCurso implements Serializable {
         }
     }
 
-    public void agregarInscripcion(InscripcionEC inscripcion) {
+    public synchronized void agregarInscripcion(InscripcionEC inscripcion) {
         if (inscripcion != null && inscripcion.getEstudiante() != null) {
             String nicknameEstudiante = inscripcion.getEstudiante().getNickname();
             this.inscripciones.put(nicknameEstudiante, inscripcion);
@@ -111,7 +111,7 @@ public class EdicionCurso implements Serializable {
         if (this.cupo <= 0) {
             return -1;
         }
-        return this.cupo - cantidadInscripcionesAceptadas();
+        return Math.max(0, this.cupo - cantidadInscripcionesAceptadas());
     }
 
     private int cantidadInscripcionesAceptadas() {
@@ -125,7 +125,7 @@ public class EdicionCurso implements Serializable {
         return Math.toIntExact(aceptadas);
     }
 
-    public void cambiarEstadoInscripcion(String nicknameEstudiante, EstadoInscripcion nuevoEstado) {
+    public synchronized void cambiarEstadoInscripcion(String nicknameEstudiante, EstadoInscripcion nuevoEstado) {
         // Primero se comprueba que exista la inscripción que se quiere revisar.
         InscripcionEC insc = buscarInscripcionPorEstudiante(nicknameEstudiante);
         if (insc == null) {
@@ -143,5 +143,11 @@ public class EdicionCurso implements Serializable {
             throw new IllegalStateException("No hay cupos disponibles para aceptar esta inscripción.");
         }
         insc.setEstado(nuevoEstado);
+        if (nuevoEstado == EstadoInscripcion.ACEPTADA && !tieneCupoDisponible()) {
+            this.inscripciones.values().stream()
+                    .filter(inscripcionPendiente -> inscripcionPendiente != null
+                            && inscripcionPendiente.getEstado() == EstadoInscripcion.INSCRIPTO)
+                    .forEach(inscripcionPendiente -> inscripcionPendiente.setEstado(EstadoInscripcion.RECHAZADA));
+        }
     }
 }

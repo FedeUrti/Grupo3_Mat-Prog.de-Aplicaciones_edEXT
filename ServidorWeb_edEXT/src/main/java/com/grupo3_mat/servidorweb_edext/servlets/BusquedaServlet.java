@@ -173,10 +173,9 @@ public class BusquedaServlet extends HttpServlet {
             if (programa.getNicknameDocente() != null && !programa.getNicknameDocente().isBlank()) {
                 detalle = combinar(detalle, "Docente: " + programa.getNicknameDocente());
             }
-            String url = programa.getCursos().isEmpty()
-                    ? urlBusqueda(contextPath, programa.getNombre(), "programa")
-                    : urlCurso(contextPath, programa.getCursos().get(0));
-            resultados.add(new Resultado(programa.getNombre(), "Programa", detalle, url));
+            resultados.add(new Resultado(programa.getNombre(), "Programa", detalle,
+                    urlPrograma(contextPath, programa.getNombre()),
+                    urlImagen(contextPath, imagenPrograma(programa.getImagenPath()))));
             encontrados++;
         }
 
@@ -282,6 +281,10 @@ public class BusquedaServlet extends HttpServlet {
         return contextPath + "/consulta-curso?nombre=" + URLEncoder.encode(nombre, StandardCharsets.UTF_8);
     }
 
+    private static String urlPrograma(String contextPath, String nombre) {
+        return contextPath + "/consulta-programa?nombre=" + URLEncoder.encode(nombre, StandardCharsets.UTF_8);
+    }
+
     private static String urlUsuario(String contextPath, String nickname) {
         // Los perfiles ya tienen una vista web, así que una coincidencia de usuario es navegable.
         return contextPath + "/consulta-usuario?nickname="
@@ -306,6 +309,18 @@ public class BusquedaServlet extends HttpServlet {
             return nombre;
         }
         return edicion ? "imagen_predeterminada_edCurso_1.png" : "imagen_predeterminada_curso_1.png";
+    }
+
+    private static String imagenPrograma(String ruta) {
+        String rutaNormalizada = ruta == null ? "" : ruta.replace('\\', '/');
+        String nombre = rutaNormalizada.substring(rutaNormalizada.lastIndexOf('/') + 1);
+        if (nombre.matches("(?i)[a-f0-9-]{36}\\.(png|jpg|jpeg|gif|webp)")
+                || nombre.matches("(?i)programa_[a-z0-9_-]+_\\d+\\.(png|jpg|jpeg|gif|webp)")
+                || nombre.equals("imagen_predeterminada_progForm_1.png")
+                || nombre.equals("imagen_predeterminada_progForm_2.png")) {
+            return nombre;
+        }
+        return "imagen_predeterminada_progForm_1.png";
     }
 
     private static String urlBusqueda(String contextPath, String consulta, String tipo) {

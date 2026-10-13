@@ -4,11 +4,13 @@ import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -45,6 +47,7 @@ public class CursoServlet extends HttpServlet {
     private final IControladorInstituto institutos = Fabrica.getInstance().getIControladorInstituto();
     private final IControladorCategoria categorias = Fabrica.getInstance().getIControladorCategoria();
     private final IControladorUsuario usuarios = Fabrica.getInstance().getIControladorUsuario();
+    private final IControladorProgramaFormacion programas = Fabrica.getInstance().getIControladorProgramaFormacion();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -72,6 +75,14 @@ public class CursoServlet extends HttpServlet {
             request.setAttribute("categorias", categorias.listarCategorias());
             DtCurso curso = cursos.consultarCurso(nombre);
             request.setAttribute("curso", curso);
+            List<DTProgramaFormacion> programasCurso = new ArrayList<>();
+            for (String nombrePrograma : curso.getProgramas()) {
+                DTProgramaFormacion programa = programas.consultarPrograma(nombrePrograma);
+                if (programa != null) {
+                    programasCurso.add(programa);
+                }
+            }
+            request.setAttribute("programasCurso", programasCurso);
             List<DTEdicionCurso> ediciones = new ArrayList<>();
             for (String nombreEdicion : curso.getEdiciones()) {
                 DTEdicionCurso edicion = this.ediciones.mostrarDetalleEdicion(nombreEdicion);

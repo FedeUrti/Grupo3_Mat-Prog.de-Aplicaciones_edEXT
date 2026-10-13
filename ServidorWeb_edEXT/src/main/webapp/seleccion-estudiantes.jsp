@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-6"/>
+        <c:param name="v" value="20261012-8"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -106,7 +106,19 @@
                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                             <div>
                                 <span class="badge text-bg-primary mb-1"><c:out value="${cursoSeleccionado}"/></span>
-                                <h2 class="h4 fw-bold mb-0">Edición: <c:out value="${edicionVigente.nombre}"/></h2>
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <h2 class="h4 fw-bold mb-0">Edición: <c:out value="${edicionVigente.nombre}"/></h2>
+                                    <c:choose>
+                                        <c:when test="${edicionVigente.cupo gt 0}">
+                                            <span class="badge ${edicionVigente.cupoDisponible gt 0 ? 'text-bg-success' : 'text-bg-danger'}">
+                                                Cupos disponibles: <c:out value="${edicionVigente.cupoDisponible}"/> / <c:out value="${edicionVigente.cupo}"/>
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge text-bg-secondary">Cupos ilimitados</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
                             </div>
 
                             <!-- Opciones de Criterio de Orden -->

@@ -312,12 +312,36 @@
                     <div class="tab-pane fade" id="programas-panel" role="tabpanel"
                          aria-labelledby="programas-tab" tabindex="0">
                         <c:choose>
-                            <c:when test="${not empty programasUsuario}">
-                                <ul class="list-group list-group-flush">
-                                    <c:forEach items="${programasUsuario}" var="programa">
-                                        <li class="list-group-item"><c:out value="${programa}"/></li>
+                            <c:when test="${not empty detallesProgramasUsuario}">
+                                <div class="list-group">
+                                    <c:forEach items="${detallesProgramasUsuario}" var="programa">
+                                        <c:url var="detalleProgramaUrl" value="/consulta-programa">
+                                            <c:param name="nombre" value="${programa.nombre}"/>
+                                        </c:url>
+                                        <div class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-3 py-3">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <c:if test="${not empty programa.imagenPath}">
+                                                    <c:url var="imagenProgramaUrl" value="/imagenes-curso">
+                                                        <c:param name="nombre" value="${programa.imagenPath}"/>
+                                                    </c:url>
+                                                    <img src="<c:out value='${imagenProgramaUrl}'/>"
+                                                         class="rounded" width="64" height="52"
+                                                         style="object-fit: cover;"
+                                                         alt="Imagen de <c:out value='${programa.nombre}'/>">
+                                                </c:if>
+                                                <div>
+                                                    <strong><c:out value="${programa.nombre}"/></strong>
+                                                    <div class="small text-muted">
+                                                        <c:out value="${programa.fechaInicio}"/> –
+                                                        <c:out value="${programa.fechaFin}"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <a class="btn btn-sm btn-outline-primary"
+                                               href="<c:out value='${detalleProgramaUrl}'/>">Ver programa</a>
+                                        </div>
                                     </c:forEach>
-                                </ul>
+                                </div>
                             </c:when>
                             <c:otherwise>
                                 <p class="text-muted mb-0">No hay programas asociados para mostrar.</p>

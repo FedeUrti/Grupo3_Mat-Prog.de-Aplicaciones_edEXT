@@ -5,10 +5,12 @@ import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -58,6 +60,7 @@ public class UsuarioServlet extends HttpServlet {
     private final IControladorInstituto institutos = Fabrica.getInstance().getIControladorInstituto();
     private final IControladorCategoria categorias = Fabrica.getInstance().getIControladorCategoria();
     private final IControladorEdicion ediciones = Fabrica.getInstance().getIControladorEdicion();
+    private final IControladorProgramaFormacion programas = Fabrica.getInstance().getIControladorProgramaFormacion();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -258,6 +261,23 @@ public class UsuarioServlet extends HttpServlet {
         request.setAttribute("edicionesUsuario", detallesEdiciones);
         request.setAttribute("cursosPorEdicion", cursosPorEdicion);
         request.setAttribute("estadosPorEdicion", estadosPorEdicion);
+
+        List<DTProgramaFormacion> detallesProgramas = new ArrayList<>();
+        List<String> nombresProgramas = usuario instanceof DtDocente docente
+                ? docente.getProgramas()
+                : usuario instanceof DtEstudiante estudiante ? estudiante.getProgramasInscripto() : List.of();
+        for (String nombrePrograma : nombresProgramas) {
+            try {
+                DTProgramaFormacion programa = programas.consultarPrograma(nombrePrograma);
+                if (programa != null) {
+                    detallesProgramas.add(programa);
+                }
+            } catch (Exception e) {
+                getServletContext().log("No se pudo cargar el programa " + nombrePrograma
+                        + " asociado al perfil de " + usuario.getNickname() + ".", e);
+            }
+        }
+        request.setAttribute("detallesProgramasUsuario", detallesProgramas);
     }
 
     private Map<String, DtUsuario> prepararPerfilesRelacionados(DtUsuario usuario) {

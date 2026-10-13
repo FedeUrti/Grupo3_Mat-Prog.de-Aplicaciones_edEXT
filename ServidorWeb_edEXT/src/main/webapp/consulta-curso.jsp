@@ -245,12 +245,19 @@
                                  aria-labelledby="curso-programas-tab" tabindex="0">
                                 <h2 class="h5 fw-bold mb-3">Programas de formación</h2>
                                 <c:choose>
-                                    <c:when test="${not empty curso.programas}">
+                                    <c:when test="${not empty programasCurso}">
                                         <ul class="list-group list-group-flush">
-                                            <c:forEach items="${curso.programas}" var="programa">
-                                                <li class="list-group-item d-flex align-items-center gap-2">
-                                                    <i class="bi bi-mortarboard text-primary" aria-hidden="true"></i>
-                                                    <c:out value="${programa}"/>
+                                            <c:forEach items="${programasCurso}" var="programa">
+                                                <c:url var="detalleProgramaUrl" value="/consulta-programa">
+                                                    <c:param name="nombre" value="${programa.nombre}"/>
+                                                </c:url>
+                                                <li class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-2 py-3">
+                                                    <span>
+                                                        <i class="bi bi-mortarboard text-primary me-2" aria-hidden="true"></i>
+                                                        <c:out value="${programa.nombre}"/>
+                                                    </span>
+                                                    <a class="btn btn-sm btn-outline-primary"
+                                                       href="<c:out value='${detalleProgramaUrl}'/>">Consultar programa</a>
                                                 </li>
                                             </c:forEach>
                                         </ul>

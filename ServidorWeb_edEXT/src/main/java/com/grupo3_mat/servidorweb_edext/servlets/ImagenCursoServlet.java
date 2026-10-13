@@ -40,17 +40,32 @@ public class ImagenCursoServlet extends HttpServlet {
             return;
         }
 
-        // 3. Las imágenes cargadas desde el formulario solo admiten nombres UUID y extensiones conocidas.
-        if (!nombre.matches("[a-f0-9-]{36}\\.(png|jpg|gif|webp)")) {
+        // 3. Los programas creados en la aplicación de escritorio guardan nombres acotados en su carpeta propia.
+        boolean imagenProgramaEscritorio = nombre.matches(
+                "(?i)programa_[a-z0-9_-]+_\\d+\\.(png|jpg|jpeg|gif|webp)");
+        if (imagenProgramaEscritorio) {
+            Path carpetaProgramas = Paths.get(System.getProperty("user.home"), ".edEXT", "imagenes")
+                    .toAbsolutePath().normalize();
+            servirArchivo(carpetaProgramas, nombre, response);
+            return;
+        }
+
+        // 4. Las imágenes cargadas desde el formulario solo admiten nombres UUID y extensiones conocidas.
+        if (!nombre.matches("(?i)[a-f0-9-]{36}\\.(png|jpg|jpeg|gif|webp)")) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        // 4. Usar la carpeta configurada para Docker o la carpeta local predeterminada.
+        // 5. Usar la carpeta configurada para Docker o la carpeta local predeterminada.
         String configurada = System.getenv("EDEXT_UPLOAD_DIR");
         Path carpeta = configurada != null && !configurada.isBlank()
                 ? Paths.get(configurada).toAbsolutePath().normalize()
                 : Paths.get(System.getProperty("user.home"), ".edext", "uploads").toAbsolutePath().normalize();
+        servirArchivo(carpeta, nombre, response);
+    }
+
+    private static void servirArchivo(Path carpeta, String nombre, HttpServletResponse response)
+            throws IOException {
         Path archivo = carpeta.resolve(nombre).normalize();
         if (!archivo.startsWith(carpeta) || !Files.isRegularFile(archivo)) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -62,7 +77,7 @@ public class ImagenCursoServlet extends HttpServlet {
         if (tipo == null) {
             String nombreArchivo = archivo.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
             tipo = nombreArchivo.endsWith(".png") ? "image/png"
-                    : nombreArchivo.endsWith(".jpg") ? "image/jpeg"
+                    : nombreArchivo.endsWith(".jpg") || nombreArchivo.endsWith(".jpeg") ? "image/jpeg"
                     : nombreArchivo.endsWith(".gif") ? "image/gif" : "image/webp";
         }
         if (tipo == null || !tipo.startsWith("image/")) {
@@ -85,6 +100,8 @@ public class ImagenCursoServlet extends HttpServlet {
             case "imagen_predeterminada_curso_3.png":
             case "imagen_predeterminada_edCurso_1.png":
             case "imagen_predeterminada_edCurso_2.jpg":
+            case "imagen_predeterminada_progForm_1.png":
+            case "imagen_predeterminada_progForm_2.png":
             case "docente_placeholder.png":
             case "estudiante_placeholder.png":
                 return "Presentacion/Recursos/" + archivo;

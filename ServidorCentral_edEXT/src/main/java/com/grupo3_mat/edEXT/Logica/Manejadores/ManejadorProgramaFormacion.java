@@ -2,6 +2,7 @@ package com.grupo3_mat.edEXT.Logica.Manejadores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.Docente;
+import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
@@ -46,6 +47,10 @@ public class ManejadorProgramaFormacion {
     }
 
     public void agregarCursoAPrograma(String nombrePrograma, String nombreCurso) throws Exception {
+        agregarCursoAPrograma(null, nombrePrograma, nombreCurso);
+    }
+
+    public void agregarCursoAPrograma(String nicknameDocente, String nombrePrograma, String nombreCurso) throws Exception {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
@@ -57,8 +62,21 @@ public class ManejadorProgramaFormacion {
             if (pf == null) {
                 throw new Exception("No existe el programa de formación ingresado.");
             }
+            if (nicknameDocente != null
+                    && (pf.getDocente() == null || !nicknameDocente.equals(pf.getDocente().getNickname()))) {
+                throw new SecurityException("Solo el docente responsable puede agregar cursos a este programa.");
+            }
             if (c == null) {
                 throw new Exception("No existe el curso ingresado.");
+            }
+            if (nicknameDocente != null) {
+                Docente docente = pf.getDocente();
+                Instituto institutoCurso = c.getInstituto();
+                if (docente == null || institutoCurso == null
+                        || !docente.perteneceAInstituto(institutoCurso.getNombre())) {
+                    throw new SecurityException(
+                            "No podés agregar un curso de un instituto al que no pertenecés.");
+                }
             }
 
             if (pf.getCursos() != null && pf.getCursos().containsKey(c.getNombre())) {
@@ -74,6 +92,9 @@ public class ManejadorProgramaFormacion {
         } catch (Exception ex) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
+            }
+            if (ex instanceof SecurityException securityException) {
+                throw securityException;
             }
 
             Throwable rootCause = ex;
