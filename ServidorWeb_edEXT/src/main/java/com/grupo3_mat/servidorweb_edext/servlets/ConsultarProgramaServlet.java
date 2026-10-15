@@ -1,6 +1,7 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @WebServlet("/consulta-programa")
@@ -85,9 +87,15 @@ public class ConsultarProgramaServlet extends HttpServlet {
                 }
                 request.setAttribute("cursosDetalle", cursosDetalle);
 
-                // 5. Cargar lista completa de cursos para el combo del Modal (Docente)
-                List<String> todosLosCursos = controladorCurso.listarCursos();
-                request.setAttribute("todosLosCursos", todosLosCursos);
+                // El modal solo ofrece cursos de los institutos del docente responsable.
+                List<String> cursosDocente = List.of();
+                if (nickname != null && nickname.equals(dtPrograma.getNicknameDocente())) {
+                    DtUsuario usuario = controladorUsuario.obtenerInfoUsuario(nickname);
+                    if (usuario instanceof DtDocente docente) {
+                        cursosDocente = listarCursosDeInstitutos(docente);
+                    }
+                }
+                request.setAttribute("todosLosCursos", cursosDocente);
             }
 
         } catch (Exception e) {
@@ -104,5 +112,18 @@ public class ConsultarProgramaServlet extends HttpServlet {
         request.setAttribute("categorias", controladorCategoria.listarCategorias());
         request.setAttribute("filtroInstituto", "");
         request.setAttribute("filtroCategoria", "");
+    }
+
+    private List<String> listarCursosDeInstitutos(DtDocente docente) {
+        LinkedHashSet<String> cursos = new LinkedHashSet<>();
+        if (docente.getInstitutos() != null) {
+            for (String instituto : docente.getInstitutos()) {
+                List<String> cursosInstituto = controladorCurso.listarCursosPorInstituto(instituto);
+                if (cursosInstituto != null) {
+                    cursos.addAll(cursosInstituto);
+                }
+            }
+        }
+        return new ArrayList<>(cursos);
     }
 }

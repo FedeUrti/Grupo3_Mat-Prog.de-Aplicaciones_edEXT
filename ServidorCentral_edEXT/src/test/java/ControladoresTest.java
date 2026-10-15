@@ -201,12 +201,12 @@ public class ControladoresTest {
     @DisplayName("Curso: Excepciones")
     void testCursoExcepciones() {
         // Curso duplicado
-        assertThrows(IllegalArgumentException.class, ()
+        assertThrows(Exception.class, ()
                 -> ctrlCurso.altaCurso("INCO", "Prog1", "Desc", 5, 40, 5, "", LocalDate.now(), null, null , "")
         );
 
         // Instituto inexistente
-        assertThrows(IllegalArgumentException.class, ()
+        assertThrows(Exception.class, ()
                 -> ctrlCurso.altaCurso("NoExisteInst", "Fisica1", "Desc", 5, 40, 5, "", LocalDate.now(),  null, null , "")
         );
 

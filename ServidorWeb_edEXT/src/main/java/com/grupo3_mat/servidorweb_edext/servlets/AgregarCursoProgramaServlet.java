@@ -1,10 +1,14 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
 import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,6 +18,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 @WebServlet("/agregar-curso-programa")
 public class AgregarCursoProgramaServlet extends HttpServlet {
@@ -22,6 +29,7 @@ public class AgregarCursoProgramaServlet extends HttpServlet {
     private final IControladorCurso controladorCurso = Fabrica.getInstance().getIControladorCurso();
     private final IControladorInstituto controladorInstituto = Fabrica.getInstance().getIControladorInstituto();
     private final IControladorCategoria controladorCategoria = Fabrica.getInstance().getIControladorCategoria();
+    private final IControladorUsuario controladorUsuario = Fabrica.getInstance().getIControladorUsuario();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -38,11 +46,16 @@ public class AgregarCursoProgramaServlet extends HttpServlet {
             return;
         }
         try {
+            DtUsuario usuario = controladorUsuario.obtenerInfoUsuario(nickname);
+            if (!(usuario instanceof DtDocente docente)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Solo un docente puede agregar cursos a un programa.");
+                return;
+            }
             var programasDocente = controladorPrograma.listarProgramas().stream()
                     .filter(programa -> nickname.equals(programa.getNicknameDocente()))
                     .toList();
             request.setAttribute("programas", programasDocente);
-            request.setAttribute("cursos", controladorCurso.listarCursos());
+            request.setAttribute("cursos", listarCursosDeInstitutos(docente));
             String programaSeleccionado = request.getParameter("programa");
             if (programaSeleccionado != null && !programaSeleccionado.isBlank()
                     && programasDocente.stream().noneMatch(programa -> programaSeleccionado.equals(programa.getNombre()))) {
@@ -85,7 +98,18 @@ public class AgregarCursoProgramaServlet extends HttpServlet {
         }
 
         try {
-            // ORDEN CORREGIDO: primer parámetro = nombrePrograma, segundo parámetro = nombreCurso
+            DtUsuario usuario = controladorUsuario.obtenerInfoUsuario(nickname);
+            if (!(usuario instanceof DtDocente docente)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Solo un docente puede agregar cursos a un programa.");
+                return;
+            }
+            DtCurso curso = controladorCurso.consultarCurso(nombreCurso.trim());
+            if (curso == null || curso.getNomInstituto() == null
+                    || docente.getInstitutos() == null
+                    || !docente.getInstitutos().contains(curso.getNomInstituto())) {
+                throw new SecurityException("No podés agregar cursos de institutos a los que no pertenecés.");
+            }
+
             controladorPrograma.agregarCursoAPrograma(nickname, nombrePrograma.trim(), nombreCurso.trim());
 
             response.sendRedirect(request.getContextPath() + "/consulta-programa?nombre=" 
@@ -109,5 +133,18 @@ public class AgregarCursoProgramaServlet extends HttpServlet {
         request.setAttribute("categorias", controladorCategoria.listarCategorias());
         request.setAttribute("filtroInstituto", "");
         request.setAttribute("filtroCategoria", "");
+    }
+
+    private List<String> listarCursosDeInstitutos(DtDocente docente) {
+        LinkedHashSet<String> cursos = new LinkedHashSet<>();
+        if (docente.getInstitutos() != null) {
+            for (String instituto : docente.getInstitutos()) {
+                List<String> cursosInstituto = controladorCurso.listarCursosPorInstituto(instituto);
+                if (cursosInstituto != null) {
+                    cursos.addAll(cursosInstituto);
+                }
+            }
+        }
+        return new ArrayList<>(cursos);
     }
 }

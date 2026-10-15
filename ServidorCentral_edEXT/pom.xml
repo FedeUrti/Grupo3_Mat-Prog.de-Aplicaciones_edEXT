@@ -136,7 +136,7 @@
                 <version>0.8.10</version>
                 <configuration>
                     <includes>
-                        <include>com/grupo3_mat/edEXT/Logica/Controladores/**</include>
+                        <include>com/grupo3_mat/edEXT/Logica/**</include>
                     </includes>
                 </configuration>
                 <executions>

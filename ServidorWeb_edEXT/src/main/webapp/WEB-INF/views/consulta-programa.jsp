@@ -251,7 +251,7 @@
                                                 <option value="<c:out value='${c}'/>"><c:out value="${c}"/></option>
                                             </c:forEach>
                                         </select>
-                                        <div class="form-text">Solo se muestran los cursos registrados en el sistema.</div>
+                                        <div class="form-text">Solo se muestran cursos de tus institutos.</div>
                                     </div>
 
                                 </div>
