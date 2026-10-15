@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-7"/>
+        <c:param name="v" value="20261015-1"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -38,7 +38,14 @@
                       method="post" class="content-card p-3 p-md-4">
                     <div class="mb-4">
                         <label for="nombrePrograma" class="form-label fw-semibold">Programa de formación</label>
-                        <select class="form-select" id="nombrePrograma" name="nombrePrograma" required>
+                        <c:choose>
+                            <c:when test="${not empty programaSeleccionado}">
+                                <select class="form-select" id="nombrePrograma" name="nombrePrograma" required disabled>
+                            </c:when>
+                            <c:otherwise>
+                                <select class="form-select" id="nombrePrograma" name="nombrePrograma" required>
+                            </c:otherwise>
+                        </c:choose>
                             <option value="">Seleccioná un programa</option>
                             <c:forEach var="programa" items="${programas}">
                                 <option value="<c:out value='${programa.nombre}'/>"
@@ -47,6 +54,10 @@
                                 </option>
                             </c:forEach>
                         </select>
+                        <c:if test="${not empty programaSeleccionado}">
+                            <input type="hidden" name="nombrePrograma"
+                                   value="<c:out value='${programaSeleccionado}'/>">
+                        </c:if>
                     </div>
                     <div class="mb-4">
                         <label for="nombreCurso" class="form-label fw-semibold">Curso a integrar</label>

@@ -12,6 +12,8 @@
     const resultadosInicio = document.querySelector("[data-home-search-results]");
     const cursosInicio = document.querySelector("[data-home-course-list]");
     const filtro = contenedor.querySelector("[data-search-filter]");
+    const ordenarPor = contenedor.querySelector("[data-search-sort]");
+    const direccionBusqueda = contenedor.querySelector("[data-search-direction]");
     const urlBusqueda = contenedor.dataset.searchUrl;
     const urlSeguirUsuario = contenedor.dataset.followUrl;
     const urlDejarDeSeguirUsuario = contenedor.dataset.unfollowUrl;
@@ -55,6 +57,16 @@
             direccion.searchParams.set("tipo", filtro.value);
         } else {
             direccion.searchParams.delete("tipo");
+        }
+        if (ordenarPor && ordenarPor.value !== "alfabetico") {
+            direccion.searchParams.set("ordenarPor", ordenarPor.value);
+        } else {
+            direccion.searchParams.delete("ordenarPor");
+        }
+        if (direccionBusqueda?.value === "desc") {
+            direccion.searchParams.set("direccion", "desc");
+        } else {
+            direccion.searchParams.delete("direccion");
         }
         window.history.replaceState(null, "", direccion);
     };
@@ -458,9 +470,9 @@
         }
     });
 
-    const buscar = async () => {
+    const buscar = async ({ permitirVacio = false } = {}) => {
         const consulta = entrada.value.trim();
-        if (!consulta) {
+        if (!consulta && !permitirVacio) {
             if (solicitud) {
                 solicitud.abort();
             }
@@ -474,7 +486,7 @@
             estado.textContent = "";
             return;
         }
-        if (consulta.length < 2) {
+        if (consulta && consulta.length < 2) {
             if (solicitud) {
                 solicitud.abort();
                 solicitud = null;
@@ -511,7 +523,9 @@
         }
         solicitud = new AbortController();
         const tipoSolicitado = filtro ? filtro.value : "todos";
-        const claveCache = `${tipoSolicitado}:${consulta.toLocaleLowerCase()}`;
+        const ordenarSolicitado = ordenarPor ? ordenarPor.value : "alfabetico";
+        const direccionSolicitada = direccionBusqueda ? direccionBusqueda.value : "asc";
+        const claveCache = `${tipoSolicitado}:${ordenarSolicitado}:${direccionSolicitada}:${consulta.toLocaleLowerCase()}`;
         const cacheado = cacheBusqueda.get(claveCache);
         if (cacheado && cacheado.vence > Date.now()) {
             mostrarResultados(cacheado.resultados);
@@ -525,6 +539,11 @@
             // Se construye la URL con la API de parámetros para codificar correctamente espacios y acentos.
             const url = new URL(urlBusqueda, window.location.href);
             url.searchParams.set("q", consulta);
+            url.searchParams.set("ordenarPor", ordenarSolicitado);
+            url.searchParams.set("direccion", direccionSolicitada);
+            if (!consulta) {
+                url.searchParams.set("incluirTodos", "true");
+            }
             if (tipoSolicitado !== "todos") {
                 url.searchParams.set("tipo", tipoSolicitado);
             }
@@ -538,7 +557,9 @@
             const datos = await respuesta.json();
             // Una respuesta antigua puede terminar justo antes de cancelarse; se descarta si el texto cambió.
             if (entrada.value.trim() !== consulta
-                    || (filtro && filtro.value !== tipoSolicitado)) {
+                    || (filtro && filtro.value !== tipoSolicitado)
+                    || (ordenarPor && ordenarPor.value !== ordenarSolicitado)
+                    || (direccionBusqueda && direccionBusqueda.value !== direccionSolicitada)) {
                 return;
             }
             const listaResultados = Array.isArray(datos.results) ? datos.results : [];
@@ -573,13 +594,21 @@
         buscar();
     });
 
+    [ordenarPor, direccionBusqueda].forEach((selector) => {
+        selector?.addEventListener("change", () => {
+            actualizarDireccion();
+            window.clearTimeout(temporizador);
+            buscar();
+        });
+    });
+
     formulario.addEventListener("submit", (evento) => {
         if (resultadosInicio) {
             // En inicio actualiza la dirección y los resultados sin recargar ni abandonar la portada.
             evento.preventDefault();
             actualizarDireccion();
             window.clearTimeout(temporizador);
-            buscar();
+            buscar({ permitirVacio: true });
         }
     });
 

@@ -18,8 +18,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 @WebServlet("/agregar-curso-programa")
@@ -54,8 +52,21 @@ public class AgregarCursoProgramaServlet extends HttpServlet {
             var programasDocente = controladorPrograma.listarProgramas().stream()
                     .filter(programa -> nickname.equals(programa.getNicknameDocente()))
                     .toList();
+            List<String> institutosDocente = docente.getInstitutos() == null ? List.of() : docente.getInstitutos();
+            List<String> cursosPermitidos = controladorCurso.listarCursos().stream()
+                    .filter(nombreCurso -> {
+                        try {
+                            DtCurso curso = controladorCurso.consultarCurso(nombreCurso);
+                            return curso != null
+                                    && curso.getNomInstituto() != null
+                                    && institutosDocente.contains(curso.getNomInstituto());
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    })
+                    .toList();
             request.setAttribute("programas", programasDocente);
-            request.setAttribute("cursos", listarCursosDeInstitutos(docente));
+            request.setAttribute("cursos", cursosPermitidos);
             String programaSeleccionado = request.getParameter("programa");
             if (programaSeleccionado != null && !programaSeleccionado.isBlank()
                     && programasDocente.stream().noneMatch(programa -> programaSeleccionado.equals(programa.getNombre()))) {
@@ -135,16 +146,4 @@ public class AgregarCursoProgramaServlet extends HttpServlet {
         request.setAttribute("filtroCategoria", "");
     }
 
-    private List<String> listarCursosDeInstitutos(DtDocente docente) {
-        LinkedHashSet<String> cursos = new LinkedHashSet<>();
-        if (docente.getInstitutos() != null) {
-            for (String instituto : docente.getInstitutos()) {
-                List<String> cursosInstituto = controladorCurso.listarCursosPorInstituto(instituto);
-                if (cursosInstituto != null) {
-                    cursos.addAll(cursosInstituto);
-                }
-            }
-        }
-        return new ArrayList<>(cursos);
-    }
 }

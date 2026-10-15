@@ -1,11 +1,11 @@
 <%-- Las URL se construyen con el contexto de la aplicación para que funcione también bajo un prefijo de despliegue. --%>
 <c:url var="buscadorInicioUrl" value="/inicio"/>
-<c:url var="buscadorResultadosUrl" value="/inicio"/>
+<c:url var="buscadorResultadosUrl" value="/buscar"/>
 <c:url var="buscadorApiUrl" value="/buscar"/>
 <c:url var="seguirUsuarioUrl" value="/seguir-usuario"/>
 <c:url var="dejarDeSeguirUsuarioUrl" value="/dejar-de-seguir-usuario"/>
 <c:url var="buscadorScriptUrl" value="/assets/js/busqueda-global.js">
-    <c:param name="v" value="20261013-6"/>
+    <c:param name="v" value="20261015-1"/>
 </c:url>
 <%-- Este encabezado se incluye en cada página para mantener un único buscador y una navegación consistente. --%>
 <header class="custom-header py-2 px-3 px-lg-4 shadow-sm">
@@ -38,6 +38,21 @@
                         <option value="usuario" <c:if test="${param.tipo eq 'usuario'}">selected</c:if>>Usuarios</option>
                         <option value="programa" <c:if test="${param.tipo eq 'programa'}">selected</c:if>>Programas</option>
                         <option value="edicion" <c:if test="${param.tipo eq 'edicion'}">selected</c:if>>Ediciones</option>
+                    </select>
+                    <button class="btn btn-primary global-search-submit" type="submit" aria-label="Buscar">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="global-search-options">
+                    <select class="form-select form-select-sm" name="ordenarPor" aria-label="Ordenar resultados por"
+                            data-search-sort>
+                        <option value="alfabetico" <c:if test="${empty param.ordenarPor or param.ordenarPor eq 'alfabetico'}">selected</c:if>>Alfabético</option>
+                        <option value="publicacion" <c:if test="${param.ordenarPor eq 'publicacion'}">selected</c:if>>Fecha de publicación</option>
+                    </select>
+                    <select class="form-select form-select-sm" name="direccion" aria-label="Dirección del orden"
+                            data-search-direction>
+                        <option value="asc" <c:if test="${empty param.direccion or param.direccion eq 'asc'}">selected</c:if>>Ascendente</option>
+                        <option value="desc" <c:if test="${param.direccion eq 'desc'}">selected</c:if>>Descendente</option>
                     </select>
                 </div>
             </form>

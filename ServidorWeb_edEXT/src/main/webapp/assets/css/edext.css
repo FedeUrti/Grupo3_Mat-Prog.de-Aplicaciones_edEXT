@@ -54,12 +54,29 @@ body {
     border-radius: 0;
 }
 
+.global-search-submit {
+    flex: 0 0 2.75rem;
+}
+
 .global-search-filter {
     flex: 0 0 8.5rem;
     max-width: 8.5rem;
     border-color: #dee2e6;
     background-color: #f4f6f9;
     font-size: 0.9rem;
+}
+
+.global-search-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+}
+
+.global-search-options .form-select {
+    min-width: 0;
+    border-color: #dee2e6;
+    background-color: #f4f6f9;
 }
 
 /* El panel queda anclado al campo y limita su altura cuando hay muchos resultados. */
@@ -733,6 +750,12 @@ body {
         max-width: 7rem;
         padding-right: 1.6rem;
         padding-left: 0.4rem;
+    }
+
+    .global-search-submit {
+        flex-basis: 2.5rem;
+        padding-right: 0.65rem;
+        padding-left: 0.65rem;
     }
 
     .site-sidebar {

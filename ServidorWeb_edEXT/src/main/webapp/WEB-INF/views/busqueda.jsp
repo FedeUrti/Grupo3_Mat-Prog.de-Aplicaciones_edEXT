@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-6"/>
+        <c:param name="v" value="20261015-1"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -35,9 +35,9 @@
     </c:if>
 
     <c:choose>
-        <c:when test="${empty query and empty error}">
+        <c:when test="${empty query and empty resultadosBusqueda and empty error}">
             <div class="content-card p-4 text-center">
-                <p class="text-muted mb-0">Ingresá un término para buscar cursos, ediciones, programas y usuarios.</p>
+                <p class="text-muted mb-0">El catálogo de edEXT reúne cursos, ediciones, programas y usuarios.</p>
             </div>
         </c:when>
         <c:when test="${empty resultadosBusqueda and empty error}">

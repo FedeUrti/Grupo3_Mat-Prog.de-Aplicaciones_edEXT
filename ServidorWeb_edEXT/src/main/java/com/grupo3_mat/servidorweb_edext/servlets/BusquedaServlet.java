@@ -21,7 +21,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.text.Normalizer;
+import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,8 +42,11 @@ public class BusquedaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String consultaCompleta = request.getParameter("query");
+        String ordenarPor = valorO(request.getParameter("ordenarPor"), "alfabetico");
+        String direccion = valorO(request.getParameter("direccion"), "asc");
         if (consultaCompleta != null) {
-            mostrarResultados(request, response, limpiar(consultaCompleta), limpiar(request.getParameter("tipo")));
+            mostrarResultados(request, response, limpiar(consultaCompleta), limpiar(request.getParameter("tipo")),
+                    ordenarPor, direccion);
             return;
         }
 
@@ -52,6 +57,10 @@ public class BusquedaServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El filtro de búsqueda no es válido.");
             return;
         }
+        if (!ordenValido(ordenarPor) || !direccionValida(direccion)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El orden de búsqueda no es válido.");
+            return;
+        }
         if (query.length() > 100) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "La búsqueda no puede superar los 100 caracteres.");
             return;
@@ -59,7 +68,11 @@ public class BusquedaServlet extends HttpServlet {
 
         try {
             String nicknameSesion = nicknameSesion(request);
-            List<Resultado> resultados = buscar(query, request.getContextPath(), nicknameSesion, tipo);
+            boolean incluirTodos = "true".equalsIgnoreCase(request.getParameter("incluirTodos"));
+            List<Resultado> resultados = query.isBlank() && !incluirTodos
+                ? List.of()
+                : buscar(query, request.getContextPath(), nicknameSesion, tipo, ordenarPor, direccion,
+                    !incluirTodos);
             // No se cachean coincidencias para que el autocompletado refleje cambios recientes en la base.
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setContentType("application/json");
@@ -75,23 +88,28 @@ public class BusquedaServlet extends HttpServlet {
         }
     }
 
-    private void mostrarResultados(HttpServletRequest request, HttpServletResponse response, String query, String tipo)
-            throws ServletException, IOException {
+    private void mostrarResultados(HttpServletRequest request, HttpServletResponse response, String query, String tipo,
+            String ordenarPor, String direccion) throws ServletException, IOException {
         request.setAttribute("query", query);
         request.setAttribute("filtroBusqueda", tipo.isEmpty() ? "todos" : tipo);
+        request.setAttribute("ordenarPor", ordenarPor);
+        request.setAttribute("direccion", direccion);
         if (!tipoValido(tipo)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             request.setAttribute("error", "El filtro de búsqueda no es válido.");
+        } else if (!ordenValido(ordenarPor) || !direccionValida(direccion)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            request.setAttribute("error", "El orden de búsqueda no es válido.");
         } else if (query.length() > 100) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             request.setAttribute("error", "La búsqueda no puede superar los 100 caracteres.");
-        } else if (!query.isBlank()) {
+        } else {
             try {
                 String nicknameSesion = nicknameSesion(request);
                 request.setAttribute("resultadosBusqueda",
-                        buscar(query, request.getContextPath(), nicknameSesion, tipo));
+                        buscar(query, request.getContextPath(), nicknameSesion, tipo, ordenarPor, direccion, false));
                 request.setAttribute("urlRetornoBusqueda", urlBusqueda(request.getContextPath(), query,
-                        tipo.isBlank() ? "todos" : tipo));
+                        tipo.isBlank() ? "todos" : tipo, ordenarPor, direccion));
             } catch (Exception e) {
                 getServletContext().log("No se pudo completar la búsqueda global.", e);
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -102,12 +120,9 @@ public class BusquedaServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/busqueda.jsp").forward(request, response);
     }
 
-    private List<Resultado> buscar(String consulta, String contextPath, String nicknameSesion, String tipo)
-            throws Exception {
+    private List<Resultado> buscar(String consulta, String contextPath, String nicknameSesion, String tipo,
+            String ordenarPor, String direccion, boolean limitarResultados) throws Exception {
         List<Resultado> resultados = new ArrayList<>();
-        if (consulta.isBlank()) {
-            return resultados;
-        }
         // La misma consulta normalizada se usa en todos los tipos sin distinguir mayúsculas.
         String query = normalizar(consulta);
         boolean buscarTodo = tipo == null || tipo.isBlank() || tipo.equalsIgnoreCase("todos");
@@ -122,7 +137,7 @@ public class BusquedaServlet extends HttpServlet {
         if (buscarCursos) {
             int encontrados = 0;
             for (String nombreCurso : nombresCursos) {
-                if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
                 DtCurso curso = cursos.consultarCurso(nombreCurso);
@@ -135,9 +150,10 @@ public class BusquedaServlet extends HttpServlet {
                 if (curso.getDescripcion() != null && !curso.getDescripcion().isBlank()) {
                     detalle = combinar(detalle, curso.getDescripcion());
                 }
+                detalle = combinar(detalle, textoPublicacion(curso.getFecha()));
                 resultados.add(new Resultado(curso.getNombre(), "Curso", detalle,
                         urlCurso(contextPath, curso.getNombre()), urlImagen(contextPath,
-                                imagenCurso(curso.getImagenPath(), false))));
+                                imagenCurso(curso.getImagenPath(), false)), null, false, false, curso.getFecha()));
                 encontrados++;
             }
         }
@@ -146,11 +162,11 @@ public class BusquedaServlet extends HttpServlet {
         if (buscarEdiciones) {
             int encontrados = 0;
             for (String nombreCurso : nombresCursos) {
-                if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
                 for (String nombreEdicion : ediciones.listarEdicionesPorCurso(nombreCurso)) {
-                    if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                    if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                         break;
                     }
                     DTEdicionCurso edicion = ediciones.mostrarDetalleEdicion(nombreEdicion);
@@ -158,9 +174,12 @@ public class BusquedaServlet extends HttpServlet {
                         continue;
                     }
                     String fechas = fechas(edicion.getFechaInicio(), edicion.getFechaFin());
+                    LocalDate fechaPublicacion = edicion.getFechaPublicacion();
                     resultados.add(new Resultado(edicion.getNombre(), "Edición",
-                            combinar("Curso: " + nombreCurso, fechas), urlCurso(contextPath, nombreCurso),
-                            urlImagen(contextPath, imagenCurso(edicion.getImagenPath(), true))));
+                            combinar(combinar("Curso: " + nombreCurso, fechas), textoPublicacion(fechaPublicacion)),
+                            urlCurso(contextPath, nombreCurso),
+                            urlImagen(contextPath, imagenCurso(edicion.getImagenPath(), true)),
+                            null, false, false, fechaPublicacion));
                     encontrados++;
                 }
             }
@@ -170,7 +189,7 @@ public class BusquedaServlet extends HttpServlet {
         if (buscarProgramas) {
             int encontrados = 0;
             for (DTProgramaFormacion programa : programas.listarProgramas()) {
-                if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
                 if (!coincide(query, programa.getNombre(), programa.getDescripcion(),
@@ -183,9 +202,12 @@ public class BusquedaServlet extends HttpServlet {
                 if (programa.getNicknameDocente() != null && !programa.getNicknameDocente().isBlank()) {
                     detalle = combinar(detalle, "Docente: " + programa.getNicknameDocente());
                 }
+                LocalDate fechaPublicacion = programa.getFechaAlta();
+                detalle = combinar(detalle, textoPublicacion(fechaPublicacion));
                 resultados.add(new Resultado(programa.getNombre(), "Programa", detalle,
                         urlPrograma(contextPath, programa.getNombre()),
-                        urlImagen(contextPath, imagenPrograma(programa.getImagenPath()))));
+                    urlImagen(contextPath, imagenPrograma(programa.getImagenPath())), null, false, false,
+                    fechaPublicacion));
                 encontrados++;
             }
         }
@@ -194,7 +216,7 @@ public class BusquedaServlet extends HttpServlet {
         if (buscarUsuarios) {
             int encontrados = 0;
             for (String nickname : usuarios.listarNicknamesUsuarios()) {
-                if (encontrados >= MAX_RESULTADOS_POR_TIPO) {
+                if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
                 DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
@@ -212,11 +234,33 @@ public class BusquedaServlet extends HttpServlet {
                         urlUsuario(contextPath, usuario.getNickname()),
                         urlImagen(contextPath, UsuarioServlet.imagenPerfil(usuario)), usuario.getNickname(),
                         nicknameSesion != null && usuario.getSeguidores().contains(nicknameSesion),
-                        nicknameSesion != null && usuario.getNickname().equals(nicknameSesion)));
+                        nicknameSesion != null && usuario.getNickname().equals(nicknameSesion), null));
                 encontrados++;
             }
         }
+        ordenarResultados(resultados, ordenarPor, direccion);
         return resultados;
+    }
+
+    private static void ordenarResultados(List<Resultado> resultados, String ordenarPor, String direccion) {
+        Comparator<Resultado> porNombre = Comparator
+                .comparing((Resultado resultado) -> normalizar(resultado.nombre))
+                .thenComparing(Resultado::getNombre, String.CASE_INSENSITIVE_ORDER);
+        Comparator<Resultado> comparador = porNombre;
+        if ("publicacion".equals(ordenarPor)) {
+            Comparator<LocalDate> comparadorFechas = "desc".equals(direccion)
+                    ? Comparator.nullsLast(Comparator.reverseOrder())
+                    : Comparator.nullsLast(Comparator.naturalOrder());
+            comparador = Comparator.comparing(Resultado::getFechaPublicacion, comparadorFechas)
+                    .thenComparing(porNombre);
+        } else if ("desc".equals(direccion)) {
+            comparador = porNombre.reversed();
+        }
+        resultados.sort(comparador);
+    }
+
+    private static String textoPublicacion(LocalDate fecha) {
+        return fecha == null ? "" : "Publicado: " + fecha;
     }
 
     private static boolean coincide(String query, String... campos) {
@@ -233,6 +277,19 @@ public class BusquedaServlet extends HttpServlet {
         return tipo == null || tipo.isBlank() || tipo.equalsIgnoreCase("todos")
                 || tipo.equalsIgnoreCase("curso") || tipo.equalsIgnoreCase("usuario")
                 || tipo.equalsIgnoreCase("programa") || tipo.equalsIgnoreCase("edicion");
+    }
+
+    private static boolean ordenValido(String ordenarPor) {
+        return "alfabetico".equals(ordenarPor) || "publicacion".equals(ordenarPor);
+    }
+
+    private static boolean direccionValida(String direccion) {
+        return "asc".equals(direccion) || "desc".equals(direccion);
+    }
+
+    private static String valorO(String valor, String predeterminado) {
+        String limpio = limpiar(valor);
+        return limpio.isEmpty() ? predeterminado : limpio.toLowerCase(Locale.ROOT);
     }
 
     private static String normalizar(String texto) {
@@ -306,10 +363,13 @@ public class BusquedaServlet extends HttpServlet {
         return "imagen_predeterminada_progForm_1.png";
     }
 
-    private static String urlBusqueda(String contextPath, String consulta, String tipo) {
+    private static String urlBusqueda(String contextPath, String consulta, String tipo,
+            String ordenarPor, String direccion) {
         // Si todavía no existe una vista de detalle, se abre la búsqueda acotada a ese programa.
         return contextPath + "/buscar?query=" + URLEncoder.encode(consulta, StandardCharsets.UTF_8)
-                + "&tipo=" + URLEncoder.encode(tipo, StandardCharsets.UTF_8);
+                + "&tipo=" + URLEncoder.encode(tipo, StandardCharsets.UTF_8)
+                + "&ordenarPor=" + URLEncoder.encode(ordenarPor, StandardCharsets.UTF_8)
+                + "&direccion=" + URLEncoder.encode(direccion, StandardCharsets.UTF_8);
     }
 
     private static String serializar(List<Resultado> resultados) {
@@ -328,6 +388,12 @@ public class BusquedaServlet extends HttpServlet {
                 json.append("null");
             } else {
                 json.append('"').append(jsonEscapar(resultado.url)).append('"');
+            }
+            json.append(",\"fechaPublicacion\":");
+            if (resultado.fechaPublicacion == null) {
+                json.append("null");
+            } else {
+                json.append('\"').append(resultado.fechaPublicacion).append('\"');
             }
             json.append(",\"imagenUrl\":");
             if (resultado.imagenUrl == null) {
@@ -398,26 +464,33 @@ public class BusquedaServlet extends HttpServlet {
         private final String tipo;
         private final String detalle;
         private final String url;
+        private final LocalDate fechaPublicacion;
         private final String imagenUrl;
         private final String nickname;
         private final boolean siguiendo;
         private final boolean propio;
 
         private Resultado(String nombre, String tipo, String detalle, String url) {
-            this(nombre, tipo, detalle, url, null, null, false, false);
+            this(nombre, tipo, detalle, url, null, null, false, false, null);
         }
 
         private Resultado(String nombre, String tipo, String detalle, String url,
                 String imagenUrl) {
-            this(nombre, tipo, detalle, url, imagenUrl, null, false, false);
+            this(nombre, tipo, detalle, url, imagenUrl, null, false, false, null);
         }
 
         private Resultado(String nombre, String tipo, String detalle, String url,
                 String imagenUrl, String nickname, boolean siguiendo, boolean propio) {
+            this(nombre, tipo, detalle, url, imagenUrl, nickname, siguiendo, propio, null);
+        }
+
+        private Resultado(String nombre, String tipo, String detalle, String url,
+                String imagenUrl, String nickname, boolean siguiendo, boolean propio, LocalDate fechaPublicacion) {
             this.nombre = nombre == null ? "" : nombre;
             this.tipo = tipo == null ? "" : tipo;
             this.detalle = detalle == null ? "" : detalle;
             this.url = url;
+            this.fechaPublicacion = fechaPublicacion;
             this.imagenUrl = imagenUrl;
             this.nickname = nickname;
             this.siguiendo = siguiendo;
@@ -438,6 +511,10 @@ public class BusquedaServlet extends HttpServlet {
 
         public String getUrl() {
             return url;
+        }
+
+        public LocalDate getFechaPublicacion() {
+            return fechaPublicacion;
         }
 
         public String getImagenUrl() {
