@@ -90,6 +90,7 @@ public class BusquedaServlet extends HttpServlet {
 
     private void mostrarResultados(HttpServletRequest request, HttpServletResponse response, String query, String tipo,
             String ordenarPor, String direccion) throws ServletException, IOException {
+        request.setAttribute("busquedaIniciada", true);
         request.setAttribute("query", query);
         request.setAttribute("filtroBusqueda", tipo.isEmpty() ? "todos" : tipo);
         request.setAttribute("ordenarPor", ordenarPor);
@@ -332,13 +333,19 @@ public class BusquedaServlet extends HttpServlet {
     }
 
     private static String urlImagen(String contextPath, String nombre) {
-        String servlet = nombre.equals("docente_placeholder.png") || nombre.equals("estudiante_placeholder.png")
+        boolean imagenUsuario = nombre.equals("docente_placeholder.png") || nombre.equals("estudiante_placeholder.png")
+                || nombre.matches("Presentacion/Recursos/datos_prueba/usuario_[a-z0-9_-]+\\.(png|jpg|jpeg)");
+        String servlet = imagenUsuario
                 ? "/imagenes-usuario" : "/imagenes-curso";
         return contextPath + servlet + "?nombre=" + URLEncoder.encode(nombre, StandardCharsets.UTF_8);
     }
 
     private static String imagenCurso(String ruta, boolean edicion) {
         String rutaNormalizada = ruta == null ? "" : ruta.replace('\\', '/');
+        String prefijoRecursos = "Presentacion/Recursos/";
+        if (rutaNormalizada.matches("Presentacion/Recursos/datos_prueba/(curso|edicion)_[a-z0-9_-]+\\.(png|jpg|jpeg)")) {
+            return rutaNormalizada.substring(prefijoRecursos.length());
+        }
         String nombre = rutaNormalizada.substring(rutaNormalizada.lastIndexOf('/') + 1);
         if (nombre.matches("[a-f0-9-]{36}\\.(png|jpg|gif|webp)")
                 || nombre.equals("imagen_predeterminada_curso_1.png")
@@ -353,6 +360,10 @@ public class BusquedaServlet extends HttpServlet {
 
     private static String imagenPrograma(String ruta) {
         String rutaNormalizada = ruta == null ? "" : ruta.replace('\\', '/');
+        String prefijoRecursos = "Presentacion/Recursos/";
+        if (rutaNormalizada.matches("Presentacion/Recursos/datos_prueba/programa_[a-z0-9_-]+\\.(png|jpg|jpeg)")) {
+            return rutaNormalizada.substring(prefijoRecursos.length());
+        }
         String nombre = rutaNormalizada.substring(rutaNormalizada.lastIndexOf('/') + 1);
         if (nombre.matches("(?i)[a-f0-9-]{36}\\.(png|jpg|jpeg|gif|webp)")
                 || nombre.matches("(?i)programa_[a-z0-9_-]+_\\d+\\.(png|jpg|jpeg|gif|webp)")

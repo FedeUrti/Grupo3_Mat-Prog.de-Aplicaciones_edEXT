@@ -1,6 +1,8 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
 import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
@@ -85,8 +87,7 @@ public class InscripcionEdicionServlet extends HttpServlet {
             request.setAttribute("cursos", cursosDisponibles);
             request.setAttribute("filtroInstituto", instituto);
             request.setAttribute("filtroCategoria", categoria);
-            request.setAttribute("mensajeExito", "1".equals(request.getParameter("inscripto"))
-                    ? "Tu inscripción quedó registrada correctamente." : null);
+                request.setAttribute("mensajeExito", null);
 
             if (!nombreCurso.isEmpty()
                     && !todosLosCursos.contains(nombreCurso)) {
@@ -101,10 +102,13 @@ public class InscripcionEdicionServlet extends HttpServlet {
                         request.setAttribute("mensajeInfo", "No se encontraron los datos de la edición vigente.");
                     } else {
                         request.setAttribute("edicionVigente", edicionVigente);
-                        List<String> edicionesEstudiante =
-                                controladorEdicion.listarEdicionesDeEstudiante(usuarioNickname);
-                        request.setAttribute("yaInscripto",
-                                edicionesEstudiante != null && edicionesEstudiante.contains(nombreEdicionVigente));
+                        EstadoInscripcion estadoInscripcion = estadoInscripcion(usuarioNickname, nombreEdicionVigente);
+                        request.setAttribute("estadoInscripcion",
+                            estadoInscripcion == null ? null : estadoInscripcion.name());
+                        request.setAttribute("yaInscripto", estadoInscripcion != null);
+                        if (estadoInscripcion != null && "1".equals(request.getParameter("inscripto"))) {
+                            request.setAttribute("mensajeExito", mensajeInscripcion(estadoInscripcion));
+                        }
                     }
                 } else {
                     request.setAttribute("mensajeInfo",
@@ -200,6 +204,26 @@ public class InscripcionEdicionServlet extends HttpServlet {
         }
         response.sendRedirect(request.getContextPath() + "/inicio?acceso=estudiante");
         return null;
+    }
+
+    private EstadoInscripcion estadoInscripcion(String nickname, String nombreEdicion) throws Exception {
+        DtUsuario usuario = controladorUsuario.obtenerInfoUsuario(nickname);
+        if (usuario instanceof DtEstudiante estudiante) {
+            for (DTInscripcionEdicion inscripcion : estudiante.getInscripcionesEdicion()) {
+                if (nombreEdicion.equals(inscripcion.getNombreEdicion())) {
+                    return inscripcion.getEstado();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String mensajeInscripcion(EstadoInscripcion estado) {
+        return switch (estado) {
+            case INSCRIPTO -> "Ya te inscribiste a esta edición. Tu inscripción está pendiente de ser aceptada.";
+            case ACEPTADA -> "Ya estás inscripto a esta edición y tu inscripción fue aceptada.";
+            case RECHAZADA -> "Ya estás inscripto a esta edición, pero tu inscripción fue rechazada.";
+        };
     }
 
     private static String limpiar(String valor) {

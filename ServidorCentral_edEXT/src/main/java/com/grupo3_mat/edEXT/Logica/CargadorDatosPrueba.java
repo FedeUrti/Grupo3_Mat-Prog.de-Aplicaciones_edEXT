@@ -17,11 +17,40 @@ import java.util.List;
 public class CargadorDatosPrueba {
 
     private static final String PASSWORD_PRUEBA = "1234";
-    private static final String IMAGEN_ESTUDIANTE = "/Presentacion/Recursos/estudiante_placeholder.png";
-    private static final String IMAGEN_DOCENTE = "/Presentacion/Recursos/docente_placeholder.png";
-    private static final String IMAGEN_CURSO = "/Presentacion/Recursos/imagen_predeterminada_curso_1.png";
-    private static final String IMAGEN_EDICION = "/Presentacion/Recursos/imagen_predeterminada_edCurso_1.png";
-    private static final String IMAGEN_PROGRAMA = "/Presentacion/Recursos/imagen_predeterminada_progForm_1.png";
+    private static final String DIRECTORIO_IMAGENES_PRUEBA = "Presentacion/Recursos/datos_prueba/";
+    private static final String IMAGEN_ESTUDIANTE = "Presentacion/Recursos/estudiante_placeholder.png";
+    private static final String IMAGEN_DOCENTE = "Presentacion/Recursos/docente_placeholder.png";
+    private static final String IMAGEN_CURSO = "Presentacion/Recursos/imagen_predeterminada_curso_1.png";
+    private static final String IMAGEN_EDICION = "Presentacion/Recursos/imagen_predeterminada_edCurso_1.png";
+    private static final String IMAGEN_PROGRAMA = "Presentacion/Recursos/imagen_predeterminada_progForm_1.png";
+    private static final String IMAGEN_USUARIO_RORO = DIRECTORIO_IMAGENES_PRUEBA + "usuario_roro.jpg";
+    private static final String IMAGEN_USUARIO_CHECHI = DIRECTORIO_IMAGENES_PRUEBA + "usuario_chechi.jpg";
+    private static final String IMAGEN_USUARIO_JEFFW = DIRECTORIO_IMAGENES_PRUEBA + "usuario_jeffw.jpg";
+    private static final String IMAGEN_USUARIO_HEISENBERG = DIRECTORIO_IMAGENES_PRUEBA + "usuario_heisenberg.png";
+    private static final String IMAGEN_USUARIO_BENKENOBI = DIRECTORIO_IMAGENES_PRUEBA + "usuario_benkenobi.jpg";
+    private static final String IMAGEN_USUARIO_WASTON = DIRECTORIO_IMAGENES_PRUEBA + "usuario_waston.jpg";
+    private static final String IMAGEN_USUARIO_HOUSE = DIRECTORIO_IMAGENES_PRUEBA + "usuario_house.png";
+    private static final String IMAGEN_USUARIO_TIMMY = DIRECTORIO_IMAGENES_PRUEBA + "usuario_timmy.jpg";
+    private static final String IMAGEN_CURSO_DALAVUELTA = DIRECTORIO_IMAGENES_PRUEBA + "curso_dalavuelta.png";
+    private static final String IMAGEN_CURSO_INCLUSION = DIRECTORIO_IMAGENES_PRUEBA + "curso_inclusion_energetica.jpg";
+    private static final String IMAGEN_CURSO_FLOR_CEIBO = DIRECTORIO_IMAGENES_PRUEBA + "curso_flor_de_ceibo.png";
+    private static final String IMAGEN_CURSO_ROBOTICA = DIRECTORIO_IMAGENES_PRUEBA + "curso_robotica.jpg";
+    private static final String IMAGEN_CURSO_KOMIKAN = DIRECTORIO_IMAGENES_PRUEBA + "curso_komikan.png";
+    private static final String IMAGEN_CURSO_MICROBIT = DIRECTORIO_IMAGENES_PRUEBA + "curso_microbit.jpg";
+    private static final String IMAGEN_EDICION_FLOR_2010 = DIRECTORIO_IMAGENES_PRUEBA + "edicion_flor_ceibo_2010.jpg";
+    private static final String IMAGEN_EDICION_FLOR_2012 = DIRECTORIO_IMAGENES_PRUEBA + "edicion_flor_ceibo_2012.jpg";
+    private static final String IMAGEN_EDICION_FLOR_2025 = DIRECTORIO_IMAGENES_PRUEBA + "edicion_flor_ceibo_2025.jpg";
+    private static final String IMAGEN_EDICION_DALAVUELTA_2025 = DIRECTORIO_IMAGENES_PRUEBA + "edicion_dalavuelta_2025.jpg";
+    private static final String IMAGEN_EDICION_ROBOTICA_2024 = DIRECTORIO_IMAGENES_PRUEBA + "edicion_robotica_2024.jpg";
+    private static final String IMAGEN_EDICION_ROBOTICA_2026_1 = DIRECTORIO_IMAGENES_PRUEBA + "edicion_robotica_2026_1.jpg";
+    private static final String IMAGEN_EDICION_ROBOTICA_2026_2 = DIRECTORIO_IMAGENES_PRUEBA + "edicion_robotica_2026_2.jpg";
+    private static final String IMAGEN_PROGRAMA_EFI_MECANICA = DIRECTORIO_IMAGENES_PRUEBA + "programa_efi_mecanica.jpg";
+    private static final String IMAGEN_PROGRAMA_FORMACION_INTEGRAL = DIRECTORIO_IMAGENES_PRUEBA + "programa_formacion_integral.jpg";
+    private static final String IMAGEN_PROGRAMA_EFI_ROBOTICA = DIRECTORIO_IMAGENES_PRUEBA + "programa_efi_robotica.jpg";
+    private static final String CURSO_KOMIKAN = "Participación en investigación sobre el empleo del juego Komikan como recurso didáctico en la Escuela";
+    private static final String EDICION_KOMIKAN_2026 = CURSO_KOMIKAN + " - 2026";
+    private static final String CURSO_INGLES = "Herramientas de apoyo a la enseñanza de inglés. Instalación y evaluación";
+    private static final String EDICION_INGLES_2026 = CURSO_INGLES + " - 26";
 
     public void cargarDatosTotales() throws Exception {
         Fabrica fabrica = Fabrica.getInstance();
@@ -105,28 +134,28 @@ public class CargadorDatosPrueba {
         controlador.altaUsuario("costas", "Gerardo", "Costas", "gcostas@gmail.com",
                 LocalDate.of(1983, 11, 15), IMAGEN_ESTUDIANTE, null, PASSWORD_PRUEBA);
         controlador.altaUsuario("roro", "Rodrigo", "Cotelo", "rcotelo@yahoo.com",
-                LocalDate.of(1975, 8, 2), IMAGEN_ESTUDIANTE, null, PASSWORD_PRUEBA);
+            LocalDate.of(1975, 8, 2), IMAGEN_USUARIO_RORO, null, PASSWORD_PRUEBA);
         controlador.altaUsuario("chechi", "Cecilia", "Garrido", "cgarrido@hotmail.com",
-                LocalDate.of(1987, 9, 12), IMAGEN_ESTUDIANTE, null, PASSWORD_PRUEBA);
+            LocalDate.of(1987, 9, 12), IMAGEN_USUARIO_CHECHI, null, PASSWORD_PRUEBA);
         controlador.altaUsuario("jeffw", "Jeff", "Williams", "jwilliams@gmail.com",
-                LocalDate.of(1964, 11, 27), IMAGEN_ESTUDIANTE, null, PASSWORD_PRUEBA);
+            LocalDate.of(1964, 11, 27), IMAGEN_USUARIO_JEFFW, null, PASSWORD_PRUEBA);
         controlador.altaUsuario("weiss", "Adrian", "Weiss", "aweiss@hotmail.com",
                 LocalDate.of(1978, 12, 23), IMAGEN_ESTUDIANTE, null, PASSWORD_PRUEBA);
-        altaDocente(controlador, "heisenberg", "Walter", "White", "heisenberg@gmail.com", LocalDate.of(1956, 3, 7), "INCO");
-        altaDocente(controlador, "benkenobi", "Obi-Wan", "Kenobi", "benKenobi@gmail.com", LocalDate.of(1914, 4, 2), "INCO");
-        altaDocente(controlador, "waston", "Emma", "Watson", "e.watson@gmail.com", LocalDate.of(1990, 4, 15), "INCO");
-        altaDocente(controlador, "house", "Gregory", "House", "greghouse@gmail.com", LocalDate.of(1959, 5, 15), "Eléctrica");
-        altaDocente(controlador, "timmy", "Tim", "Cook", "tim.cook@apple.com", LocalDate.of(1960, 11, 1), "IMERL");
-        altaDocente(controlador, "danny", "Daniel", "Riccio", "dan.riccio@gmail.com", LocalDate.of(1963, 7, 5), "IMERL");
-        altaDocente(controlador, "phils", "Philip", "Schiller", "schiller@gmail.com", LocalDate.of(1961, 10, 7), "IMPII");
-        altaDocente(controlador, "bruces", "Bruce", "Sewell", "sewell@gmail.com", LocalDate.of(1959, 12, 3), "DISI");
-        altaDocente(controlador, "adri", "Adriana", "García", "agarcia@gmail.com", LocalDate.of(1978, 7, 28), "DISI");
+        altaDocente(controlador, "heisenberg", "Walter", "White", "heisenberg@gmail.com", LocalDate.of(1956, 3, 7), "INCO", IMAGEN_USUARIO_HEISENBERG);
+        altaDocente(controlador, "benkenobi", "Obi-Wan", "Kenobi", "benKenobi@gmail.com", LocalDate.of(1914, 4, 2), "INCO", IMAGEN_USUARIO_BENKENOBI);
+        altaDocente(controlador, "waston", "Emma", "Watson", "e.watson@gmail.com", LocalDate.of(1990, 4, 15), "INCO", IMAGEN_USUARIO_WASTON);
+        altaDocente(controlador, "house", "Gregory", "House", "greghouse@gmail.com", LocalDate.of(1959, 5, 15), "Eléctrica", IMAGEN_USUARIO_HOUSE);
+        altaDocente(controlador, "timmy", "Tim", "Cook", "tim.cook@apple.com", LocalDate.of(1960, 11, 1), "IMERL", IMAGEN_USUARIO_TIMMY);
+        altaDocente(controlador, "danny", "Daniel", "Riccio", "dan.riccio@gmail.com", LocalDate.of(1963, 7, 5), "IMERL", IMAGEN_DOCENTE);
+        altaDocente(controlador, "phils", "Philip", "Schiller", "schiller@gmail.com", LocalDate.of(1961, 10, 7), "IMPII", IMAGEN_DOCENTE);
+        altaDocente(controlador, "bruces", "Bruce", "Sewell", "sewell@gmail.com", LocalDate.of(1959, 12, 3), "DISI", IMAGEN_DOCENTE);
+        altaDocente(controlador, "adri", "Adriana", "García", "agarcia@gmail.com", LocalDate.of(1978, 7, 28), "DISI", IMAGEN_DOCENTE);
     }
 
     private void altaDocente(IControladorUsuario controlador, String nickname, String nombre, String apellido,
-            String correo, LocalDate nacimiento, String instituto) throws Exception {
+            String correo, LocalDate nacimiento, String instituto, String imagen) throws Exception {
         controlador.altaUsuarioConInstitutos(nickname, nombre, apellido, correo, nacimiento,
-                IMAGEN_DOCENTE, List.of(instituto), PASSWORD_PRUEBA);
+                imagen, List.of(instituto), PASSWORD_PRUEBA);
     }
 
     private void cargarSeguimientos(IControladorUsuario controlador) throws Exception {
@@ -161,8 +190,8 @@ public class CargadorDatosPrueba {
         String c5 = "Inclusión Energética";
         String c6 = "Flor del Ceibo";
         String c7 = "Taller de robótica educativa";
-        String c8 = "Participación en investigación sobre el empleo del juego Komikan";
-        String c9 = "Herramientas de apoyo a la enseñanza de inglés";
+        String c8 = CURSO_KOMIKAN;
+        String c9 = CURSO_INGLES;
         String c10 = "MicroBit";
 
         controlador.altaCurso("IMERL", c1,
@@ -180,7 +209,7 @@ public class CargadorDatosPrueba {
                 + "para personas en situación de discapacidad motriz a partir de bicicletas abandonadas, se propuso "
                 + "diseñar otras herramientas para fomentar la accesibilidad.", 10, 60, 4,
                 "https://eva.fing.edu.uy/course/view.php?id=783#section-2", LocalDate.of(2024, 6, 25),
-                List.of(c1), List.of("Social"), IMAGEN_CURSO);
+                List.of(c1), List.of("Social"), IMAGEN_CURSO_DALAVUELTA);
         controlador.altaCurso("IMPII", c4,
                 "El proyecto tiene como objetivo desarrollar intervenciones curriculares en pequeños emprendimientos "
                 + "productivos de diferentes sectores de la industria nacional. La metodología de trabajo permite "
@@ -196,13 +225,13 @@ public class CargadorDatosPrueba {
                 + "son: por un lado el bajo costo de los materiales y por otro la fácil construcción de forma de poder "
                 + "construirlos ellos mismos.", 6, 45, 3,
                 "https://eva.fing.edu.uy/course/view.php?id=783#section-2", LocalDate.of(2026, 2, 1),
-                List.of(), List.of("Industrial"), IMAGEN_CURSO);
+                List.of(), List.of("Industrial"), IMAGEN_CURSO_INCLUSION);
         controlador.altaCurso("DISI", c6,
                 "Flor de Ceibo es un proyecto central de la Universidad de la República, que tiene misión por "
                 + "movilizar la participación de estudiantes universitarios en diversas tareas vinculadas con la puesta "
                 + "en funcionamiento del Plan Ceibal en el territorio nacional.", 15, 150, 10,
                 "http://www.flordeceibo.edu.uy/", LocalDate.of(2008, 7, 27), List.of(),
-                List.of("Educativo", "Interdisciplinario"), IMAGEN_CURSO);
+                List.of("Educativo", "Interdisciplinario"), IMAGEN_CURSO_FLOR_CEIBO);
         controlador.altaCurso("INCO", c7,
                 "La asignatura se organiza en dos etapas. La primer etapa se dicta a través de clases "
                 + "teóricoprácticas, donde se espera además que cada estudiante le dedique horas de estudio. La segunda "
@@ -210,13 +239,14 @@ public class CargadorDatosPrueba {
                 + "experiencia didáctica de inclusión del robot Butiá en el aula, utilizando los conocimientos "
                 + "aprendidos en clase.", 8, 90, 6,
                 "https://eva.fing.edu.uy/course/view.php?id=1187", LocalDate.of(2024, 2, 2), List.of(),
-                List.of("Social", "Educativo"), IMAGEN_CURSO);
+                List.of("Social", "Educativo"), IMAGEN_CURSO_ROBOTICA);
         controlador.altaCurso("INCO", c8,
                 "Se propone desarrollar una aplicación interactiva para tablet Android basada en el juego de tablero "
-            + "Komikan (versión web del juego https://codepen.io/Borborem/full/OvZBvZ/), que incluya los "
-            + "distintos aspectos concernientes al juego, así como a situaciones específicas particulares.", 9, 45, 3,
+                + "Komikan (versión web del juego "
+                + "https://codepen.io/Borborem/full/OvZBvZ/), que incluya los distintos aspectos concernientes "
+                + "al juego, así como a situaciones específicas particulares.", 9, 45, 3,
                 "https://eva.fing.edu.uy/mod/folder/view.php?id=89398", LocalDate.of(2026, 6, 15), List.of(),
-                List.of("Educativo"), IMAGEN_CURSO);
+                List.of("Educativo"), IMAGEN_CURSO_KOMIKAN);
         controlador.altaCurso("INCO", c9,
                 "Se realizarán visitas a escuelas rurales participantes en un proyecto conjunto del grupo PLN y el "
                 + "Programa de Políticas Lingüísticas de ANEP, en el marco del cual se desarrollaron diferentes "
@@ -232,7 +262,7 @@ public class CargadorDatosPrueba {
                 + "brújula, bluetooth y otros sensores. Además, las placas se programan fácilmente con lenguaje tipo "
                 + "scratch y python, por lo que son muy útiles para un primer acercamiento a la temática.", 15, 105, 7,
                 "https://www.fing.edu.uy/noticias/extension/modulo-de-tallerextension-microbit",
-                LocalDate.of(2026, 3, 13), List.of(), List.of("Industrial", "Educativo"), IMAGEN_CURSO);
+                LocalDate.of(2026, 3, 13), List.of(), List.of("Industrial", "Educativo"), IMAGEN_CURSO_MICROBIT);
     }
 
     private void cargarEdiciones(IControladorEdicion controlador) throws Exception {
@@ -245,8 +275,8 @@ public class CargadorDatosPrueba {
         altaEdicion(controlador, "Taller de robótica educativa", "Taller de robótica educativa - 2024", "2024-03-10", "2024-05-10", 10, "2024-02-15", "heisenberg");
         altaEdicion(controlador, "Taller de robótica educativa", "Taller de robótica educativa - 2026", "2026-03-10", "2026-05-10", 10, "2026-02-15", "heisenberg", "benkenobi");
         altaEdicion(controlador, "Taller de robótica educativa", "Taller de robótica educativa - 2026-2", "2026-09-10", "2026-11-08", 20, "2026-08-15", "benkenobi", "waston");
-        altaEdicion(controlador, "Participación en investigación sobre el empleo del juego Komikan", "Participación en investigación sobre el empleo del juego Komikan - 2026", "2026-07-29", "2026-10-07", 5, "2026-07-10", "waston");
-        altaEdicion(controlador, "Herramientas de apoyo a la enseñanza de inglés", "Herramientas de apoyo a la enseñanza de inglés - 26", "2026-09-15", "2026-12-15", 5, "2026-06-02", "heisenberg");
+        altaEdicion(controlador, CURSO_KOMIKAN, EDICION_KOMIKAN_2026, "2026-07-29", "2026-10-07", 5, "2026-07-10", "waston");
+        altaEdicion(controlador, CURSO_INGLES, EDICION_INGLES_2026, "2026-09-15", "2026-12-15", 5, "2026-06-02", "heisenberg");
         altaEdicion(controlador, "MicroBit", "MicroBit - 2026", "2026-08-12", "2026-12-05", 30, "2026-07-02", "house");
         altaEdicion(controlador, "Talleres plenarios", "Talleres plenarios - 2026", "2026-03-10", "2026-03-30", -1, "2026-03-02", "timmy", "danny");
         altaEdicion(controlador, "Seminarios de Resolución de Problemas", "Seminarios de Resolución de Problemas - 2026", "2026-09-10", "2026-10-20", -1, "2026-07-12", "timmy");
@@ -255,7 +285,20 @@ public class CargadorDatosPrueba {
     private void altaEdicion(IControladorEdicion controlador, String curso, String nombre, String inicio,
             String fin, int cupo, String publicacion, String... docentes) throws Exception {
         controlador.altaEdicionCurso(curso, new DTEdicionCurso(nombre, LocalDate.parse(inicio), LocalDate.parse(fin),
-                cupo, cupo, LocalDate.parse(publicacion), List.of(docentes), IMAGEN_EDICION));
+                cupo, cupo, LocalDate.parse(publicacion), List.of(docentes), imagenEdicion(nombre)));
+    }
+
+    private static String imagenEdicion(String nombre) {
+        return switch (nombre) {
+            case "Flor del Ceibo - 2010" -> IMAGEN_EDICION_FLOR_2010;
+            case "Flor del Ceibo - 2012" -> IMAGEN_EDICION_FLOR_2012;
+            case "Flor del Ceibo - 2025" -> IMAGEN_EDICION_FLOR_2025;
+            case "Dalavuelta - 2025" -> IMAGEN_EDICION_DALAVUELTA_2025;
+            case "Taller de robótica educativa - 2024" -> IMAGEN_EDICION_ROBOTICA_2024;
+            case "Taller de robótica educativa - 2026" -> IMAGEN_EDICION_ROBOTICA_2026_1;
+            case "Taller de robótica educativa - 2026-2" -> IMAGEN_EDICION_ROBOTICA_2026_2;
+            default -> IMAGEN_EDICION;
+        };
     }
 
     private void cargarInscripcionesEdiciones(IControladorEdicion controlador) throws Exception {
@@ -279,7 +322,7 @@ public class CargadorDatosPrueba {
         inscribir(controlador, "weiss", "Inclusión Energética - 2026", "2026-02-25", EstadoInscripcion.RECHAZADA, "phils");
         inscribir(controlador, "chechi", "Inclusión Energética - 2026", "2026-02-28", EstadoInscripcion.ACEPTADA, "phils");
         inscribir(controlador, "eleven11", "Inclusión Energética - 2026", "2026-03-03", EstadoInscripcion.RECHAZADA, "phils");
-        inscribir(controlador, "weiss", "Taller de robótica educativa - 2024", "2017-02-18", EstadoInscripcion.RECHAZADA, "heisenberg");
+        inscribir(controlador, "weiss", "Taller de robótica educativa - 2024", "2024-02-18", EstadoInscripcion.RECHAZADA, "heisenberg");
         inscribir(controlador, "roro", "Taller de robótica educativa - 2024", "2024-02-20", EstadoInscripcion.RECHAZADA, "heisenberg");
         inscribir(controlador, "eleven11", "Taller de robótica educativa - 2024", "2024-03-03", EstadoInscripcion.ACEPTADA, "heisenberg");
         inscribir(controlador, "chechi", "Taller de robótica educativa - 2024", "2024-03-05", EstadoInscripcion.ACEPTADA, "heisenberg");
@@ -289,12 +332,12 @@ public class CargadorDatosPrueba {
         inscribir(controlador, "weiss", "Taller de robótica educativa - 2026-2", "2026-08-18", EstadoInscripcion.INSCRIPTO, "benkenobi");
         inscribir(controlador, "chechi", "Taller de robótica educativa - 2026-2", "2026-08-22", EstadoInscripcion.INSCRIPTO, "benkenobi");
         inscribir(controlador, "roro", "Taller de robótica educativa - 2026-2", "2026-09-03", EstadoInscripcion.INSCRIPTO, "benkenobi");
-        inscribir(controlador, "chechi", "Participación en investigación sobre el empleo del juego Komikan - 2026", "2026-07-13", EstadoInscripcion.ACEPTADA, "waston");
-        inscribir(controlador, "weiss", "Participación en investigación sobre el empleo del juego Komikan - 2026", "2026-07-20", EstadoInscripcion.ACEPTADA, "waston");
-        inscribir(controlador, "roro", "Participación en investigación sobre el empleo del juego Komikan - 2026", "2026-07-22", EstadoInscripcion.ACEPTADA, "waston");
-        inscribir(controlador, "weiss", "Herramientas de apoyo a la enseñanza de inglés - 26", "2026-06-04", EstadoInscripcion.INSCRIPTO, "heisenberg");
-        inscribir(controlador, "eleven11", "Herramientas de apoyo a la enseñanza de inglés - 26", "2026-07-18", EstadoInscripcion.INSCRIPTO, "heisenberg");
-        inscribir(controlador, "jeffw", "Herramientas de apoyo a la enseñanza de inglés - 26", "2026-08-20", EstadoInscripcion.INSCRIPTO, "heisenberg");
+        inscribir(controlador, "chechi", EDICION_KOMIKAN_2026, "2026-07-13", EstadoInscripcion.ACEPTADA, "waston");
+        inscribir(controlador, "weiss", EDICION_KOMIKAN_2026, "2026-07-20", EstadoInscripcion.ACEPTADA, "waston");
+        inscribir(controlador, "roro", EDICION_KOMIKAN_2026, "2026-07-22", EstadoInscripcion.ACEPTADA, "waston");
+        inscribir(controlador, "weiss", EDICION_INGLES_2026, "2026-06-04", EstadoInscripcion.INSCRIPTO, "heisenberg");
+        inscribir(controlador, "eleven11", EDICION_INGLES_2026, "2026-07-18", EstadoInscripcion.INSCRIPTO, "heisenberg");
+        inscribir(controlador, "jeffw", EDICION_INGLES_2026, "2026-08-20", EstadoInscripcion.INSCRIPTO, "heisenberg");
         inscribir(controlador, "chechi", "MicroBit - 2026", "2026-07-12", EstadoInscripcion.INSCRIPTO, "house");
         inscribir(controlador, "roro", "MicroBit - 2026", "2026-07-14", EstadoInscripcion.INSCRIPTO, "house");
         inscribir(controlador, "eleven11", "MicroBit - 2026", "2026-07-25", EstadoInscripcion.INSCRIPTO, "house");
@@ -319,16 +362,16 @@ public class CargadorDatosPrueba {
     private void cargarProgramas(IControladorProgramaFormacion controlador) throws Exception {
         LocalDate fechaAlta = LocalDate.of(2026, 1, 1);
         controlador.crearProgramaFormacion("phils", "EFI Ingeniería Mecánica", "Programa mecánica",
-                LocalDate.of(2026, 5, 1), LocalDate.of(2026, 10, 31), fechaAlta, IMAGEN_PROGRAMA);
+                LocalDate.of(2026, 5, 1), LocalDate.of(2026, 10, 31), fechaAlta, IMAGEN_PROGRAMA_EFI_MECANICA);
         controlador.crearProgramaFormacion("timmy", "Formación integral", "Programa varios institutos",
-                LocalDate.of(2026, 7, 15), LocalDate.of(2027, 1, 1), fechaAlta, IMAGEN_PROGRAMA);
+                LocalDate.of(2026, 7, 15), LocalDate.of(2027, 1, 1), fechaAlta, IMAGEN_PROGRAMA_FORMACION_INTEGRAL);
         controlador.crearProgramaFormacion("adri", "EFI Robótica", "Programa robótica",
-                LocalDate.of(2026, 9, 3), LocalDate.of(2026, 11, 18), fechaAlta, IMAGEN_PROGRAMA);
+                LocalDate.of(2026, 9, 3), LocalDate.of(2026, 11, 18), fechaAlta, IMAGEN_PROGRAMA_EFI_ROBOTICA);
         agregarCursos(controlador, "EFI Ingeniería Mecánica",
                 "Dalavuelta", "Extensionismo Industrial", "Inclusión Energética");
         agregarCursos(controlador, "Formación integral",
                 "Seminarios de Resolución de Problemas", "Extensionismo Industrial", "Flor del Ceibo",
-                "Participación en investigación sobre el empleo del juego Komikan");
+                CURSO_KOMIKAN);
         agregarCursos(controlador, "EFI Robótica", "Taller de robótica educativa", "MicroBit");
     }
 

@@ -14,6 +14,7 @@
     const filtro = contenedor.querySelector("[data-search-filter]");
     const ordenarPor = contenedor.querySelector("[data-search-sort]");
     const direccionBusqueda = contenedor.querySelector("[data-search-direction]");
+    const opcionesOrden = contenedor.querySelector("[data-search-options]");
     const urlBusqueda = contenedor.dataset.searchUrl;
     const urlSeguirUsuario = contenedor.dataset.followUrl;
     const urlDejarDeSeguirUsuario = contenedor.dataset.unfollowUrl;
@@ -473,6 +474,7 @@
     const buscar = async ({ permitirVacio = false } = {}) => {
         const consulta = entrada.value.trim();
         if (!consulta && !permitirVacio) {
+            opcionesOrden.hidden = true;
             if (solicitud) {
                 solicitud.abort();
             }
@@ -487,6 +489,7 @@
             return;
         }
         if (consulta && consulta.length < 2) {
+            opcionesOrden.hidden = true;
             if (solicitud) {
                 solicitud.abort();
                 solicitud = null;
@@ -506,6 +509,7 @@
             estado.textContent = "La búsqueda no puede superar los 100 caracteres.";
             return;
         }
+        opcionesOrden.hidden = false;
         actualizarDireccion();
         if (resultadosInicio) {
             resultadosInicio.hidden = false;
@@ -582,10 +586,10 @@
     };
 
     entrada.addEventListener("input", () => {
-        // Espera brevemente entre teclas para evitar enviar una petición por cada carácter escrito.
+        // Espera a que termine la escritura para evitar búsquedas completas por cada tecla.
         window.clearTimeout(temporizador);
         actualizarDireccion();
-        temporizador = window.setTimeout(buscar, 100);
+        temporizador = window.setTimeout(buscar, 300);
     });
 
     filtro?.addEventListener("change", () => {

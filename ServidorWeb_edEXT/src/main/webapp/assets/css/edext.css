@@ -73,6 +73,10 @@ body {
     margin-top: 0.4rem;
 }
 
+.global-search-options[hidden] {
+    display: none;
+}
+
 .global-search-options .form-select {
     min-width: 0;
     border-color: #dee2e6;

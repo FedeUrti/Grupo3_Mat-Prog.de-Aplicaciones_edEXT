@@ -92,8 +92,17 @@ public class ImagenCursoServlet extends HttpServlet {
     }
 
     private static String obtenerRecursoPredeterminado(String nombre) {
+        String prefijoRecursos = "Presentacion/Recursos/";
+        String rutaNormalizada = nombre.replace('\\', '/');
+        if (rutaNormalizada.startsWith(prefijoRecursos)) {
+            rutaNormalizada = rutaNormalizada.substring(prefijoRecursos.length());
+        }
+        if (rutaNormalizada.matches("datos_prueba/(usuario|curso|edicion|programa)_[a-z0-9_-]+\\.(png|jpg|jpeg|webp)")) {
+            return prefijoRecursos + rutaNormalizada;
+        }
+
         // Aceptar ruta antigua del modelo y el nombre plano, pero solo para archivos conocidos.
-        String archivo = nombre.substring(nombre.lastIndexOf('/') + 1);
+        String archivo = rutaNormalizada.substring(rutaNormalizada.lastIndexOf('/') + 1);
         switch (archivo) {
             case "imagen_predeterminada_curso_1.png":
             case "imagen_predeterminada_curso_2.png":
@@ -113,6 +122,6 @@ public class ImagenCursoServlet extends HttpServlet {
     private static String tipoImagen(String recurso) {
         String recursoNormalizado = recurso.toLowerCase(java.util.Locale.ROOT);
         return recursoNormalizado.endsWith(".jpg") || recursoNormalizado.endsWith(".jpeg")
-                ? "image/jpeg" : "image/png";
+            ? "image/jpeg" : recursoNormalizado.endsWith(".webp") ? "image/webp" : "image/png";
     }
 }

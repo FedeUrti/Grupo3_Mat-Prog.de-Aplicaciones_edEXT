@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261015-1"/>
+        <c:param name="v" value="20261015-2"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -155,11 +155,19 @@
                         <c:choose>
                             <c:when test="${yaInscripto}">
                                 <div class="card border-warning bg-light p-3 mb-4">
-                                    <h3 class="h6 fw-bold text-warning-emphasis mb-2">
-                                        <i class="bi bi-info-circle me-1"></i> Ya estás inscripto a esta edición
-                                    </h3>
+                                    <h3 class="h6 fw-bold text-warning-emphasis mb-2">Estado de tu inscripción</h3>
                                     <p class="small text-muted mb-0">
-                                        Actualmente te encontrás registrado en la edición <strong><c:out value="${edicionVigente.nombre}"/></strong>.
+                                        <c:choose>
+                                            <c:when test="${estadoInscripcion eq 'INSCRIPTO'}">
+                                                Ya estás inscripto a <strong><c:out value="${edicionVigente.nombre}"/></strong>; tu solicitud está pendiente de aceptación.
+                                            </c:when>
+                                            <c:when test="${estadoInscripcion eq 'ACEPTADA'}">
+                                                Ya estás inscripto a <strong><c:out value="${edicionVigente.nombre}"/></strong> y tu inscripción fue aceptada.
+                                            </c:when>
+                                            <c:when test="${estadoInscripcion eq 'RECHAZADA'}">
+                                                Ya estás inscripto a <strong><c:out value="${edicionVigente.nombre}"/></strong>, pero tu inscripción fue rechazada.
+                                            </c:when>
+                                        </c:choose>
                                     </p>
                                 </div>
                                 <a href="inscripcion-edicion" class="btn btn-outline-secondary">
