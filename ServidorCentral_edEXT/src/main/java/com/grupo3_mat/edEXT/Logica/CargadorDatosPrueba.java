@@ -160,7 +160,7 @@ public class CargadorDatosPrueba {
 
     private void cargarSeguimientos(IControladorUsuario controlador) throws Exception {
         seguir(controlador, "eleven11", "roro", "heisenberg", "waston");
-        seguir(controlador, "costas", "chechi", "jeffw", "benkenobi", "danny", "phils", "adri");
+        seguir(controlador, "costas", "chechi", "jeffw", "benkenobi", "danny", "phils");
         seguir(controlador, "roro", "costas", "weiss");
         seguir(controlador, "chechi", "eleven11", "jeffw", "house");
         seguir(controlador, "jeffw", "eleven11");
@@ -302,11 +302,11 @@ public class CargadorDatosPrueba {
     }
 
     private void cargarInscripcionesEdiciones(IControladorEdicion controlador) throws Exception {
-        inscribir(controlador, "eleven11", "Flor del Ceibo - 2010", "2017-02-20", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "chechi", "Flor del Ceibo - 2010", "2017-02-25", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "costas", "Flor del Ceibo - 2012", "2019-07-12", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "roro", "Flor del Ceibo - 2012", "2019-07-15", EstadoInscripcion.RECHAZADA, "bruces");
-        inscribir(controlador, "weiss", "Flor del Ceibo - 2012", "2019-07-30", EstadoInscripcion.ACEPTADA, "bruces");
+        inscribir(controlador, "eleven11", "Flor del Ceibo - 2010", "2010-02-20", EstadoInscripcion.ACEPTADA, "bruces");
+        inscribir(controlador, "chechi", "Flor del Ceibo - 2010", "2010-02-25", EstadoInscripcion.ACEPTADA, "bruces");
+        inscribir(controlador, "costas", "Flor del Ceibo - 2012", "2012-07-12", EstadoInscripcion.ACEPTADA, "bruces");
+        inscribir(controlador, "roro", "Flor del Ceibo - 2012", "2012-07-15", EstadoInscripcion.RECHAZADA, "bruces");
+        inscribir(controlador, "weiss", "Flor del Ceibo - 2012", "2012-07-30", EstadoInscripcion.ACEPTADA, "bruces");
         inscribir(controlador, "roro", "Flor del Ceibo - 2025", "2025-03-10", EstadoInscripcion.ACEPTADA, "bruces");
         inscribir(controlador, "jeffw", "Flor del Ceibo - 2025", "2025-03-15", EstadoInscripcion.ACEPTADA, "bruces");
         inscribir(controlador, "chechi", "Dalavuelta - 2025", "2024-07-25", EstadoInscripcion.ACEPTADA, "phils");
