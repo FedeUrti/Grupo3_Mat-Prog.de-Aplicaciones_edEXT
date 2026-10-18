@@ -102,6 +102,10 @@ public class ManejadorEdicion {
             em.getTransaction().begin();
             EdicionCurso edicion = em.find(EdicionCurso.class, nombre);
             if (edicion != null) {
+                Curso curso = edicion.getCurso();
+                if (curso != null && curso.getEdiciones() != null) {
+                    curso.getEdiciones().remove(edicion);
+                }
                 em.remove(edicion);
             }
             em.getTransaction().commit();

@@ -8,6 +8,8 @@ import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
 
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
+import com.grupo3_mat.edEXT.Logica.Clases.Categoria;
+import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
@@ -17,6 +19,10 @@ import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.DataTypes.CriterioOrdenInscripciones;
 import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
+import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorEdicion;
+import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCategoria;
+import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorUsuario;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -122,6 +128,21 @@ public class ControladoresTest {
         assertTrue(ctrlUsuario.iniciarSesion("estudiante1", "clave-estudiante1"));
         assertTrue(ctrlUsuario.iniciarSesion("maria@test.com", "clave-docente1"));
         assertThrows(Exception.class, () -> ctrlUsuario.iniciarSesion("estudiante1", "incorrecta"));
+        assertThrows(Exception.class, () -> ctrlUsuario.iniciarSesion(" ", "clave"));
+        assertThrows(Exception.class, () -> ctrlUsuario.iniciarSesion("noExiste", "clave"));
+        assertTrue(ctrlUsuario.listarDocentes().containsAll(List.of("docente1", "docenteMulti")));
+        assertTrue(ManejadorUsuario.getInstancia().getDocentes().stream()
+            .anyMatch(docente -> docente.getNickname().equals("docente1")));
+        assertTrue(ManejadorUsuario.getInstancia().getEstudiantes().stream()
+            .anyMatch(estudiante -> estudiante.getNickname().equals("estudiante1")));
+        assertNull(ManejadorUsuario.getInstancia().buscarUsuarioPorCorreo("ausente@test.com"));
+        assertThrows(Exception.class, () -> ctrlUsuario.seguirUsuario("estudiante1", "estudiante1"));
+        assertThrows(Exception.class, () -> ctrlUsuario.seguirUsuario("estudiante1", "noExiste"));
+        ctrlUsuario.seguirUsuario("estudiante1", "docente1");
+        assertThrows(Exception.class, () -> ctrlUsuario.seguirUsuario("estudiante1", "docente1"));
+        ctrlUsuario.dejarDeSeguirUsuario("estudiante1", "docente1");
+        assertThrows(RuntimeException.class, () -> ctrlUsuario.dejarDeSeguirUsuario("estudiante1", "docente1"));
+        assertThrows(RuntimeException.class, () -> ctrlUsuario.dejarDeSeguirUsuario("estudiante1", "noExiste"));
 
         // Modificar Datos Usuario
         ctrlUsuario.modificarDatosUsuario("estudiante1", "Juan Carlos", "Perez Gomez", LocalDate.of(2000, 1, 1), "/img/est2.png");
@@ -194,6 +215,11 @@ public class ControladoresTest {
         assertTrue(dtProg2.getPrevias().contains("Prog1"));
         assertTrue(dtProg2.getCategorias().contains("Educativo"));
         assertThrows(Exception.class, () -> ctrlCategoria.altaCategoria("Educativo"));
+        assertTrue(ctrlCurso.listarCursosPorCategoria("Educativo").contains("Prog2"));
+        ctrlCategoria.modificarCategoria("Educativo", "Educativo actualizado");
+        assertTrue(ctrlCurso.consultarCurso("Prog2").getCategorias().contains("Educativo actualizado"));
+        assertThrows(Exception.class, () -> ManejadorCategoria.getInstancia()
+            .agregarCategoria(new Categoria("Educativo actualizado")));
     }
 
     @Test
@@ -284,6 +310,8 @@ public class ControladoresTest {
             ctrlEdicion.listarResultadosInscripcionesEstudiante("estudiante1");
         assertEquals(2, resultados.size());
         assertTrue(resultados.stream().anyMatch(inscripcion -> inscripcion.getEstado() == EstadoInscripcion.RECHAZADA));
+        DtEstudiante estudianteConInscripciones = (DtEstudiante) ctrlUsuario.obtenerInfoUsuario("estudiante1");
+        assertEquals(2, estudianteConInscripciones.getInscripcionesEdicion().size());
 
         ctrlUsuario.altaUsuario("docenteNoAsignado", "Otro", "Docente", "otro-docente@test.com", hoy, "", "INCO", "clave-docente-no-asignado");
         assertThrows(Exception.class, () -> ctrlEdicion.listarInscripcionesAEdicion(
@@ -298,7 +326,7 @@ public class ControladoresTest {
     @Test
     @Order(7)
     @DisplayName("Edicion: Excepciones")
-    void testEdicionExcepciones() {
+    void testEdicionExcepciones() throws Exception {
         DTEdicionCurso dtEd = new DTEdicionCurso("Prog1-2026", LocalDate.now(), LocalDate.now(),30, 10, LocalDate.now(), null);
 
         // Edición duplicada
@@ -323,6 +351,31 @@ public class ControladoresTest {
         assertThrows(Exception.class, ()
                 -> ctrlEdicion.inscribirEstudianteAEdicion("docente1", "Prog1-2026", LocalDate.now())
         );
+
+        ManejadorEdicion manejadorEdicion = ManejadorEdicion.getInstancia();
+        assertTrue(manejadorEdicion.buscarEdicionesPorDocente("docente1").stream()
+            .anyMatch(edicion -> edicion.getNombre().equals("Prog1-2026")));
+        assertTrue(manejadorEdicion.listarEdiciones().stream()
+            .anyMatch(edicion -> edicion.getNombre().equals("Prog1-2026")));
+        EdicionCurso edicionAModificar = manejadorEdicion.buscarEdicion("Prog1-2026");
+        manejadorEdicion.modificarEdicion(edicionAModificar);
+        LocalDate hoy = LocalDate.now();
+        String edicionTemporal = "Prog1-2026-Temporal";
+        DTEdicionCurso datosEdicionTemporal = new DTEdicionCurso(
+            edicionTemporal, hoy, hoy.plusDays(1), 2, 2, hoy, null);
+        ctrlEdicion.altaEdicionCurso("Prog1", datosEdicionTemporal);
+        manejadorEdicion.eliminarEdicion(edicionTemporal);
+        assertNull(manejadorEdicion.buscarEdicion(edicionTemporal));
+        manejadorEdicion.eliminarEdicion("EdicionInexistente");
+        EdicionCurso edicionSinCurso = new EdicionCurso(
+            "EdicionSinCurso", hoy, hoy.plusDays(1), 1, hoy, null);
+        manejadorEdicion.agregarEdicion(edicionSinCurso);
+        assertNotNull(manejadorEdicion.buscarEdicion("EdicionSinCurso"));
+        manejadorEdicion.eliminarEdicion("EdicionSinCurso");
+        Curso cursoNoPersistido = new Curso(null, "CursoNoPersistido", "", 1, 1, 1, "", hoy);
+        EdicionCurso edicionConCursoNoPersistido = new EdicionCurso(
+            "EdicionConCursoNoPersistido", hoy, hoy.plusDays(1), 1, hoy, cursoNoPersistido);
+        assertThrows(RuntimeException.class, () -> manejadorEdicion.agregarEdicion(edicionConCursoNoPersistido));
     }
 
     // -------------------------------------------------------------------------
@@ -360,6 +413,38 @@ public class ControladoresTest {
         ctrlPrograma.agregarCursoAPrograma("docente1", "Desarrollo Java", "Prog1");
         DTProgramaFormacion programaConCurso = ctrlPrograma.consultarPrograma("Desarrollo Java");
         assertEquals(List.of("INCO"), programaConCurso.getInstitutos());
+
+        ManejadorProgramaFormacion manejadorPrograma = ManejadorProgramaFormacion.getInstancia();
+        assertTrue(manejadorPrograma.getProgramas().stream()
+            .anyMatch(programa -> programa.getNombre().equals("Desarrollo Java")));
+        ProgramaFormacion entidadPrograma = manejadorPrograma.buscarPrograma("Desarrollo Java");
+        manejadorPrograma.modificarPrograma(entidadPrograma);
+        assertTrue(manejadorPrograma.getProgramas().stream()
+            .anyMatch(programa -> programa.getNicknameDocente().equals("docente1")));
+        assertThrows(IllegalArgumentException.class, () -> manejadorPrograma.agregarPrograma(
+            new ProgramaFormacion("Sin responsable", "", ahora, ahora, ahora, "")));
+
+        assertThrows(Exception.class, () -> ctrlPrograma.agregarCursoAPrograma("Desarrollo Java", "Prog1"));
+        assertThrows(SecurityException.class,
+            () -> ctrlPrograma.agregarCursoAPrograma("estudiante1", "Desarrollo Java", "Dalavuelta"));
+        assertThrows(Exception.class,
+            () -> ctrlPrograma.agregarCursoAPrograma("docente1", "NoExiste", "Prog1"));
+        assertThrows(Exception.class,
+            () -> ctrlPrograma.agregarCursoAPrograma("docente1", "Desarrollo Java", "NoExiste"));
+        assertThrows(IllegalArgumentException.class,
+            () -> ctrlPrograma.agregarCursoAPrograma(" ", "Desarrollo Java", "Prog1"));
+
+        ctrlPrograma.inscribirEstudianteAPrograma("estudiante1", "Desarrollo Java", ahora);
+        assertThrows(Exception.class,
+            () -> ctrlPrograma.inscribirEstudianteAPrograma("estudiante1", "Desarrollo Java", ahora));
+        assertThrows(Exception.class,
+            () -> ctrlPrograma.inscribirEstudianteAPrograma("docente1", "Desarrollo Java", ahora));
+        assertThrows(Exception.class,
+            () -> ctrlPrograma.inscribirEstudianteAPrograma("noExiste", "Desarrollo Java", ahora));
+        assertThrows(Exception.class,
+            () -> ctrlPrograma.inscribirEstudianteAPrograma("estudiante1", "NoExiste", ahora));
+        DtEstudiante estudianteConPrograma = (DtEstudiante) ctrlUsuario.obtenerInfoUsuario("estudiante1");
+        assertTrue(estudianteConPrograma.getProgramasInscripto().contains("Desarrollo Java"));
     }
 
     @Test
@@ -367,6 +452,13 @@ public class ControladoresTest {
     @DisplayName("ProgramaFormacion: Excepciones")
     void testProgramaFormacionExcepciones() {
         LocalDate ahora = LocalDate.now();
+
+        assertThrows(Exception.class, () -> ctrlPrograma.crearProgramaFormacion(
+            "Programa legado", "Descripcion", ahora, ahora, ahora, ""));
+        assertThrows(Exception.class, () -> ctrlPrograma.crearProgramaFormacion(
+            " ", "Programa vacio", "Descripcion", ahora, ahora, ahora, ""));
+        assertThrows(Exception.class, () -> ctrlPrograma.crearProgramaFormacion(
+            "estudiante1", "Programa sin docente", "Descripcion", ahora, ahora, ahora, ""));
 
         // Crear duplicado
         assertThrows(Exception.class, ()

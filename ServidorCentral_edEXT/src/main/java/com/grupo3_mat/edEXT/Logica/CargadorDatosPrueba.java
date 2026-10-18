@@ -13,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class CargadorDatosPrueba {
 
@@ -52,14 +53,38 @@ public class CargadorDatosPrueba {
     private static final String CURSO_INGLES = "Herramientas de apoyo a la enseñanza de inglés. Instalación y evaluación";
     private static final String EDICION_INGLES_2026 = CURSO_INGLES + " - 26";
 
-    public void cargarDatosTotales() throws Exception {
+    private final IControladorInstituto institutos;
+    private final IControladorCategoria categorias;
+    private final IControladorUsuario usuarios;
+    private final IControladorCurso cursos;
+    private final IControladorEdicion ediciones;
+    private final IControladorProgramaFormacion programas;
+    private final Supplier<EntityManager> entityManagerProvider;
+
+    public CargadorDatosPrueba() {
         Fabrica fabrica = Fabrica.getInstance();
-        IControladorInstituto institutos = fabrica.getIControladorInstituto();
-        IControladorCategoria categorias = fabrica.getIControladorCategoria();
-        IControladorUsuario usuarios = fabrica.getIControladorUsuario();
-        IControladorCurso cursos = fabrica.getIControladorCurso();
-        IControladorEdicion ediciones = fabrica.getIControladorEdicion();
-        IControladorProgramaFormacion programas = fabrica.getIControladorProgramaFormacion();
+        this.institutos = fabrica.getIControladorInstituto();
+        this.categorias = fabrica.getIControladorCategoria();
+        this.usuarios = fabrica.getIControladorUsuario();
+        this.cursos = fabrica.getIControladorCurso();
+        this.ediciones = fabrica.getIControladorEdicion();
+        this.programas = fabrica.getIControladorProgramaFormacion();
+        this.entityManagerProvider = () -> Conexion.getInstancia().getEntityManager();
+    }
+
+    CargadorDatosPrueba(IControladorInstituto institutos, IControladorCategoria categorias,
+            IControladorUsuario usuarios, IControladorCurso cursos, IControladorEdicion ediciones,
+            IControladorProgramaFormacion programas, Supplier<EntityManager> entityManagerProvider) {
+        this.institutos = institutos;
+        this.categorias = categorias;
+        this.usuarios = usuarios;
+        this.cursos = cursos;
+        this.ediciones = ediciones;
+        this.programas = programas;
+        this.entityManagerProvider = entityManagerProvider;
+    }
+
+    public void cargarDatosTotales() throws Exception {
         String fase = "limpieza de los datos anteriores";
 
         try {
@@ -93,7 +118,7 @@ public class CargadorDatosPrueba {
     }
 
     private void limpiarDatosEdext() {
-        EntityManager em = Conexion.getInstancia().getEntityManager();
+        EntityManager em = entityManagerProvider.get();
         EntityTransaction transaccion = em.getTransaction();
         List<String> tablasEnOrden = List.of(
                 "Usuario_Seguimiento", "Docente_Instituto", "Docente_Participa_EdicionCurso",
