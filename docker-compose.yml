@@ -1,0 +1,55 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: edext_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: edext_db
+      MYSQL_USER: edext_user
+      MYSQL_PASSWORD: edext_pass
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping --host=127.0.0.1 --user=root --password=$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: edext_phpmyadmin
+    restart: always
+    ports:
+      - "127.0.0.1:8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: tomcat:10.1-jdk21
+    container_name: edext_tomcat
+    ports:
+      - "127.0.0.1:8081:8080"
+    environment:
+      EDEXT_JDBC_URL: "jdbc:mysql://db:3306/edext_db?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true"
+      EDEXT_JDBC_USER: edext_user
+      EDEXT_JDBC_PASSWORD: edext_pass
+      EDEXT_HBM2DDL_AUTO: "update"
+      EDEXT_UPLOAD_DIR: /usr/local/tomcat/uploads
+    volumes:
+      - ./ServidorWeb_edEXT/target/ServidorWeb_edEXT-1.0-SNAPSHOT.war:/usr/local/tomcat/webapps/ROOT.war
+      - course_uploads:/usr/local/tomcat/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  course_uploads:
