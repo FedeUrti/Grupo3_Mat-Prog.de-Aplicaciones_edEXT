@@ -2,6 +2,7 @@ package com.grupo3_mat.edEXT.Logica.Interfaces;
 
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTResultadoEstudio;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,4 +19,5 @@ public interface IControladorProgramaFormacion {
     DtCurso seleccionarCurso(String nombreCurso) throws Exception;
     DTProgramaFormacion consultarPrograma(String nombre) throws Exception;
     void inscribirEstudianteAPrograma(String nickname, String nombrePrograma, LocalDate fechaInscripcion) throws Exception;
+    List<DTResultadoEstudio> consultarResultadosActa(String nicknameEstudiante, String nombrePrograma) throws Exception;
 }

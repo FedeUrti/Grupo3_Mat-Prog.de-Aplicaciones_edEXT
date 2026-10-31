@@ -12,13 +12,18 @@ public interface IControladorEdicion {
     List<String> listarEdicionesPorCurso(String nombreCurso);
     DTEdicionCurso mostrarDetalleEdicion(String nombreEdicion);
     void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion) throws Exception;
+    void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion, String enlaceVideo) throws Exception;
     String obtenerCursoDeEdicion(String nombreEdicion);
     List<String> listarEdicionesDeDocente(String nicknameDocente);
     List<String> listarEdicionesDeEstudiante(String nicknameEstudiante);
     
     // Métodos faltantes para selección de estudiantes
     List<DTInscripcionEdicion> listarInscripcionesAEdicion(String nicknameDocente, String nombreEdicion, CriterioOrdenInscripciones criterio) throws Exception;
+    List<DTInscripcionEdicion> consultarEvaluacionesEdicion(String nicknameDocente, String nombreEdicion) throws Exception;
     List<DTInscripcionEdicion> listarAceptadosAEdicion(String nicknameDocente, String nombreEdicion) throws Exception;
     List<DTInscripcionEdicion> listarResultadosInscripcionesEstudiante(String nicknameEstudiante);
     void cambiarEstadoInscripcion(String nicknameDocente, String nombreEdicion, String nicknameEstudiante, EstadoInscripcion nuevoEstado) throws Exception;
+    void evaluarInscripcion(String nicknameDocente, String nombreEdicion, String nicknameEstudiante, int evaluacion) throws Exception;
+    void cerrarEdicion(String nicknameDocente, String nombreEdicion) throws Exception;
+    void desistirInscripcionEstudiante(String nicknameEstudiante, String nombreEdicion) throws Exception;
 }

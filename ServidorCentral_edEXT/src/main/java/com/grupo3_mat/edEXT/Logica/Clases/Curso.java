@@ -2,11 +2,15 @@ package com.grupo3_mat.edEXT.Logica.Clases;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 @Entity
 @Table(name = "Curso")
@@ -55,6 +59,9 @@ public class Curso implements Serializable {
             fetch = FetchType.EAGER
     )
     private Set<EdicionCurso> ediciones = new HashSet<>();
+
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<ValoracionCurso> valoraciones = new HashSet<>();
 
     @ManyToMany(mappedBy = "cursos", fetch = FetchType.EAGER)
     private Set<ProgramaFormacion> programas = new HashSet<>();
@@ -116,6 +123,11 @@ public class Curso implements Serializable {
     public Set<EdicionCurso> getEdiciones() { return ediciones; }
     public void setEdiciones(Set<EdicionCurso> ediciones) { this.ediciones = ediciones; }
 
+    public Set<ValoracionCurso> getValoraciones() { return valoraciones; }
+    public void setValoraciones(Set<ValoracionCurso> valoraciones) {
+        this.valoraciones = valoraciones != null ? valoraciones : new HashSet<>();
+    }
+
     public Set<ProgramaFormacion> getProgramas() { return programas; }
     public void setProgramas(Set<ProgramaFormacion> programas) { this.programas = programas; }
 
@@ -169,12 +181,63 @@ public class Curso implements Serializable {
         EdicionCurso proximaEdicion = null;
         for (EdicionCurso ed : this.ediciones) {
             LocalDate fechaInicioEd = ed.getFechaInicio();
-            if (fechaInicioEd != null && !fechaInicioEd.isBefore(fechaRef)) {
+            if (!ed.isCerrada() && fechaInicioEd != null && !fechaInicioEd.isBefore(fechaRef)) {
                 if (proximaEdicion == null || fechaInicioEd.isBefore(proximaEdicion.getFechaInicio())) {
                     proximaEdicion = ed;
                 }
             }
         }
         return proximaEdicion;
+    }
+
+    public EdicionCurso obtenerEdicionVigente(LocalDate fechaRef) {
+        if (ediciones == null || ediciones.isEmpty() || fechaRef == null) {
+            return null;
+        }
+        List<EdicionCurso> candidatas = ediciones.stream()
+                .filter(edicion -> edicion != null && !edicion.isCerrada()
+                        && edicion.getFechaInicio() != null && edicion.getFechaFin() != null
+                        && !fechaRef.isAfter(edicion.getFechaFin()))
+                .toList();
+        return candidatas.stream()
+                .filter(edicion -> !fechaRef.isBefore(edicion.getFechaInicio()))
+                .min(java.util.Comparator.comparing(EdicionCurso::getFechaInicio))
+                .orElseGet(() -> candidatas.stream()
+                        .filter(edicion -> fechaRef.isBefore(edicion.getFechaInicio()))
+                        .min(java.util.Comparator.comparing(EdicionCurso::getFechaInicio))
+                        .orElse(null));
+    }
+
+    public BigDecimal obtenerPuntajePromedio() {
+        if (valoraciones == null || valoraciones.isEmpty()) {
+            return BigDecimal.ZERO.setScale(2);
+        }
+        int suma = valoraciones.stream().mapToInt(ValoracionCurso::getPuntaje).sum();
+        return BigDecimal.valueOf(suma)
+                .divide(BigDecimal.valueOf(valoraciones.size()), 2, RoundingMode.HALF_UP);
+    }
+
+    public Map<Integer, Integer> obtenerConteoValoraciones() {
+        Map<Integer, Integer> conteos = new TreeMap<>();
+        for (int puntaje = 1; puntaje <= 5; puntaje++) {
+            conteos.put(puntaje, 0);
+        }
+        if (valoraciones != null) {
+            for (ValoracionCurso valoracion : valoraciones) {
+                conteos.computeIfPresent(valoracion.getPuntaje(), (puntaje, cantidad) -> cantidad + 1);
+            }
+        }
+        return conteos;
+    }
+
+    public void agregarValoracion(ValoracionCurso valoracion) {
+        if (valoracion == null || valoracion.getCurso() == null
+                || !nombre.equals(valoracion.getCurso().getNombre())) {
+            throw new IllegalArgumentException("La valoración debe corresponder a este curso.");
+        }
+        valoraciones.add(valoracion);
+        if (valoracion.getEstudiante() != null) {
+            valoracion.getEstudiante().agregarValoracion(valoracion);
+        }
     }
 }

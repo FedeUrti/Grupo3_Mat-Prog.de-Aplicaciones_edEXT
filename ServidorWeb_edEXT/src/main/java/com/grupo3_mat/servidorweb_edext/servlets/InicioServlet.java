@@ -11,8 +11,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/inicio")
 public class InicioServlet extends HttpServlet {
@@ -54,6 +57,21 @@ public class InicioServlet extends HttpServlet {
                 }
             }
             request.setAttribute("cursos", cursosPortada);
+            Map<String, BigDecimal> promediosValoracion = new HashMap<>();
+            Map<String, Integer> cantidadesValoracion = new HashMap<>();
+            Map<String, Double> estrellasValoracion = new HashMap<>();
+            for (DtCurso curso : cursosPortada) {
+                BigDecimal promedio = cursos.obtenerPuntajePromedioCurso(curso.getNombre());
+                int cantidad = cursos.obtenerConteoValoracionesCurso(curso.getNombre())
+                        .values().stream().mapToInt(Integer::intValue).sum();
+                promediosValoracion.put(curso.getNombre(), promedio);
+                cantidadesValoracion.put(curso.getNombre(), cantidad);
+                estrellasValoracion.put(curso.getNombre(),
+                        Math.round(promedio.doubleValue() * 2.0) / 2.0);
+            }
+            request.setAttribute("promediosValoracion", promediosValoracion);
+            request.setAttribute("cantidadesValoracion", cantidadesValoracion);
+            request.setAttribute("estrellasValoracion", estrellasValoracion);
             request.setAttribute("filtroInstituto", institutoSeleccionado);
             request.setAttribute("filtroCategoria", categoriaSeleccionada);
         } catch (Exception e) {

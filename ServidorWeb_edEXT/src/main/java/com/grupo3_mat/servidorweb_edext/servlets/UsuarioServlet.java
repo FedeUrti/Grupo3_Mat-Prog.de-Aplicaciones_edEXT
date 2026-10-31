@@ -248,6 +248,7 @@ public class UsuarioServlet extends HttpServlet {
         List<String> nombresEdiciones = new ArrayList<>();
         Map<String, String> cursosPorEdicion = new HashMap<>();
         Map<String, String> estadosPorEdicion = new HashMap<>();
+        Map<String, Integer> evaluacionesPorEdicion = new HashMap<>();
 
         if (usuario instanceof DtDocente docente) {
             nombresEdiciones.addAll(docente.getEdicionesAsociadas());
@@ -257,6 +258,11 @@ public class UsuarioServlet extends HttpServlet {
                 nombresEdiciones.add(inscripcion.getNombreEdicion());
                 estadosPorEdicion.put(inscripcion.getNombreEdicion(),
                         inscripcion.getEstado() == null ? "" : inscripcion.getEstado().toString());
+                if (inscripcion.isEdicionCerrada()
+                        && inscripcion.getEstado() == com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion.ACEPTADA
+                        && inscripcion.getEvaluacion() != null) {
+                    evaluacionesPorEdicion.put(inscripcion.getNombreEdicion(), inscripcion.getEvaluacion());
+                }
             }
             request.setAttribute("programasUsuario", estudiante.getProgramasInscripto());
         }
@@ -272,6 +278,7 @@ public class UsuarioServlet extends HttpServlet {
         request.setAttribute("edicionesUsuario", detallesEdiciones);
         request.setAttribute("cursosPorEdicion", cursosPorEdicion);
         request.setAttribute("estadosPorEdicion", estadosPorEdicion);
+        request.setAttribute("evaluacionesPorEdicion", evaluacionesPorEdicion);
 
         List<DTProgramaFormacion> detallesProgramas = new ArrayList<>();
         List<String> nombresProgramas = usuario instanceof DtDocente docente

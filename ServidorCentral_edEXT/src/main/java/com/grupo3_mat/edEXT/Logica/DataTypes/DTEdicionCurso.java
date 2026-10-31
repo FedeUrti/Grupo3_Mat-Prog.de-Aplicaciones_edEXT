@@ -14,10 +14,17 @@ public class DTEdicionCurso {
     private final LocalDate fechaPublicacion;
     private final List<String> docentes;
     private final String imagenPath;
+    private final boolean cerrada;
 
     // Constructor completo de 8 parámetros
     public DTEdicionCurso(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int cupo, 
                            int cupoDisponible, LocalDate fechaPublicacion, List<String> docentes, String imagenPath) {
+        this(nombre, fechaInicio, fechaFin, cupo, cupoDisponible, fechaPublicacion, docentes, imagenPath, false);
+    }
+
+    public DTEdicionCurso(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int cupo,
+            int cupoDisponible, LocalDate fechaPublicacion, List<String> docentes, String imagenPath,
+            boolean cerrada) {
         this.nombre = nombre;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
@@ -26,6 +33,7 @@ public class DTEdicionCurso {
         this.fechaPublicacion = fechaPublicacion;
         this.docentes = (docentes != null) ? docentes : new ArrayList<>();
         this.imagenPath = imagenPath;
+        this.cerrada = cerrada;
     }
 
     // Constructor sobrecargado de 7 parámetros para mantener compatibilidad
@@ -42,4 +50,5 @@ public class DTEdicionCurso {
     public LocalDate getFechaPublicacion() { return fechaPublicacion; }
     public List<String> getDocentes() { return docentes; }
     public String getImagenPath() { return imagenPath; }
+    public boolean isCerrada() { return cerrada; }
 }

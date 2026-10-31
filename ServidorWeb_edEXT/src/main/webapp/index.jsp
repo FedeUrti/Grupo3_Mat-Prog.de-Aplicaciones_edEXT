@@ -81,6 +81,32 @@
                                         <span class="badge text-bg-primary mb-2"><c:out value="${curso.nomInstituto}"/></span>
                                         <h2 class="h5 fw-bold"><c:out value="${curso.nombre}"/></h2>
                                         <p class="card-text text-dark mb-2"><c:out value="${curso.descripcion}"/></p>
+                                        <c:url var="valorarCursoUrl" value="/consulta-curso">
+                                            <c:param name="nombre" value="${curso.nombre}"/>
+                                        </c:url>
+                                        <a class="d-flex flex-wrap align-items-center gap-2 mb-2 small text-decoration-none"
+                                           href="<c:out value='${valorarCursoUrl}'/>#valoraciones"
+                                           aria-label="Valoración: ${promediosValoracion[curso.nombre]} de 5, ${cantidadesValoracion[curso.nombre]} votos">
+                                            <strong><c:out value="${promediosValoracion[curso.nombre]}"/></strong>
+                                            <span class="d-inline-flex gap-1" aria-hidden="true">
+                                                <c:forEach begin="1" end="5" var="estrella">
+                                                    <c:choose>
+                                                        <c:when test="${estrella le estrellasValoracion[curso.nombre]}">
+                                                            <i class="bi bi-star-fill text-warning"></i>
+                                                        </c:when>
+                                                        <c:when test="${estrellasValoracion[curso.nombre] ge estrella - 0.5}">
+                                                            <i class="bi bi-star-half text-warning"></i>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <i class="bi bi-star text-secondary"></i>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </c:forEach>
+                                            </span>
+                                            <span class="small text-muted">
+                                                (<c:out value="${cantidadesValoracion[curso.nombre]}"/> votos)
+                                            </span>
+                                        </a>
                                         <c:url var="detalleUrl" value="/consulta-curso">
                                             <c:param name="nombre" value="${curso.nombre}"/>
                                         </c:url>

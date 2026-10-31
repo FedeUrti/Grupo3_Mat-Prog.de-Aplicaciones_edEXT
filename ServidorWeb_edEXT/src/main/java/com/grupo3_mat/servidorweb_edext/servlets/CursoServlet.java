@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.file.Files;
@@ -75,6 +76,26 @@ public class CursoServlet extends HttpServlet {
             request.setAttribute("categorias", categorias.listarCategorias());
             DtCurso curso = cursos.consultarCurso(nombre);
             request.setAttribute("curso", curso);
+            try {
+                cargarValoraciones(request, nombre);
+            } catch (Exception e) {
+                getServletContext().log("No se pudieron cargar las valoraciones del curso " + nombre + ".", e);
+                request.setAttribute("errorValoracion",
+                        "No se pudieron cargar las valoraciones. Intentá nuevamente.");
+            }
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                Object mensaje = session.getAttribute("mensajeValoracion");
+                Object error = session.getAttribute("errorValoracion");
+                if (mensaje != null) {
+                    request.setAttribute("mensajeValoracion", mensaje);
+                    session.removeAttribute("mensajeValoracion");
+                }
+                if (error != null) {
+                    request.setAttribute("errorValoracion", error);
+                    session.removeAttribute("errorValoracion");
+                }
+            }
             List<DTProgramaFormacion> programasCurso = new ArrayList<>();
             for (String nombrePrograma : curso.getProgramas()) {
                 DTProgramaFormacion programa = programas.consultarPrograma(nombrePrograma);
@@ -113,6 +134,27 @@ public class CursoServlet extends HttpServlet {
                     ? "No se encontró el curso solicitado."
                     : "No se pudo consultar el curso. Verificá la conexión con la base de datos.");
             request.getRequestDispatcher("/consulta-curso.jsp").forward(request, response);
+        }
+    }
+
+    private void cargarValoraciones(HttpServletRequest request, String nombreCurso) throws Exception {
+        BigDecimal promedio = cursos.obtenerPuntajePromedioCurso(nombreCurso);
+        Map<Integer, Integer> conteos = cursos.obtenerConteoValoracionesCurso(nombreCurso);
+        int cantidad = conteos.values().stream().mapToInt(Integer::intValue).sum();
+        double promedioEstrellas = Math.round(promedio.doubleValue() * 2.0) / 2.0;
+        request.setAttribute("promedioValoraciones", promedio);
+        request.setAttribute("cantidadValoraciones", cantidad);
+        request.setAttribute("conteosValoraciones", conteos);
+        request.setAttribute("promedioEstrellas", promedioEstrellas);
+
+        HttpSession session = request.getSession(false);
+        String nickname = session == null ? null : (String) session.getAttribute("usuarioNickname");
+        Object tipoUsuario = session == null ? null : session.getAttribute("usuarioTipo");
+        if (nickname != null && "Estudiante".equals(tipoUsuario)
+                && cursos.listarCursosValorables(nickname).contains(nombreCurso)) {
+            request.setAttribute("puedeValorarCurso", true);
+            request.setAttribute("puntajePropio",
+                    cursos.obtenerValoracionEstudiante(nombreCurso, nickname));
         }
     }
 

@@ -135,7 +135,9 @@ public class ControladorUsuario implements IControladorUsuario {
                 if (inscripcion != null && inscripcion.getEdicion() != null) {
                     inscripcionesEdicion.add(new DTInscripcionEdicion(
                             estudiante.getNickname(), inscripcion.getEdicion().getNombre(),
-                            inscripcion.getFecha(), inscripcion.getEstado(), inscripcion.getPrioridad()
+                            inscripcion.getFecha(), inscripcion.getEstado(), inscripcion.getPrioridad(),
+                            inscripcion.getEnlaceVideo(), inscripcion.getEvaluacion(),
+                            inscripcion.getEdicion().isCerrada()
                     ));
                 }
             }

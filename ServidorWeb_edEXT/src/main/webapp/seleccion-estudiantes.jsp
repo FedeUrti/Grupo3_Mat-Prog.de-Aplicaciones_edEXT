@@ -41,7 +41,7 @@
             </c:choose>
             <p class="text-uppercase fw-bold small text-muted mb-1">Gestión Docente</p>
             <h1 class="page-heading fw-bold mb-1">Selección de Estudiantes</h1>
-            <p class="text-muted mb-0">Seleccioná un instituto y curso para administrar el estado de las inscripciones de sus ediciones vigentes.</p>
+            <p class="text-muted mb-0">Seleccioná un instituto y curso para gestionar las inscripciones y evaluaciones de sus ediciones.</p>
         </div>
     </div>
 
@@ -129,6 +129,9 @@
                                 <span class="badge text-bg-primary mb-1"><c:out value="${cursoSeleccionado}"/></span>
                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                     <h2 class="h4 fw-bold mb-0">Edición: <c:out value="${edicionVigente.nombre}"/></h2>
+                                    <c:if test="${edicionVigente.cerrada}">
+                                        <span class="badge text-bg-dark">Cerrada</span>
+                                    </c:if>
                                     <c:choose>
                                         <c:when test="${edicionVigente.cupo gt 0}">
                                             <span class="badge ${edicionVigente.cupoDisponible gt 0 ? 'text-bg-success' : 'text-bg-danger'}">
@@ -156,7 +159,48 @@
                             </form>
                         </div>
 
+                        <c:if test="${not empty edicionesDelCurso}">
+                            <form action="seleccion-estudiantes" method="get" class="mb-3">
+                                <input type="hidden" name="instituto" value="${filtroInstituto}"/>
+                                <input type="hidden" name="curso" value="${cursoSeleccionado}"/>
+                                <input type="hidden" name="categoria" value="${filtroCategoria}"/>
+                                <input type="hidden" name="criterio" value="${criterioSeleccionado}"/>
+                                <label for="edicion" class="form-label small fw-semibold">Consultar otra edición</label>
+                                <select class="form-select" id="edicion" name="edicion" onchange="this.form.submit()">
+                                    <c:forEach items="${edicionesDelCurso}" var="edicionCurso">
+                                        <option value="<c:out value='${edicionCurso}'/>"
+                                                <c:if test="${edicionCurso eq edicionVigente.nombre}">selected</c:if>>
+                                            <c:out value="${edicionCurso}"/>
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </form>
+                        </c:if>
+
                         <hr>
+
+                        <c:url var="accionEdicionUrl" value="/seleccion-estudiantes">
+                            <c:param name="instituto" value="${filtroInstituto}"/>
+                            <c:param name="curso" value="${cursoSeleccionado}"/>
+                            <c:param name="edicion" value="${edicionVigente.nombre}"/>
+                            <c:param name="criterio" value="${criterioSeleccionado}"/>
+                            <c:param name="categoria" value="${filtroCategoria}"/>
+                        </c:url>
+
+                        <c:if test="${not edicionVigente.cerrada}">
+                            <form action="<c:out value='${accionEdicionUrl}'/>" method="post" class="mb-3 text-end">
+                                <input type="hidden" name="accion" value="cerrar"/>
+                                <input type="hidden" name="edicion" value="<c:out value='${edicionVigente.nombre}'/>"/>
+                                <input type="hidden" name="instituto" value="${filtroInstituto}"/>
+                                <input type="hidden" name="curso" value="${cursoSeleccionado}"/>
+                                <input type="hidden" name="criterio" value="${criterioSeleccionado}"/>
+                                <input type="hidden" name="categoria" value="${filtroCategoria}"/>
+                                <button type="submit" class="btn btn-outline-dark">
+                                    <i class="bi bi-lock me-1" aria-hidden="true"></i>Cerrar edición
+                                </button>
+                                <div class="form-text">Todas las inscripciones aceptadas deben tener evaluación.</div>
+                            </form>
+                        </c:if>
 
                         <!-- Tabla de Estudiantes Inscriptos -->
                         <c:choose>
@@ -168,18 +212,63 @@
                                                 <th>Estudiante</th>
                                                 <th>Fecha</th>
                                                 <th>Prioridad</th>
+                                                <th>Video</th>
                                                 <th>Estado Actual</th>
-                                                <th class="text-end">Acciones</th>
+                                                <th>Evaluación</th>
+                                                <th class="text-end"><c:if test="${not edicionVigente.cerrada}">Acciones</c:if></th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <c:forEach items="${inscripciones}" var="ins">
+                                            <c:forEach items="${inscripciones}" var="ins" varStatus="estadoInscripcion">
                                                 <tr>
                                                     <td>
                                                         <div class="fw-semibold"><c:out value="${ins.nicknameEstudiante}"/></div>
                                                     </td>
                                                     <td><c:out value="${ins.fechaInscripcion}"/></td>
                                                     <td><c:out value="${empty ins.prioridad ? '-' : ins.prioridad}"/></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${not empty ins.enlaceVideoEmbebido}">
+                                                                <button class="btn btn-sm btn-outline-primary" type="button"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#video-inscripcion-${estadoInscripcion.index}">
+                                                                    <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Ver video
+                                                                </button>
+                                                                <div class="modal fade video-modal" id="video-inscripcion-${estadoInscripcion.index}"
+                                                                     tabindex="-1" aria-hidden="true">
+                                                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h2 class="modal-title fs-5">
+                                                                                    Video de presentación · <c:out value="${ins.nicknameEstudiante}"/>
+                                                                                </h2>
+                                                                                <button class="btn-close" type="button" data-bs-dismiss="modal"
+                                                                                        aria-label="Cerrar"></button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <div class="ratio ratio-16x9">
+                                                                                    <iframe data-video-src="<c:out value='${ins.enlaceVideoEmbebido}'/>"
+                                                                                            title="Video de presentación de <c:out value='${ins.nicknameEstudiante}'/>"
+                                                                                            referrerpolicy="strict-origin-when-cross-origin"
+                                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                                                            allowfullscreen></iframe>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </c:when>
+                                                            <c:when test="${not empty ins.enlaceVideo}">
+                                                                <a href="<c:out value='${ins.enlaceVideo}'/>"
+                                                                   target="_blank" rel="noopener noreferrer">
+                                                                    <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Ver video
+                                                                </a>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="text-muted">Sin video</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
                                                     <td>
                                                         <span class="badge
                                                             <c:choose>
@@ -190,8 +279,56 @@
                                                             <c:out value="${ins.estado}"/>
                                                         </span>
                                                     </td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${not empty ins.evaluacion}">
+                                                                <strong data-current-evaluation><c:out value="${ins.evaluacion}"/></strong> / 12
+                                                            </c:when>
+                                                            <c:when test="${ins.estado.name() eq 'ACEPTADA' and not edicionVigente.cerrada}">
+                                                                <form action="<c:out value='${accionEdicionUrl}'/>" method="post"
+                                                                      class="d-flex align-items-center gap-2">
+                                                                    <input type="hidden" name="accion" value="evaluar"/>
+                                                                    <input type="hidden" name="edicion" value="<c:out value='${edicionVigente.nombre}'/>"/>
+                                                                    <input type="hidden" name="estudianteNickname" value="<c:out value='${ins.nicknameEstudiante}'/>"/>
+                                                                    <input type="hidden" name="instituto" value="${filtroInstituto}"/>
+                                                                    <input type="hidden" name="curso" value="${cursoSeleccionado}"/>
+                                                                    <input type="hidden" name="criterio" value="${criterioSeleccionado}"/>
+                                                                    <input type="hidden" name="categoria" value="${filtroCategoria}"/>
+                                                                    <input type="number" class="form-control form-control-lg"
+                                                                           name="evaluacion" min="1" max="12" step="1"
+                                                                           style="width: 110px;"
+                                                                           required aria-label="Evaluación de <c:out value='${ins.nicknameEstudiante}'/>">
+                                                                    <button type="submit" class="btn btn-sm btn-primary">Publicar</button>
+                                                                </form>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="text-muted">—</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                        <c:if test="${not edicionVigente.cerrada and ins.estado.name() eq 'ACEPTADA' and not empty ins.evaluacion}">
+                                                            <form action="<c:out value='${accionEdicionUrl}'/>" method="post"
+                                                                  class="d-flex align-items-center gap-2 mt-2">
+                                                                <input type="hidden" name="accion" value="evaluar"/>
+                                                                <input type="hidden" name="edicion" value="<c:out value='${edicionVigente.nombre}'/>"/>
+                                                                <input type="hidden" name="estudianteNickname" value="<c:out value='${ins.nicknameEstudiante}'/>"/>
+                                                                <input type="hidden" name="instituto" value="${filtroInstituto}"/>
+                                                                <input type="hidden" name="curso" value="${cursoSeleccionado}"/>
+                                                                <input type="hidden" name="criterio" value="${criterioSeleccionado}"/>
+                                                                <input type="hidden" name="categoria" value="${filtroCategoria}"/>
+                                                                <input type="number" class="form-control form-control-lg"
+                                                                       name="evaluacion" min="1" max="12" step="1"
+                                                                       style="width: 110px;"
+                                                                       value="<c:out value='${ins.evaluacion}'/>" required
+                                                                       aria-label="Modificar evaluación de <c:out value='${ins.nicknameEstudiante}'/>">
+                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Modificar</button>
+                                                            </form>
+                                                        </c:if>
+                                                    </td>
                                                     <td class="text-end">
                                                         <c:choose>
+                                                            <c:when test="${edicionVigente.cerrada}">
+                                                                <span class="text-muted small fst-italic">Cerrada</span>
+                                                            </c:when>
                                                             <%-- Si ya está Aceptada o Rechazada, no se muestran botones de acción --%>
                                                             <c:when test="${ins.estado.name() eq 'ACEPTADA' or ins.estado.name() eq 'RECHAZADA'}">
                                                                 <span class="text-muted small fst-italic">Procesada</span>
@@ -199,7 +336,7 @@
 
                                                             <%-- Si está en estado INSCRIPTO, permite aceptar o rechazar --%>
                                                             <c:otherwise>
-                                                                <form action="seleccion-estudiantes" method="post" class="d-inline-flex gap-1">
+                                                                <form action="<c:out value='${accionEdicionUrl}'/>" method="post" class="d-inline-flex gap-1">
                                                                     <input type="hidden" name="edicion" value="${edicionVigente.nombre}"/>
                                                                     <input type="hidden" name="estudianteNickname" value="${ins.nicknameEstudiante}"/>
                                                                     <input type="hidden" name="instituto" value="${filtroInstituto}"/>
@@ -231,10 +368,29 @@
                 </c:when>
 
                 <c:otherwise>
-                    <div class="content-card p-5 text-center">
+                    <div class="content-card p-4 p-md-5 text-center">
                         <i class="bi bi-people display-4 text-muted mb-3"></i>
                         <h2 class="h5 fw-bold">Selección de Estudiantes</h2>
-                        <p class="text-muted mb-0">Seleccioná un instituto y un curso en el panel izquierdo para ver y gestionar las inscripciones a su edición vigente.</p>
+                        <p class="text-muted mb-0">Seleccioná una edición para consultar las inscripciones y sus evaluaciones.</p>
+                        <c:if test="${not empty edicionesDelCurso}">
+                            <form action="seleccion-estudiantes" method="get" class="mx-auto mt-4 text-start" style="max-width: 520px;">
+                                <input type="hidden" name="instituto" value="${filtroInstituto}"/>
+                                <input type="hidden" name="curso" value="${cursoSeleccionado}"/>
+                                <input type="hidden" name="categoria" value="${filtroCategoria}"/>
+                                <label for="edicionAnterior" class="form-label fw-semibold">Ediciones en las que participás</label>
+                                <div class="input-group">
+                                    <select class="form-select" id="edicionAnterior" name="edicion" required>
+                                        <option value="">-- Seleccionar edición --</option>
+                                        <c:forEach items="${edicionesDelCurso}" var="edicionCurso">
+                                            <option value="<c:out value='${edicionCurso}'/>">
+                                                <c:out value="${edicionCurso}"/>
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Consultar</button>
+                                </div>
+                            </form>
+                        </c:if>
                     </div>
                 </c:otherwise>
             </c:choose>
@@ -245,5 +401,16 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll(".video-modal").forEach((modal) => {
+        const video = modal.querySelector("iframe[data-video-src]");
+        modal.addEventListener("show.bs.modal", () => {
+            video.src = video.dataset.videoSrc;
+        });
+        modal.addEventListener("hidden.bs.modal", () => {
+            video.removeAttribute("src");
+        });
+    });
+</script>
 </body>
 </html>

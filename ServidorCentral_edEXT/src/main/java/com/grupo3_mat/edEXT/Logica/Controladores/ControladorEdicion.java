@@ -104,12 +104,19 @@ public class ControladorEdicion implements IControladorEdicion {
             edicion.getCupoDisponible(),
             edicion.getFechaPublicacion(),
             nombresDocentes,
-            edicion.getImagenPath()
+            edicion.getImagenPath(),
+            edicion.isCerrada()
         );
     }
 
     @Override
     public void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion) throws Exception {
+        inscribirEstudianteAEdicion(nicknameEstudiante, nombreEdicion, fechaInscripcion, null);
+    }
+
+    @Override
+    public void inscribirEstudianteAEdicion(String nicknameEstudiante, String nombreEdicion,
+            LocalDate fechaInscripcion, String enlaceVideo) throws Exception {
         ManejadorUsuario mu = ManejadorUsuario.getInstancia();
         Usuario usr = mu.buscarUsuarioPorNickname(nicknameEstudiante);
 
@@ -118,6 +125,9 @@ public class ControladorEdicion implements IControladorEdicion {
 
         if (edicion == null) {
             throw new Exception("La edición " + nombreEdicion + " no existe.");
+        }
+        if (edicion.isCerrada()) {
+            throw new IllegalStateException("No se puede inscribir a una edición cerrada.");
         }
 
         // Se comprueba el cupo antes de crear relaciones o guardar la nueva inscripción.
@@ -142,7 +152,8 @@ public class ControladorEdicion implements IControladorEdicion {
             estudiante,
             edicion,
             fechaInscripcion != null ? fechaInscripcion : LocalDate.now(),
-            prioridad
+            prioridad,
+            enlaceVideo
         );
         // La inscripción queda visible desde el estudiante y desde la edición.
         estudiante.agregarInscripcion(inscripcion);
@@ -228,6 +239,18 @@ public class ControladorEdicion implements IControladorEdicion {
     }
 
     @Override
+    public List<DTInscripcionEdicion> consultarEvaluacionesEdicion(String nicknameDocente, String nombreEdicion) throws Exception {
+        EdicionCurso edicion = buscarEdicionDeDocente(nicknameDocente, nombreEdicion);
+        if (!edicion.isCerrada()) {
+            throw new IllegalStateException("Las evaluaciones solo se pueden consultar al cerrar la edición.");
+        }
+        List<DTInscripcionEdicion> evaluaciones = convertirInscripciones(edicion);
+        evaluaciones.removeIf(inscripcion -> inscripcion.getEstado() != EstadoInscripcion.ACEPTADA);
+        evaluaciones.sort(Comparator.comparing(DTInscripcionEdicion::getNicknameEstudiante));
+        return evaluaciones;
+    }
+
+    @Override
     public List<DTInscripcionEdicion> listarResultadosInscripcionesEstudiante(String nicknameEstudiante) {
         ManejadorUsuario mu = ManejadorUsuario.getInstancia();
         Usuario usuario = mu.buscarUsuarioPorNickname(nicknameEstudiante);
@@ -255,6 +278,29 @@ public class ControladorEdicion implements IControladorEdicion {
         edicion.cambiarEstadoInscripcion(nicknameEstudiante, nuevoEstado);
         ManejadorEdicion me = ManejadorEdicion.getInstancia();
         me.modificarEdicion(edicion);
+    }
+
+    @Override
+    public void evaluarInscripcion(String nicknameDocente, String nombreEdicion,
+            String nicknameEstudiante, int evaluacion) throws Exception {
+        buscarEdicionDeDocente(nicknameDocente, nombreEdicion);
+        ManejadorEdicion.getInstancia().evaluarInscripcion(nombreEdicion, nicknameEstudiante, evaluacion);
+    }
+
+    @Override
+    public void cerrarEdicion(String nicknameDocente, String nombreEdicion) throws Exception {
+        buscarEdicionDeDocente(nicknameDocente, nombreEdicion);
+        ManejadorEdicion.getInstancia().cerrarEdicion(nombreEdicion);
+    }
+
+    @Override
+    public void desistirInscripcionEstudiante(String nicknameEstudiante, String nombreEdicion) throws Exception {
+        ManejadorUsuario manejadorUsuario = ManejadorUsuario.getInstancia();
+        Usuario usuario = manejadorUsuario.buscarUsuarioPorNickname(nicknameEstudiante);
+        if (!(usuario instanceof Estudiante)) {
+            throw new IllegalArgumentException("El usuario indicado no es un estudiante.");
+        }
+        ManejadorEdicion.getInstancia().desistirInscripcion(nicknameEstudiante, nombreEdicion);
     }
 
     private EdicionCurso buscarEdicionDeDocente(String nicknameDocente, String nombreEdicion) throws Exception {
@@ -299,7 +345,10 @@ public class ControladorEdicion implements IControladorEdicion {
                 inscripcion.getEdicion().getNombre(),
                 inscripcion.getFecha(),
                 inscripcion.getEstado(),
-                inscripcion.getPrioridad()
+                inscripcion.getPrioridad(),
+                inscripcion.getEnlaceVideo(),
+                inscripcion.getEvaluacion(),
+                inscripcion.getEdicion().isCerrada()
         );
     }
 }

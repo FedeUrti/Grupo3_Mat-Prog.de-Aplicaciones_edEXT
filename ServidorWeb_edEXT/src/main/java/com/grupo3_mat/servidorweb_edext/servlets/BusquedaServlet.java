@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -152,9 +153,14 @@ public class BusquedaServlet extends HttpServlet {
                     detalle = combinar(detalle, curso.getDescripcion());
                 }
                 detalle = combinar(detalle, textoPublicacion(curso.getFecha()));
+                BigDecimal promedioValoracion = cursos.obtenerPuntajePromedioCurso(curso.getNombre());
+                int cantidadValoraciones = cursos.obtenerConteoValoracionesCurso(curso.getNombre())
+                        .values().stream().mapToInt(Integer::intValue).sum();
                 resultados.add(new Resultado(curso.getNombre(), "Curso", detalle,
                         urlCurso(contextPath, curso.getNombre()), urlImagen(contextPath,
-                                imagenCurso(curso.getImagenPath(), false)), null, false, false, curso.getFecha()));
+                                imagenCurso(curso.getImagenPath(), false)), null, false, false, curso.getFecha(),
+                        promedioValoracion, cantidadValoraciones,
+                        Math.round(promedioValoracion.doubleValue() * 2.0) / 2.0));
                 encontrados++;
             }
         }
@@ -419,7 +425,10 @@ public class BusquedaServlet extends HttpServlet {
                 json.append('"').append(jsonEscapar(resultado.nickname)).append('"');
             }
             json.append(",\"siguiendo\":").append(resultado.siguiendo)
-                    .append(",\"propio\":").append(resultado.propio);
+                    .append(",\"propio\":").append(resultado.propio)
+                    .append(",\"promedioValoracion\":").append(resultado.promedioValoracion)
+                    .append(",\"cantidadValoraciones\":").append(resultado.cantidadValoraciones)
+                    .append(",\"estrellasValoracion\":").append(resultado.estrellasValoracion);
             json.append('}');
         }
         return json.append("]}").toString();
@@ -480,6 +489,9 @@ public class BusquedaServlet extends HttpServlet {
         private final String nickname;
         private final boolean siguiendo;
         private final boolean propio;
+        private final BigDecimal promedioValoracion;
+        private final int cantidadValoraciones;
+        private final double estrellasValoracion;
 
         private Resultado(String nombre, String tipo, String detalle, String url) {
             this(nombre, tipo, detalle, url, null, null, false, false, null);
@@ -497,6 +509,13 @@ public class BusquedaServlet extends HttpServlet {
 
         private Resultado(String nombre, String tipo, String detalle, String url,
                 String imagenUrl, String nickname, boolean siguiendo, boolean propio, LocalDate fechaPublicacion) {
+            this(nombre, tipo, detalle, url, imagenUrl, nickname, siguiendo, propio, fechaPublicacion,
+                    null, 0, 0.0);
+        }
+
+        private Resultado(String nombre, String tipo, String detalle, String url,
+                String imagenUrl, String nickname, boolean siguiendo, boolean propio, LocalDate fechaPublicacion,
+                BigDecimal promedioValoracion, int cantidadValoraciones, double estrellasValoracion) {
             this.nombre = nombre == null ? "" : nombre;
             this.tipo = tipo == null ? "" : tipo;
             this.detalle = detalle == null ? "" : detalle;
@@ -506,6 +525,9 @@ public class BusquedaServlet extends HttpServlet {
             this.nickname = nickname;
             this.siguiendo = siguiendo;
             this.propio = propio;
+            this.promedioValoracion = promedioValoracion;
+            this.cantidadValoraciones = cantidadValoraciones;
+            this.estrellasValoracion = estrellasValoracion;
         }
 
         public String getNombre() {
@@ -542,6 +564,18 @@ public class BusquedaServlet extends HttpServlet {
 
         public boolean isPropio() {
             return propio;
+        }
+
+        public BigDecimal getPromedioValoracion() {
+            return promedioValoracion;
+        }
+
+        public int getCantidadValoraciones() {
+            return cantidadValoraciones;
+        }
+
+        public double getEstrellasValoracion() {
+            return estrellasValoracion;
         }
     }
 

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "Estudiante")
@@ -19,6 +21,9 @@ public class Estudiante extends Usuario {
     @MapKey(name = "id.programaNombre")
     private Map<String, InscripcionPF> inscripcionesPF = new HashMap<>();
 
+    @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ValoracionCurso> valoraciones = new HashSet<>();
+
     public Estudiante() {
         super();
     }
@@ -29,6 +34,13 @@ public class Estudiante extends Usuario {
 
     public Map<String, InscripcionEC> getInscripciones() { return inscripciones; }
     public Map<String, InscripcionPF> getInscripcionesPF() { return inscripcionesPF; }
+    public Set<ValoracionCurso> getValoraciones() { return valoraciones; }
+
+    public void agregarValoracion(ValoracionCurso valoracion) {
+        if (valoracion != null && valoracion.getEstudiante() == this) {
+            valoraciones.add(valoracion);
+        }
+    }
 
     public List<InscripcionPF> getInscripcionesProgramas() {
         return new ArrayList<>(this.inscripcionesPF.values());

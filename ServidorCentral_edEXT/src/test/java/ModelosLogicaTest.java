@@ -96,12 +96,38 @@ class ModelosLogicaTest {
         assertSame(proxima, curso.obtenerProximaEdicion(HOY));
         assertNull(curso.obtenerProximaEdicion(null));
         assertNull(new Curso().obtenerProximaEdicion(HOY));
+        proxima.cerrar();
+        assertSame(tardia, curso.obtenerProximaEdicion(HOY));
 
         ProgramaFormacion programa = new ProgramaFormacion("Programa", "", HOY, HOY, HOY, "");
         curso.setProgramas(new HashSet<>(List.of(programa)));
         assertTrue(curso.getProgramas().contains(programa));
         curso.setEdiciones(new HashSet<>());
         assertTrue(curso.getEdiciones().isEmpty());
+    }
+
+    @Test
+    void edicionVigenteDebeEstarEnCursoIncluyendoAmbasFechasLimite() {
+        Curso curso = new Curso(null, "Curso", "", 1, 1, 1, "", HOY);
+        EdicionCurso pasada = new EdicionCurso("Pasada", HOY.minusDays(4), HOY.minusDays(1), 10, HOY, curso);
+        EdicionCurso vigente = new EdicionCurso("Vigente", HOY, HOY.plusDays(3), 10, HOY, curso);
+        EdicionCurso futura = new EdicionCurso("Futura", HOY.plusDays(5), HOY.plusDays(8), 10, HOY, curso);
+        EdicionCurso futuraLejana = new EdicionCurso("Futura lejana", HOY.plusDays(10), HOY.plusDays(12), 10, HOY, curso);
+        EdicionCurso cerrada = new EdicionCurso("Cerrada", HOY.minusDays(1), HOY.plusDays(1), 10, HOY, curso);
+        curso.agregarEdicion(pasada);
+        curso.agregarEdicion(vigente);
+        curso.agregarEdicion(futura);
+        curso.agregarEdicion(futuraLejana);
+        curso.agregarEdicion(cerrada);
+        cerrada.cerrar();
+
+        assertSame(vigente, curso.obtenerEdicionVigente(HOY));
+        assertSame(vigente, curso.obtenerEdicionVigente(vigente.getFechaFin()));
+        assertSame(futura, curso.obtenerEdicionVigente(HOY.plusDays(4)));
+        assertSame(pasada, curso.obtenerEdicionVigente(HOY.minusDays(1)));
+        assertSame(pasada, curso.obtenerEdicionVigente(HOY.minusDays(5)));
+        assertNull(new Curso().obtenerEdicionVigente(HOY));
+        assertNull(curso.obtenerEdicionVigente(null));
     }
 
     @Test
@@ -306,6 +332,17 @@ class ModelosLogicaTest {
         assertTrue(docenteVacio.getProgramas().isEmpty());
 
         DTInscripcionEdicion datoInscripcion = new DTInscripcionEdicion("e", "Edicion", HOY, EstadoInscripcion.ACEPTADA, 0.5);
+        DTInscripcionEdicion inscripcionConVideo = new DTInscripcionEdicion(
+                "e", "Edicion", HOY, EstadoInscripcion.ACEPTADA, 0.5, "https://youtu.be/abcdefghijk");
+        assertEquals("https://youtu.be/abcdefghijk", inscripcionConVideo.getEnlaceVideo());
+        assertEquals("https://www.youtube-nocookie.com/embed/abcdefghijk", inscripcionConVideo.getEnlaceVideoEmbebido());
+        assertEquals("https://player.vimeo.com/video/123456", new DTInscripcionEdicion(
+                "e", "Edicion", HOY, EstadoInscripcion.ACEPTADA, 0.5, "https://vimeo.com/123456")
+                .getEnlaceVideoEmbebido());
+        DTInscripcionEdicion inscripcionEvaluada = new DTInscripcionEdicion(
+                "e", "Edicion", HOY, EstadoInscripcion.ACEPTADA, 0.5, null, 12, true);
+        assertEquals(12, inscripcionEvaluada.getEvaluacion());
+        assertTrue(inscripcionEvaluada.isEdicionCerrada());
         DtEstudiante estudiante = new DtEstudiante("e", "", "", "", HOY, "", null, null,
                 java.util.Arrays.asList(datoInscripcion, null), List.of("Programa"));
         assertEquals(java.util.Arrays.asList(datoInscripcion, null), estudiante.getInscripcionesEdicion());
@@ -338,6 +375,8 @@ class ModelosLogicaTest {
         assertEquals(HOY, edicion.getFechaPublicacion());
         assertEquals(List.of("doc"), edicion.getDocentes());
         assertEquals("img", edicion.getImagenPath());
+        assertTrue(new DTEdicionCurso("E", HOY, HOY.plusDays(1), 10, 5, HOY, List.of("doc"), "img", true)
+                .isCerrada());
         assertTrue(new DTEdicionCurso("E", HOY, HOY, 1, 1, HOY, null).getDocentes().isEmpty());
 
         assertEquals("e", datoInscripcion.getNicknameEstudiante());

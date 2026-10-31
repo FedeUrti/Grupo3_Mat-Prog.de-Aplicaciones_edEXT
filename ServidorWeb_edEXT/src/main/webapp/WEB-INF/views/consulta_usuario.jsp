@@ -75,7 +75,7 @@
                                 <c:url var="seguirUsuarioUrl" value="${siguiendoUsuario ? '/dejar-de-seguir-usuario' : '/seguir-usuario'}"/>
                                 <form action="<c:out value='${seguirUsuarioUrl}'/>" method="post"
                                       data-follow-form data-following="${siguiendoUsuario}"
-                                      data-profile-follow-target data-profile-refresh>
+                                      data-profile-follow-target>
                                     <input type="hidden" name="nicknameASeguir"
                                            value="<c:out value='${usuario.nickname}'/>">
                                     <button class="btn ${siguiendoUsuario ? 'btn-siguiendo' : 'btn-primary'}"
@@ -208,7 +208,6 @@
                                                               data-follow-form
                                                               data-following="${siguiendoRelacionados[nicknameSeguido]}"
                                                               data-profile-remove-on-unfollow="${esPropietario}"
-                                                              data-profile-refresh>
                                                             <input type="hidden" name="nicknameASeguir"
                                                                    value="<c:out value='${nicknameSeguido}'/>">
                                                             <button class="btn btn-sm ${siguiendoRelacionados[nicknameSeguido] ? 'btn-siguiendo' : 'btn-primary'}"
@@ -261,7 +260,6 @@
                                                               data-follow-form
                                                               data-following="${siguiendoRelacionados[nicknameSeguidor]}"
                                                               data-profile-owner="${esPropietario}"
-                                                              data-profile-refresh>
                                                             <input type="hidden" name="nicknameASeguir"
                                                                    value="<c:out value='${nicknameSeguidor}'/>">
                                                             <button class="btn btn-sm ${siguiendoRelacionados[nicknameSeguidor] ? 'btn-siguiendo' : 'btn-primary'}"
@@ -303,10 +301,18 @@
                                                         </c:when>
                                                     </c:choose>
                                                 </c:if>
+                                                <c:if test="${edicion.cerrada}">
+                                                    <span class="badge text-bg-dark ms-2">Cerrada</span>
+                                                </c:if>
                                                 <div class="small text-muted">
                                                     <c:out value="${edicion.fechaInicio}"/> –
                                                     <c:out value="${edicion.fechaFin}"/>
                                                 </div>
+                                                <c:if test="${esPropietario and tipoUsuario eq 'Estudiante' and not empty evaluacionesPorEdicion[edicion.nombre]}">
+                                                    <div class="mt-2 fw-semibold">
+                                                        Evaluación final: <c:out value="${evaluacionesPorEdicion[edicion.nombre]}"/> / 12
+                                                    </div>
+                                                </c:if>
                                             </div>
                                             <c:if test="${not empty cursosPorEdicion[edicion.nombre]}">
                                                 <c:url var="detalleEdicionUrl" value="/consulta-edicion-curso">
@@ -322,6 +328,15 @@
                                                     <a class="btn btn-sm btn-outline-secondary"
                                                        href="<c:out value='${cursoEdicionUrl}'/>">Ver curso</a>
                                                 </div>
+                                            </c:if>
+                                            <c:if test="${esPropietario and tipoUsuario eq 'Estudiante' and estadosPorEdicion[edicion.nombre] eq 'INSCRIPTO'}">
+                                                <form action="${pageContext.request.contextPath}/inscripcion-edicion" method="post">
+                                                    <input type="hidden" name="accion" value="desistir"/>
+                                                    <input type="hidden" name="edicion" value="<c:out value='${edicion.nombre}'/>"/>
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Desistir de inscripción
+                                                    </button>
+                                                </form>
                                             </c:if>
                                         </div>
                                     </c:forEach>
@@ -366,8 +381,19 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <a class="btn btn-sm btn-outline-primary"
-                                               href="<c:out value='${detalleProgramaUrl}'/>">Ver programa</a>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   href="<c:out value='${detalleProgramaUrl}'/>">Ver programa</a>
+                                                <c:if test="${esPropietario and tipoUsuario eq 'Estudiante' and programasUsuario.contains(programa.nombre)}">
+                                                    <c:url var="actaEstudioUrl" value="/acta-estudio">
+                                                        <c:param name="programa" value="${programa.nombre}"/>
+                                                    </c:url>
+                                                    <a class="btn btn-sm btn-outline-secondary"
+                                                       href="<c:out value='${actaEstudioUrl}'/>">
+                                                        <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Generar acta
+                                                    </a>
+                                                </c:if>
+                                            </div>
                                         </div>
                                     </c:forEach>
                                 </div>

@@ -139,6 +139,15 @@
                                                     <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
                                                     Ya estás inscripto a este programa.
                                                 </span>
+                                                <c:url var="actaEstudioUrl" value="/acta-estudio">
+                                                    <c:param name="programa" value="${programa.nombre}"/>
+                                                    <c:param name="descargar" value="1"/>
+                                                </c:url>
+                                                <a class="btn btn-outline-primary fw-bold"
+                                                   href="<c:out value='${actaEstudioUrl}'/>">
+                                                    <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>
+                                                    Generar acta de estudio
+                                                </a>
                                             </c:when>
                                             <c:otherwise>
                                                 <c:url var="inscribirProgramaUrl" value="/inscribir-programa"/>
@@ -199,6 +208,14 @@
                                             <li><strong>Duración:</strong> <c:out value="${curso.duracion}"/> semanas</li>
                                             <li><strong>Créditos:</strong> <c:out value="${curso.creditos}"/></li>
                                         </ul>
+                                        <c:url var="cursoDetalleParaValorar" value="/consulta-curso">
+                                            <c:param name="nombre" value="${curso.nombre}"/>
+                                        </c:url>
+                                        <a class="small text-decoration-none mb-3"
+                                           href="<c:out value='${cursoDetalleParaValorar}'/>#valoraciones">
+                                            <i class="bi bi-star-fill text-warning" aria-hidden="true"></i>
+                                            Valorar este curso
+                                        </a>
 
                                         <c:url var="detalleCursoUrl" value="/consulta-curso">
                                             <c:param name="nombre" value="${curso.nombre}"/>

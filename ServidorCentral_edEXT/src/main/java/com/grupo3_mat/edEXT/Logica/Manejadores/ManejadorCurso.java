@@ -3,6 +3,9 @@ package com.grupo3_mat.edEXT.Logica.Manejadores;
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.Categoria;
 import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
+import com.grupo3_mat.edEXT.Logica.Clases.Estudiante;
+import com.grupo3_mat.edEXT.Logica.Clases.ValoracionCurso;
+import com.grupo3_mat.edEXT.Logica.Clases.ValoracionCursoId;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import jakarta.persistence.EntityManager;
 import java.util.HashSet;
@@ -91,6 +94,82 @@ public class ManejadorCurso {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT c FROM Curso c", Curso.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<String> listarCursosValorables(String nicknameEstudiante) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            // Las ediciones finalizadas siguen habilitando la valoración si la inscripción fue aceptada.
+            List<?> cursos = em.createNativeQuery(
+                    "SELECT DISTINCT ed.curso_nombre "
+                    + "FROM InscripcionEC ins "
+                    + "JOIN EdicionCurso ed ON ed.nombre = ins.edicion_nombre "
+                    + "WHERE ins.estudiante_nickname = :nickname "
+                    + "AND UPPER(ins.estado) = 'ACEPTADA' "
+                    + "ORDER BY ed.curso_nombre")
+                    .setParameter("nickname", nicknameEstudiante)
+                    .getResultList();
+            return cursos.stream().map(String::valueOf).toList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void agregarValoracionCurso(String nombreCurso, String nicknameEstudiante, int puntaje) {
+        if (puntaje < 1 || puntaje > 5) {
+            throw new IllegalArgumentException("El puntaje debe estar entre 1 y 5.");
+        }
+
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Curso curso = em.find(Curso.class, nombreCurso);
+            Estudiante estudiante = em.find(Estudiante.class, nicknameEstudiante);
+            if (curso == null || estudiante == null) {
+                throw new IllegalArgumentException("El curso o el estudiante especificado no existe.");
+            }
+
+            ValoracionCursoId id = new ValoracionCursoId(nombreCurso, nicknameEstudiante);
+            if (em.find(ValoracionCurso.class, id) != null) {
+                throw new IllegalStateException("El estudiante ya publicó una valoración para este curso.");
+            }
+
+            Number inscripcionesAceptadas = (Number) em.createNativeQuery(
+                    "SELECT COUNT(*) "
+                    + "FROM InscripcionEC ins "
+                    + "JOIN EdicionCurso ed ON ed.nombre = ins.edicion_nombre "
+                    + "WHERE ins.estudiante_nickname = :nickname "
+                    + "AND ed.curso_nombre = :curso "
+                    + "AND UPPER(ins.estado) = 'ACEPTADA'")
+                    .setParameter("nickname", nicknameEstudiante)
+                    .setParameter("curso", nombreCurso)
+                    .getSingleResult();
+            if (inscripcionesAceptadas.longValue() == 0) {
+                throw new IllegalStateException(
+                        "El estudiante debe tener una inscripción aceptada en alguna edición del curso.");
+            }
+
+            ValoracionCurso valoracion = new ValoracionCurso(estudiante, curso, puntaje);
+            curso.agregarValoracion(valoracion);
+            em.persist(valoracion);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public ValoracionCurso buscarValoracionCurso(String nombreCurso, String nicknameEstudiante) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            return em.find(ValoracionCurso.class, new ValoracionCursoId(nombreCurso, nicknameEstudiante));
         } finally {
             em.close();
         }

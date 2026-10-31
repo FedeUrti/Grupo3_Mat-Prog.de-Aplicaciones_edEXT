@@ -37,9 +37,10 @@ class CargadorDatosPruebaTest {
 
         crearCargador(llamadas, persistencia, null).cargarDatosTotales();
 
-        assertEquals(16, persistencia.sentencias().size());
+        assertEquals(17, persistencia.sentencias().size());
         assertEquals("DELETE FROM Usuario_Seguimiento", persistencia.sentencias().get(0));
-        assertEquals("DELETE FROM Instituto", persistencia.sentencias().get(15));
+        assertEquals("DELETE FROM ValoracionCurso", persistencia.sentencias().get(6));
+        assertEquals("DELETE FROM Instituto", persistencia.sentencias().get(16));
         assertTrue(persistencia.confirmada().get());
         assertFalse(persistencia.revertida().get());
         assertTrue(persistencia.cerrada().get());
@@ -50,6 +51,9 @@ class CargadorDatosPruebaTest {
         assertTrue(llamadas.getOrDefault("altaCurso", 0) > 0);
         assertTrue(llamadas.getOrDefault("altaEdicionCurso", 0) > 0);
         assertTrue(llamadas.getOrDefault("inscribirEstudianteAEdicion", 0) > 0);
+        assertEquals(9, llamadas.getOrDefault("evaluarInscripcion", 0));
+        assertEquals(4, llamadas.getOrDefault("cerrarEdicion", 0));
+        assertEquals(15, llamadas.getOrDefault("ingresarValoracion", 0));
         assertTrue(llamadas.getOrDefault("crearProgramaFormacion", 0) > 0);
         assertTrue(llamadas.getOrDefault("inscribirEstudianteAPrograma", 0) > 0);
     }

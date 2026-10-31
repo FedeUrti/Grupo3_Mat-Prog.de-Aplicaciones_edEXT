@@ -103,6 +103,10 @@ public class CargadorDatosPrueba {
             cargarEdiciones(ediciones);
             fase = "inscripciones a ediciones";
             cargarInscripcionesEdiciones(ediciones);
+            fase = "evaluaciones de ediciones";
+            cargarEvaluacionesEdiciones(ediciones);
+            fase = "valoraciones de cursos";
+            cargarValoracionesCursos(cursos);
             fase = "programas de formación";
             cargarProgramas(programas);
             fase = "inscripciones a programas";
@@ -122,7 +126,7 @@ public class CargadorDatosPrueba {
         EntityTransaction transaccion = em.getTransaction();
         List<String> tablasEnOrden = List.of(
                 "Usuario_Seguimiento", "Docente_Instituto", "Docente_Participa_EdicionCurso",
-                "Curso_Categoria", "Curso_Precorrelativa", "programa_curso", "InscripcionEC",
+                "Curso_Categoria", "Curso_Precorrelativa", "programa_curso", "ValoracionCurso", "InscripcionEC",
                 "InscripcionPF", "EdicionCurso", "ProgramaFormacion", "Estudiante", "Docente",
                 "Usuario", "Curso", "Categoria", "Instituto");
         try {
@@ -382,6 +386,52 @@ public class CargadorDatosPrueba {
         if (estado != EstadoInscripcion.INSCRIPTO) {
             controlador.cambiarEstadoInscripcion(docente, edicion, estudiante, estado);
         }
+    }
+
+    private void cargarEvaluacionesEdiciones(IControladorEdicion controlador) throws Exception {
+        evaluarYcerrar(controlador, "bruces", "Flor del Ceibo - 2012",
+                new String[][]{{"costas", "10"}, {"weiss", "8"}});
+        evaluarYcerrar(controlador, "phils", "Dalavuelta - 2025",
+                new String[][]{{"chechi", "11"}, {"roro", "9"}, {"costas", "7"}});
+        evaluarYcerrar(controlador, "heisenberg", "Taller de robótica educativa - 2024",
+                new String[][]{{"eleven11", "10"}, {"chechi", "12"}});
+        evaluarYcerrar(controlador, "phils", "Inclusión Energética - 2026",
+                new String[][]{{"roro", "9"}, {"chechi", "11"}});
+    }
+
+    private void evaluarYcerrar(IControladorEdicion controlador, String docente, String edicion,
+            String[][] evaluaciones) throws Exception {
+        for (String[] evaluacion : evaluaciones) {
+            controlador.evaluarInscripcion(docente, edicion, evaluacion[0], Integer.parseInt(evaluacion[1]));
+        }
+        controlador.cerrarEdicion(docente, edicion);
+    }
+
+    private void cargarValoracionesCursos(IControladorCurso controlador) throws Exception {
+        valorar(controlador, "Flor del Ceibo", "eleven11", 5);
+        valorar(controlador, "Flor del Ceibo", "chechi", 4);
+        valorar(controlador, "Flor del Ceibo", "costas", 5);
+        valorar(controlador, "Flor del Ceibo", "weiss", 3);
+
+        valorar(controlador, "Dalavuelta", "chechi", 5);
+        valorar(controlador, "Dalavuelta", "roro", 4);
+        valorar(controlador, "Dalavuelta", "costas", 3);
+
+        valorar(controlador, "Extensionismo Industrial", "eleven11", 4);
+        valorar(controlador, "Extensionismo Industrial", "chechi", 5);
+        valorar(controlador, "Extensionismo Industrial", "costas", 4);
+        valorar(controlador, "Extensionismo Industrial", "weiss", 5);
+
+        valorar(controlador, "Taller de robótica educativa", "eleven11", 4);
+        valorar(controlador, "Taller de robótica educativa", "chechi", 5);
+
+        valorar(controlador, "Inclusión Energética", "roro", 4);
+        valorar(controlador, "Inclusión Energética", "chechi", 4);
+    }
+
+    private void valorar(IControladorCurso controlador, String curso, String estudiante, int puntaje)
+            throws Exception {
+        controlador.ingresarValoracion(curso, estudiante, puntaje);
     }
 
     private void cargarProgramas(IControladorProgramaFormacion controlador) throws Exception {

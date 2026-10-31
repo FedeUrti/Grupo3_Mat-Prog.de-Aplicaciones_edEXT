@@ -5,15 +5,19 @@ import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
 import com.grupo3_mat.edEXT.Logica.Clases.Instituto;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.Clases.ValoracionCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCategoria;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorInstituto;
+import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorUsuario;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ControladorCurso implements IControladorCurso {
 
@@ -166,8 +170,56 @@ public class ControladorCurso implements IControladorCurso {
             throw new Exception("El curso " + nombreCurso + " no existe.");
         }
 
-        EdicionCurso edicionVigente = curso.obtenerProximaEdicion(fechaReferencia);
+        EdicionCurso edicionVigente = curso.obtenerEdicionVigente(fechaReferencia);
 
         return (edicionVigente != null) ? edicionVigente.getNombre() : "";
+    }
+
+    @Override
+    public void ingresarValoracion(String nombreCurso, String nicknameEstudiante, int puntaje) throws Exception {
+        if (puntaje < 1 || puntaje > 5) {
+            throw new IllegalArgumentException("El puntaje debe estar entre 1 y 5.");
+        }
+        ManejadorCurso.getInstancia().agregarValoracionCurso(nombreCurso, nicknameEstudiante, puntaje);
+    }
+
+    @Override
+    public int consultarValoracion(String nombreCurso, String nicknameEstudiante) throws Exception {
+        ValoracionCurso valoracion = ManejadorCurso.getInstancia()
+                .buscarValoracionCurso(nombreCurso, nicknameEstudiante);
+        if (valoracion == null) {
+            throw new Exception("El estudiante no publicó una valoración para este curso.");
+        }
+        return valoracion.getPuntaje();
+    }
+
+    @Override
+    public List<String> listarCursosValorables(String nicknameEstudiante) {
+        return ManejadorCurso.getInstancia().listarCursosValorables(nicknameEstudiante);
+    }
+
+    @Override
+    public BigDecimal obtenerPuntajePromedioCurso(String nombreCurso) throws Exception {
+        Curso curso = ManejadorCurso.getInstancia().buscarCurso(nombreCurso);
+        if (curso == null) {
+            throw new Exception("No existe el curso especificado.");
+        }
+        return curso.obtenerPuntajePromedio();
+    }
+
+    @Override
+    public Map<Integer, Integer> obtenerConteoValoracionesCurso(String nombreCurso) throws Exception {
+        Curso curso = ManejadorCurso.getInstancia().buscarCurso(nombreCurso);
+        if (curso == null) {
+            throw new Exception("No existe el curso especificado.");
+        }
+        return curso.obtenerConteoValoraciones();
+    }
+
+    @Override
+    public Integer obtenerValoracionEstudiante(String nombreCurso, String nicknameEstudiante) {
+        ValoracionCurso valoracion = ManejadorCurso.getInstancia()
+                .buscarValoracionCurso(nombreCurso, nicknameEstudiante);
+        return valoracion == null ? null : valoracion.getPuntaje();
     }
 }

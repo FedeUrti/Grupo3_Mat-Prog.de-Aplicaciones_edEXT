@@ -3,8 +3,10 @@ package com.grupo3_mat.edEXT.Logica.Manejadores;
 import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.Docente;
+import com.grupo3_mat.edEXT.Logica.Clases.InscripcionEC;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +89,67 @@ public class ManejadorEdicion {
             em.merge(edicion);
             em.getTransaction().commit();
         } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void evaluarInscripcion(String nombreEdicion, String nicknameEstudiante, int evaluacion) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            EdicionCurso edicion = em.find(EdicionCurso.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
+            if (edicion == null) {
+                throw new IllegalArgumentException("La edición '" + nombreEdicion + "' no existe.");
+            }
+            edicion.evaluarInscripcion(nicknameEstudiante, evaluacion);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void cerrarEdicion(String nombreEdicion) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            EdicionCurso edicion = em.find(EdicionCurso.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
+            if (edicion == null) {
+                throw new IllegalArgumentException("La edición '" + nombreEdicion + "' no existe.");
+            }
+            edicion.cerrar();
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void desistirInscripcion(String nicknameEstudiante, String nombreEdicion) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            EdicionCurso edicion = em.find(EdicionCurso.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
+            if (edicion == null) {
+                throw new IllegalArgumentException("La edición '" + nombreEdicion + "' no existe.");
+            }
+            InscripcionEC inscripcion = edicion.desistirInscripcion(nicknameEstudiante);
+            em.remove(inscripcion);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }

@@ -4,11 +4,14 @@ import com.grupo3_mat.edEXT.Logica.Clases.Categoria;
 import com.grupo3_mat.edEXT.Logica.Clases.Curso;
 import com.grupo3_mat.edEXT.Logica.Clases.Estudiante;
 import com.grupo3_mat.edEXT.Logica.Clases.InscripcionPF;
+import com.grupo3_mat.edEXT.Logica.Clases.InscripcionEC;
+import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
 import com.grupo3_mat.edEXT.Logica.Clases.Docente;
 import com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Clases.Usuario;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DTResultadoEstudio;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
@@ -17,7 +20,10 @@ import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorUsuario;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ControladorProgramaFormacion implements IControladorProgramaFormacion {
 
@@ -167,5 +173,63 @@ public class ControladorProgramaFormacion implements IControladorProgramaFormaci
         pf.agregarInscripcion(inscripcion);
 
         mu.modificarUsuario(est);
+    }
+
+    @Override
+    public List<DTResultadoEstudio> consultarResultadosActa(
+            String nicknameEstudiante, String nombrePrograma) throws Exception {
+        Usuario usuario = ManejadorUsuario.getInstancia().buscarUsuarioPorNickname(nicknameEstudiante);
+        if (!(usuario instanceof Estudiante estudiante)) {
+            throw new IllegalArgumentException("El usuario indicado no es un estudiante.");
+        }
+
+        ProgramaFormacion programa = ManejadorProgramaFormacion.getInstancia().buscarPrograma(nombrePrograma);
+        if (programa == null) {
+            throw new IllegalArgumentException("El programa de formación no existe.");
+        }
+        if (!estudiante.estaInscriptoAPrograma(nombrePrograma)) {
+            throw new SecurityException("Solo se puede generar el acta de un programa en el que estás inscripto.");
+        }
+
+        List<String> nombresCursos = new ArrayList<>(programa.getCursos().keySet());
+        nombresCursos.sort(Comparator.naturalOrder());
+        Map<String, List<DTResultadoEstudio>> resultadosPorCurso = new HashMap<>();
+        for (String nombreCurso : nombresCursos) {
+            resultadosPorCurso.put(nombreCurso, new ArrayList<>());
+        }
+
+        if (estudiante.getInscripciones() != null) {
+            for (InscripcionEC inscripcion : estudiante.getInscripciones().values()) {
+                if (inscripcion == null || inscripcion.getEdicion() == null
+                        || inscripcion.getEdicion().getCurso() == null
+                        || inscripcion.getEstado() != EstadoInscripcion.ACEPTADA
+                        || !inscripcion.getEdicion().isCerrada()
+                        || inscripcion.getEvaluacion() == null) {
+                    continue;
+                }
+                String nombreCurso = inscripcion.getEdicion().getCurso().getNombre();
+                List<DTResultadoEstudio> resultados = resultadosPorCurso.get(nombreCurso);
+                if (resultados != null) {
+                    resultados.add(new DTResultadoEstudio(nombreCurso,
+                            inscripcion.getEdicion().getNombre(), inscripcion.getEvaluacion(),
+                            inscripcion.getFechaEvaluacion()));
+                }
+            }
+        }
+
+        List<DTResultadoEstudio> resultadosActa = new ArrayList<>();
+        for (String nombreCurso : nombresCursos) {
+            List<DTResultadoEstudio> resultados = resultadosPorCurso.get(nombreCurso);
+            resultados.sort(Comparator
+                    .comparing(DTResultadoEstudio::getFechaResultado,
+                            Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(DTResultadoEstudio::getNombreEdicion));
+            if (resultados.isEmpty()) {
+                resultadosActa.add(new DTResultadoEstudio(nombreCurso, null, null, null));
+            } else {
+                resultadosActa.addAll(resultados);
+            }
+        }
+        return resultadosActa;
     }
 }

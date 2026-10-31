@@ -64,6 +64,29 @@
                             <span class="badge text-bg-primary mb-2"><c:out value="${resultado.tipo}"/></span>
                             <h2 class="h5 fw-bold mb-1"><c:out value="${resultado.nombre}"/></h2>
                             <p class="text-muted mb-0"><c:out value="${resultado.detalle}"/></p>
+                            <c:if test="${resultado.tipo eq 'Curso'}">
+                                <a class="d-inline-flex align-items-center gap-2 small text-decoration-none mt-2"
+                                   href="<c:out value='${resultado.url}'/>#valoraciones"
+                                   aria-label="Valoración <c:out value='${resultado.promedioValoracion}'/> de 5, <c:out value='${resultado.cantidadValoraciones}'/> votos">
+                                    <strong><c:out value="${resultado.promedioValoracion}"/></strong>
+                                    <span class="d-inline-flex gap-1 text-warning" aria-hidden="true">
+                                        <c:forEach begin="1" end="5" var="estrella">
+                                            <c:choose>
+                                                <c:when test="${estrella le resultado.estrellasValoracion}">
+                                                    <i class="bi bi-star-fill"></i>
+                                                </c:when>
+                                                <c:when test="${resultado.estrellasValoracion ge estrella - 0.5}">
+                                                    <i class="bi bi-star-half"></i>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="bi bi-star text-secondary"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:forEach>
+                                    </span>
+                                    <span class="text-muted">(<c:out value="${resultado.cantidadValoraciones}"/> votos)</span>
+                                </a>
+                            </c:if>
                         </div>
                         <c:if test="${not empty resultado.url}">
                             <a class="btn btn-outline-primary flex-shrink-0"

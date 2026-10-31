@@ -184,6 +184,10 @@
             detalle.className = "global-search-result-detail";
             detalle.textContent = resultado.detalle;
             texto.append(titulo, detalle);
+            const valoracion = crearValoracionCurso(resultado);
+            if (valoracion) {
+                texto.append(valoracion);
+            }
 
             const tipo = document.createElement("span");
             tipo.className = "global-search-result-type";
@@ -292,6 +296,10 @@
                     detalle.className = "text-muted small mb-0";
                     detalle.textContent = resultado.detalle;
                     texto.append(titulo, detalle);
+                    const valoracion = crearValoracionCurso(resultado);
+                    if (valoracion) {
+                        texto.append(valoracion);
+                    }
                     tarjeta.append(texto);
                     if (resultado.url) {
                         const enlaceAccion = document.createElement("a");
@@ -354,6 +362,36 @@
         return formulario;
     };
 
+    const crearValoracionCurso = (resultado) => {
+        if (resultado.tipo !== "Curso") {
+            return null;
+        }
+        const enlace = document.createElement("a");
+        enlace.className = "d-inline-flex align-items-center gap-2 small text-decoration-none";
+        enlace.href = `${resultado.url}#valoraciones`;
+        enlace.setAttribute("aria-label",
+            `Valoración ${resultado.promedioValoracion} de 5, ${resultado.cantidadValoraciones} votos`);
+        const promedio = document.createElement("strong");
+        promedio.textContent = resultado.promedioValoracion ?? "0.00";
+        const estrellas = document.createElement("span");
+        estrellas.className = "d-inline-flex gap-1 text-warning";
+        estrellas.setAttribute("aria-hidden", "true");
+        for (let valor = 1; valor <= 5; valor++) {
+            const estrella = document.createElement("i");
+            estrella.className = valor <= resultado.estrellasValoracion
+                ? "bi bi-star-fill"
+                : valor - 0.5 <= resultado.estrellasValoracion
+                    ? "bi bi-star-half"
+                    : "bi bi-star text-secondary";
+            estrellas.append(estrella);
+        }
+        const votos = document.createElement("span");
+        votos.className = "text-muted";
+        votos.textContent = `(${resultado.cantidadValoraciones} votos)`;
+        enlace.append(promedio, estrellas, votos);
+        return enlace;
+    };
+
     document.addEventListener("submit", async (evento) => {
         const formulario = evento.target.closest("[data-follow-form]");
         if (!formulario) {
@@ -388,11 +426,6 @@
             if (formulario.hasAttribute("data-follow-redirect")) {
                 const volverA = formulario.querySelector("[name='volverA']")?.value;
                 window.location.assign(volverA || window.location.href);
-                return;
-            }
-
-            if (formulario.hasAttribute("data-profile-refresh")) {
-                window.location.reload();
                 return;
             }
 
