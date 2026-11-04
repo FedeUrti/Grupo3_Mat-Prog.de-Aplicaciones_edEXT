@@ -38,6 +38,7 @@ public class EdicionCurso implements Serializable {
     private int cupo;
     private LocalDate fechaPublicacion;
     private String imagenPath;
+    private Boolean cerrada = Boolean.FALSE;
 
     public EdicionCurso() {
     }
@@ -77,6 +78,7 @@ public class EdicionCurso implements Serializable {
 
     public String getImagenPath() { return imagenPath; }
     public void setImagenPath(String imagenPath) { this.imagenPath = imagenPath; }
+    public boolean isCerrada() { return Boolean.TRUE.equals(cerrada); }
 
     public void agregarDocente(Docente docente) {
         if (docente != null && !this.docentes.contains(docente)) {
@@ -98,6 +100,25 @@ public class EdicionCurso implements Serializable {
 
     public InscripcionEC buscarInscripcionPorEstudiante(String nicknameEstudiante) {
         return this.inscripciones.get(nicknameEstudiante);
+    }
+
+    public synchronized InscripcionEC desistirInscripcion(String nicknameEstudiante) {
+        if (isCerrada()) {
+            throw new IllegalStateException("No se puede desistir de una edición cerrada.");
+        }
+        InscripcionEC inscripcion = buscarInscripcionPorEstudiante(nicknameEstudiante);
+        if (inscripcion == null) {
+            throw new IllegalArgumentException("No existe una inscripción del estudiante para esta edición.");
+        }
+        if (inscripcion.getEstado() != EstadoInscripcion.INSCRIPTO) {
+            throw new IllegalStateException("Solo se puede desistir de una inscripción pendiente.");
+        }
+        inscripciones.remove(nicknameEstudiante);
+        if (inscripcion.getEstudiante() != null
+                && inscripcion.getEstudiante().getInscripciones() != null) {
+            inscripcion.getEstudiante().getInscripciones().remove(nombre);
+        }
+        return inscripcion;
     }
 
     public boolean tieneCupoDisponible() {
@@ -126,6 +147,9 @@ public class EdicionCurso implements Serializable {
     }
 
     public synchronized void cambiarEstadoInscripcion(String nicknameEstudiante, EstadoInscripcion nuevoEstado) {
+        if (isCerrada()) {
+            throw new IllegalStateException("No se pueden cambiar inscripciones de una edición cerrada.");
+        }
         // Primero se comprueba que exista la inscripción que se quiere revisar.
         InscripcionEC insc = buscarInscripcionPorEstudiante(nicknameEstudiante);
         if (insc == null) {
@@ -149,5 +173,34 @@ public class EdicionCurso implements Serializable {
                             && inscripcionPendiente.getEstado() == EstadoInscripcion.INSCRIPTO)
                     .forEach(inscripcionPendiente -> inscripcionPendiente.setEstado(EstadoInscripcion.RECHAZADA));
         }
+    }
+
+    public synchronized void evaluarInscripcion(String nicknameEstudiante, int evaluacion) {
+        if (isCerrada()) {
+            throw new IllegalStateException("No se pueden modificar evaluaciones de una edición cerrada.");
+        }
+        InscripcionEC inscripcion = buscarInscripcionPorEstudiante(nicknameEstudiante);
+        if (inscripcion == null) {
+            throw new IllegalArgumentException("El estudiante no está inscripto en esta edición.");
+        }
+        if (inscripcion.getEstado() != EstadoInscripcion.ACEPTADA) {
+            throw new IllegalStateException("Solo se pueden evaluar inscripciones aceptadas.");
+        }
+        inscripcion.setEvaluacion(evaluacion);
+    }
+
+    public synchronized void cerrar() {
+        if (isCerrada()) {
+            throw new IllegalStateException("La edición ya está cerrada.");
+        }
+        boolean hayAceptadasSinEvaluar = inscripciones != null && inscripciones.values().stream()
+                .anyMatch(inscripcion -> inscripcion != null
+                        && inscripcion.getEstado() == EstadoInscripcion.ACEPTADA
+                        && inscripcion.getEvaluacion() == null);
+        if (hayAceptadasSinEvaluar) {
+            throw new IllegalStateException(
+                    "No se puede cerrar la edición: hay inscripciones aceptadas sin evaluar.");
+        }
+        cerrada = Boolean.TRUE;
     }
 }

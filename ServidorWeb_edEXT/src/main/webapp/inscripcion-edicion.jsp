@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-6"/>
+        <c:param name="v" value="20261015-2"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -52,6 +52,18 @@
         <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
             <i class="bi bi-info-circle-fill me-2"></i>
             <c:out value="${mensajeInfo}"/>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    </c:if>
+    <c:if test="${not empty mensajeDesistir}">
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="status">
+            <c:out value="${mensajeDesistir}"/>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    </c:if>
+    <c:if test="${not empty errorDesistir}">
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <c:out value="${errorDesistir}"/>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
         </div>
     </c:if>
@@ -119,6 +131,37 @@
                     </form>
                 </c:if>
             </div>
+            <section class="content-card p-4 mt-4">
+                <h2 class="h6 text-uppercase fw-bold text-muted mb-3">Mis solicitudes pendientes</h2>
+                <c:choose>
+                    <c:when test="${not empty inscripcionesPendientes}">
+                        <ul class="list-group list-group-flush">
+                            <c:forEach items="${inscripcionesPendientes}" var="inscripcionPendiente">
+                                <li class="list-group-item px-0 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                    <span>
+                                        <strong><c:out value="${inscripcionPendiente.nombreEdicion}"/></strong>
+                                        <small class="d-block text-muted">
+                                            Inscripto el <c:out value="${inscripcionPendiente.fechaInscripcion}"/>
+                                        </small>
+                                    </span>
+                                    <form action="inscripcion-edicion" method="post"
+                                          onsubmit="return confirm('¿Querés desistir de esta inscripción?');">
+                                        <input type="hidden" name="accion" value="desistir">
+                                        <input type="hidden" name="edicion"
+                                               value="<c:out value='${inscripcionPendiente.nombreEdicion}'/>">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                                            <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Desistir
+                                        </button>
+                                    </form>
+                                </li>
+                            </c:forEach>
+                        </ul>
+                    </c:when>
+                    <c:otherwise>
+                        <p class="small text-muted mb-0">No tenés solicitudes pendientes de aceptación.</p>
+                    </c:otherwise>
+                </c:choose>
+            </section>
         </aside>
 
         <!-- Panel Derecho: Edición Vigente y Formulario de Inscripción -->
@@ -155,11 +198,19 @@
                         <c:choose>
                             <c:when test="${yaInscripto}">
                                 <div class="card border-warning bg-light p-3 mb-4">
-                                    <h3 class="h6 fw-bold text-warning-emphasis mb-2">
-                                        <i class="bi bi-info-circle me-1"></i> Ya estás inscripto a esta edición
-                                    </h3>
+                                    <h3 class="h6 fw-bold text-warning-emphasis mb-2">Estado de tu inscripción</h3>
                                     <p class="small text-muted mb-0">
-                                        Actualmente te encontrás registrado en la edición <strong><c:out value="${edicionVigente.nombre}"/></strong>.
+                                        <c:choose>
+                                            <c:when test="${estadoInscripcion eq 'INSCRIPTO'}">
+                                                Ya estás inscripto a <strong><c:out value="${edicionVigente.nombre}"/></strong>; tu solicitud está pendiente de aceptación.
+                                            </c:when>
+                                            <c:when test="${estadoInscripcion eq 'ACEPTADA'}">
+                                                Ya estás inscripto a <strong><c:out value="${edicionVigente.nombre}"/></strong> y tu inscripción fue aceptada.
+                                            </c:when>
+                                            <c:when test="${estadoInscripcion eq 'RECHAZADA'}">
+                                                Ya estás inscripto a <strong><c:out value="${edicionVigente.nombre}"/></strong>, pero tu inscripción fue rechazada.
+                                            </c:when>
+                                        </c:choose>
                                     </p>
                                 </div>
                                 <a href="inscripcion-edicion" class="btn btn-outline-secondary">
@@ -177,6 +228,15 @@
                                     <c:if test="${not empty filtroCategoria}">
                                         <input type="hidden" name="categoria" value="<c:out value='${filtroCategoria}'/>"/>
                                     </c:if>
+
+                                    <div class="mb-3">
+                                        <label for="enlaceVideo" class="form-label fw-semibold">Video de presentación (opcional)</label>
+                                        <input type="url" class="form-control" id="enlaceVideo" name="enlaceVideo"
+                                               maxlength="2048" value="<c:out value='${enlaceVideo}'/>"
+                                               placeholder="https://www.youtube.com/watch?v=..."
+                                               autocomplete="url">
+                                        <div class="form-text">Podés compartir un video de YouTube u otra plataforma mediante su enlace.</div>
+                                    </div>
 
                                     <c:if test="${edicionVigente.cupo == 0 or edicionVigente.cupoDisponible > 0}">
                                         <button type="submit" class="btn btn-primary btn-lg w-100">

@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-7"/>
+        <c:param name="v" value="20261015-2"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -139,6 +139,15 @@
                                                     <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
                                                     Ya estás inscripto a este programa.
                                                 </span>
+                                                <c:url var="actaEstudioUrl" value="/acta-estudio">
+                                                    <c:param name="programa" value="${programa.nombre}"/>
+                                                    <c:param name="descargar" value="1"/>
+                                                </c:url>
+                                                <a class="btn btn-outline-primary fw-bold"
+                                                   href="<c:out value='${actaEstudioUrl}'/>">
+                                                    <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>
+                                                    Generar acta de estudio
+                                                </a>
                                             </c:when>
                                             <c:otherwise>
                                                 <c:url var="inscribirProgramaUrl" value="/inscribir-programa"/>
@@ -199,6 +208,14 @@
                                             <li><strong>Duración:</strong> <c:out value="${curso.duracion}"/> semanas</li>
                                             <li><strong>Créditos:</strong> <c:out value="${curso.creditos}"/></li>
                                         </ul>
+                                        <c:url var="cursoDetalleParaValorar" value="/consulta-curso">
+                                            <c:param name="nombre" value="${curso.nombre}"/>
+                                        </c:url>
+                                        <a class="small text-decoration-none mb-3"
+                                           href="<c:out value='${cursoDetalleParaValorar}'/>#valoraciones">
+                                            <i class="bi bi-star-fill text-warning" aria-hidden="true"></i>
+                                            Valorar este curso
+                                        </a>
 
                                         <c:url var="detalleCursoUrl" value="/consulta-curso">
                                             <c:param name="nombre" value="${curso.nombre}"/>
@@ -251,7 +268,7 @@
                                                 <option value="<c:out value='${c}'/>"><c:out value="${c}"/></option>
                                             </c:forEach>
                                         </select>
-                                        <div class="form-text">Solo se muestran los cursos registrados en el sistema.</div>
+                                        <div class="form-text">Solo se muestran cursos de tus institutos.</div>
                                     </div>
 
                                 </div>

@@ -1,15 +1,18 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.SoapValues;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EstadoInscripcion;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtInscripcionEdicion;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEstudiante;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -28,20 +31,20 @@ import java.util.List;
 @WebServlet("/inscripcion-edicion")
 public class InscripcionEdicionServlet extends HttpServlet {
 
-    private IControladorCurso controladorCurso;
-    private IControladorEdicion controladorEdicion;
-    private IControladorInstituto controladorInstituto;
-    private IControladorCategoria controladorCategoria;
-    private IControladorUsuario controladorUsuario;
+    private CursoSoap controladorCurso;
+    private EdicionSoap controladorEdicion;
+    private InstitutoSoap controladorInstituto;
+    private CategoriaSoap controladorCategoria;
+    private UsuarioSoap controladorUsuario;
 
     @Override
     public void init() throws ServletException {
-        Fabrica fabrica = Fabrica.getInstance();
-        this.controladorCurso = fabrica.getIControladorCurso();
-        this.controladorEdicion = fabrica.getIControladorEdicion();
-        this.controladorInstituto = fabrica.getIControladorInstituto();
-        this.controladorCategoria = fabrica.getIControladorCategoria();
-        this.controladorUsuario = fabrica.getIControladorUsuario();
+
+        this.controladorCurso = ControladoresRemotos.getCursoSoap();
+        this.controladorEdicion = ControladoresRemotos.getEdicionSoap();
+        this.controladorInstituto = ControladoresRemotos.getInstitutoSoap();
+        this.controladorCategoria = ControladoresRemotos.getCategoriaSoap();
+        this.controladorUsuario = ControladoresRemotos.getUsuarioSoap();
     }
 
     @Override
@@ -74,19 +77,46 @@ public class InscripcionEdicionServlet extends HttpServlet {
                             ? controladorCurso.listarCursosPorCategoria(categoria)
                             : todosLosCursos;
             List<String> cursosDisponibles = new ArrayList<>();
-            for (String candidato : cursosCandidatos) {
-                DtCurso curso = controladorCurso.consultarCurso(candidato);
+            for (DtCurso curso : SoapValues.consultarCursos(controladorCurso, cursosCandidatos)) {
                 if (curso != null
                         && (instituto.isEmpty() || instituto.equals(curso.getNomInstituto()))
                         && (categoria.isEmpty() || curso.getCategorias().contains(categoria))) {
-                    cursosDisponibles.add(candidato);
+                    cursosDisponibles.add(curso.getNombre());
                 }
             }
             request.setAttribute("cursos", cursosDisponibles);
             request.setAttribute("filtroInstituto", instituto);
             request.setAttribute("filtroCategoria", categoria);
-            request.setAttribute("mensajeExito", "1".equals(request.getParameter("inscripto"))
-                    ? "Tu inscripción quedó registrada correctamente." : null);
+            request.setAttribute("mensajeExito", null);
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                Object mensaje = session.getAttribute("mensajeInscripcion");
+                Object error = session.getAttribute("errorInscripcion");
+                if (mensaje != null) {
+                    request.setAttribute("mensajeDesistir", mensaje);
+                    session.removeAttribute("mensajeInscripcion");
+                }
+                if (error != null) {
+                    request.setAttribute("errorDesistir", error);
+                    session.removeAttribute("errorInscripcion");
+                }
+                if ("1".equals(request.getParameter("inscripto"))) {
+                    request.setAttribute("mensajeExito", "Tu solicitud de inscripción fue registrada.");
+                }
+            }
+            DtUsuario usuario = controladorUsuario.obtenerInfoUsuario(usuarioNickname);
+            if (usuario instanceof DtEstudiante estudiante) {
+                List<DtInscripcionEdicion> pendientes = new ArrayList<>();
+                if (estudiante.getInscripcionesEdicion() != null) {
+                    for (DtInscripcionEdicion inscripcion : estudiante.getInscripcionesEdicion()) {
+                        if (inscripcion != null && inscripcion.getEstado() == EstadoInscripcion.INSCRIPTO
+                                && !inscripcion.isEdicionCerrada()) {
+                            pendientes.add(inscripcion);
+                        }
+                    }
+                }
+                request.setAttribute("inscripcionesPendientes", pendientes);
+            }
 
             if (!nombreCurso.isEmpty()
                     && !todosLosCursos.contains(nombreCurso)) {
@@ -94,17 +124,21 @@ public class InscripcionEdicionServlet extends HttpServlet {
                 request.setAttribute("error", "No se encontró el curso seleccionado.");
             } else if (!nombreCurso.isEmpty()) {
                 request.setAttribute("cursoSeleccionado", nombreCurso);
-                String nombreEdicionVigente = controladorCurso.obtenerEdicionVigente(nombreCurso, LocalDate.now());
+                String nombreEdicionVigente = controladorCurso.obtenerEdicionVigente(
+                        nombreCurso, LocalDate.now().toString());
                 if (nombreEdicionVigente != null && !nombreEdicionVigente.isBlank()) {
-                    DTEdicionCurso edicionVigente = controladorEdicion.mostrarDetalleEdicion(nombreEdicionVigente);
+                    DtEdicionCurso edicionVigente = controladorEdicion.mostrarDetalleEdicion(nombreEdicionVigente);
                     if (edicionVigente == null) {
                         request.setAttribute("mensajeInfo", "No se encontraron los datos de la edición vigente.");
                     } else {
                         request.setAttribute("edicionVigente", edicionVigente);
-                        List<String> edicionesEstudiante =
-                                controladorEdicion.listarEdicionesDeEstudiante(usuarioNickname);
-                        request.setAttribute("yaInscripto",
-                                edicionesEstudiante != null && edicionesEstudiante.contains(nombreEdicionVigente));
+                        EstadoInscripcion estadoInscripcion = estadoInscripcion(usuarioNickname, nombreEdicionVigente);
+                        request.setAttribute("estadoInscripcion",
+                            estadoInscripcion == null ? null : estadoInscripcion.name());
+                        request.setAttribute("yaInscripto", estadoInscripcion != null);
+                        if (estadoInscripcion != null && "1".equals(request.getParameter("inscripto"))) {
+                            request.setAttribute("mensajeExito", mensajeInscripcion(estadoInscripcion));
+                        }
                     }
                 } else {
                     request.setAttribute("mensajeInfo",
@@ -128,8 +162,15 @@ public class InscripcionEdicionServlet extends HttpServlet {
             return;
         }
 
+        if ("desistir".equals(limpiar(request.getParameter("accion")))) {
+            desistirInscripcion(request, response, usuarioNickname);
+            return;
+        }
+
         String nombreCurso = limpiar(request.getParameter("curso"));
         String nombreEdicion = limpiar(request.getParameter("edicion"));
+        String enlaceVideo = limpiar(request.getParameter("enlaceVideo"));
+        request.setAttribute("enlaceVideo", enlaceVideo);
 
         try {
             if (nombreCurso.isEmpty() || nombreEdicion.isEmpty()) {
@@ -138,7 +179,8 @@ public class InscripcionEdicionServlet extends HttpServlet {
             if (!controladorCurso.listarCursos().contains(nombreCurso)) {
                 throw new IllegalArgumentException("No se encontró el curso seleccionado.");
             }
-            String edicionVigente = controladorCurso.obtenerEdicionVigente(nombreCurso, LocalDate.now());
+            String edicionVigente = controladorCurso.obtenerEdicionVigente(
+                    nombreCurso, LocalDate.now().toString());
             if (!nombreEdicion.equals(edicionVigente)) {
                 throw new IllegalArgumentException("La edición ya no está abierta para inscripción.");
             }
@@ -146,14 +188,16 @@ public class InscripcionEdicionServlet extends HttpServlet {
             if (edicionesEstudiante != null && edicionesEstudiante.contains(nombreEdicion)) {
                 throw new IllegalArgumentException("Ya estás inscripto a esta edición.");
             }
-            DTEdicionCurso edicion = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
+            DtEdicionCurso edicion = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
             if (edicion == null) {
                 throw new IllegalArgumentException("No se encontró la edición seleccionada.");
             }
             if (edicion.getCupo() > 0 && edicion.getCupoDisponible() <= 0) {
                 throw new IllegalArgumentException("La edición ya no tiene cupos disponibles.");
             }
-            controladorEdicion.inscribirEstudianteAEdicion(usuarioNickname, nombreEdicion, LocalDate.now());
+            controladorEdicion.inscribirEstudianteAEdicionConVideo(
+                    usuarioNickname, nombreEdicion, LocalDate.now().toString(),
+                    enlaceVideo.isEmpty() ? null : enlaceVideo);
             StringBuilder redirectUrl = new StringBuilder(request.getContextPath())
                     .append("/inscripcion-edicion?curso=")
                     .append(URLEncoder.encode(nombreCurso, StandardCharsets.UTF_8))
@@ -181,6 +225,26 @@ public class InscripcionEdicionServlet extends HttpServlet {
         }
     }
 
+    private void desistirInscripcion(HttpServletRequest request, HttpServletResponse response,
+            String usuarioNickname) throws IOException {
+        String nombreEdicion = limpiar(request.getParameter("edicion"));
+        HttpSession session = request.getSession(false);
+        try {
+            if (nombreEdicion.isEmpty()) {
+                throw new IllegalArgumentException("Seleccioná una inscripción pendiente para desistir.");
+            }
+            controladorEdicion.desistirInscripcionEstudiante(usuarioNickname, nombreEdicion);
+            session.setAttribute("mensajeInscripcion",
+                    "Desististe de la inscripción a la edición " + nombreEdicion + ".");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            session.setAttribute("errorInscripcion", e.getMessage());
+        } catch (Exception e) {
+            getServletContext().log("No se pudo desistir de la inscripción a la edición.", e);
+            session.setAttribute("errorInscripcion", "No se pudo cancelar la inscripción. Intentá nuevamente.");
+        }
+        response.sendRedirect(request.getContextPath() + "/inscripcion-edicion");
+    }
+
     private String estudianteActual(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         HttpSession session = request.getSession(false);
@@ -200,6 +264,26 @@ public class InscripcionEdicionServlet extends HttpServlet {
         }
         response.sendRedirect(request.getContextPath() + "/inicio?acceso=estudiante");
         return null;
+    }
+
+    private EstadoInscripcion estadoInscripcion(String nickname, String nombreEdicion) throws Exception {
+        DtUsuario usuario = controladorUsuario.obtenerInfoUsuario(nickname);
+        if (usuario instanceof DtEstudiante estudiante) {
+            for (DtInscripcionEdicion inscripcion : estudiante.getInscripcionesEdicion()) {
+                if (nombreEdicion.equals(inscripcion.getNombreEdicion())) {
+                    return inscripcion.getEstado();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String mensajeInscripcion(EstadoInscripcion estado) {
+        return switch (estado) {
+            case INSCRIPTO -> "Ya te inscribiste a esta edición. Tu inscripción está pendiente de ser aceptada.";
+            case ACEPTADA -> "Ya estás inscripto a esta edición y tu inscripción fue aceptada.";
+            case RECHAZADA -> "Ya estás inscripto a esta edición, pero tu inscripción fue rechazada.";
+        };
     }
 
     private static String limpiar(String valor) {

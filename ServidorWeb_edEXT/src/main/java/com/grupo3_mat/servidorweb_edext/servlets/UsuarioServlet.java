@@ -1,17 +1,17 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEstudiante;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtInscripcionEdicion;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtProgramaFormacion;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.ProgramaFormacionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -56,11 +56,11 @@ public class UsuarioServlet extends HttpServlet {
     private static final String CLAVE_ERROR = "errorUsuario";
 
     // La lógica de negocio y el acceso a los datos permanecen delegados al servidor central.
-    private final IControladorUsuario usuarios = Fabrica.getInstance().getIControladorUsuario();
-    private final IControladorInstituto institutos = Fabrica.getInstance().getIControladorInstituto();
-    private final IControladorCategoria categorias = Fabrica.getInstance().getIControladorCategoria();
-    private final IControladorEdicion ediciones = Fabrica.getInstance().getIControladorEdicion();
-    private final IControladorProgramaFormacion programas = Fabrica.getInstance().getIControladorProgramaFormacion();
+    private final UsuarioSoap usuarios = ControladoresRemotos.getUsuarioSoap();
+    private final InstitutoSoap institutos = ControladoresRemotos.getInstitutoSoap();
+    private final CategoriaSoap categorias = ControladoresRemotos.getCategoriaSoap();
+    private final EdicionSoap ediciones = ControladoresRemotos.getEdicionSoap();
+    private final ProgramaFormacionSoap programas = ControladoresRemotos.getProgramaFormacionSoap();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -158,7 +158,7 @@ public class UsuarioServlet extends HttpServlet {
 
             // Se guarda la imagen con un nombre generado y el controlador aplica las reglas de alta.
             imagenGuardada = guardarImagen(opcionalPart(request, "imagen"));
-            usuarios.altaUsuarioConInstitutos(nickname, nombre, apellido, correo, fechaNacimiento,
+            usuarios.altaUsuarioConInstitutos(nickname, nombre, apellido, correo, fechaNacimiento.toString(),
                     imagenGuardada, nombresInstitutos, password);
 
             AutenticacionServlet.establecerSesionUsuario(
@@ -217,6 +217,17 @@ public class UsuarioServlet extends HttpServlet {
                     HttpSession sesion = request.getSession(false);
                     String nicknameSesion = sesion == null ? null
                             : (String) sesion.getAttribute(CLAVE_USUARIO);
+                    Map<String, Boolean> siguiendoRelacionados = new HashMap<>();
+                    if (nicknameSesion != null) {
+                        DtUsuario usuarioSesion = usuarios.obtenerInfoUsuario(nicknameSesion);
+                        if (usuarioSesion != null) {
+                            for (String nicknameRelacionado : perfilesRelacionados.keySet()) {
+                                siguiendoRelacionados.put(nicknameRelacionado,
+                                        usuarioSesion.getSeguidos().contains(nicknameRelacionado));
+                            }
+                        }
+                    }
+                    request.setAttribute("siguiendoRelacionados", siguiendoRelacionados);
                     request.setAttribute("esPropietario", nickname.equals(nicknameSesion));
                     request.setAttribute("siguiendoUsuario",
                             nicknameSesion != null && usuario.getSeguidores().contains(nicknameSesion));
@@ -237,22 +248,28 @@ public class UsuarioServlet extends HttpServlet {
         List<String> nombresEdiciones = new ArrayList<>();
         Map<String, String> cursosPorEdicion = new HashMap<>();
         Map<String, String> estadosPorEdicion = new HashMap<>();
+        Map<String, Integer> evaluacionesPorEdicion = new HashMap<>();
 
         if (usuario instanceof DtDocente docente) {
             nombresEdiciones.addAll(docente.getEdicionesAsociadas());
             request.setAttribute("programasUsuario", docente.getProgramas());
         } else if (usuario instanceof DtEstudiante estudiante) {
-            for (DTInscripcionEdicion inscripcion : estudiante.getInscripcionesEdicion()) {
+            for (DtInscripcionEdicion inscripcion : estudiante.getInscripcionesEdicion()) {
                 nombresEdiciones.add(inscripcion.getNombreEdicion());
                 estadosPorEdicion.put(inscripcion.getNombreEdicion(),
                         inscripcion.getEstado() == null ? "" : inscripcion.getEstado().toString());
+                if (inscripcion.isEdicionCerrada()
+                        && inscripcion.getEstado() == com.grupo3_mat.servidorweb_edext.soap.generated.EstadoInscripcion.ACEPTADA
+                        && inscripcion.getEvaluacion() != null) {
+                    evaluacionesPorEdicion.put(inscripcion.getNombreEdicion(), inscripcion.getEvaluacion());
+                }
             }
             request.setAttribute("programasUsuario", estudiante.getProgramasInscripto());
         }
 
-        List<DTEdicionCurso> detallesEdiciones = new ArrayList<>();
+        List<DtEdicionCurso> detallesEdiciones = new ArrayList<>();
         for (String nombreEdicion : nombresEdiciones) {
-            DTEdicionCurso detalle = ediciones.mostrarDetalleEdicion(nombreEdicion);
+            DtEdicionCurso detalle = ediciones.mostrarDetalleEdicion(nombreEdicion);
             if (detalle != null) {
                 detallesEdiciones.add(detalle);
                 cursosPorEdicion.put(nombreEdicion, ediciones.obtenerCursoDeEdicion(nombreEdicion));
@@ -261,14 +278,15 @@ public class UsuarioServlet extends HttpServlet {
         request.setAttribute("edicionesUsuario", detallesEdiciones);
         request.setAttribute("cursosPorEdicion", cursosPorEdicion);
         request.setAttribute("estadosPorEdicion", estadosPorEdicion);
+        request.setAttribute("evaluacionesPorEdicion", evaluacionesPorEdicion);
 
-        List<DTProgramaFormacion> detallesProgramas = new ArrayList<>();
+        List<DtProgramaFormacion> detallesProgramas = new ArrayList<>();
         List<String> nombresProgramas = usuario instanceof DtDocente docente
                 ? docente.getProgramas()
                 : usuario instanceof DtEstudiante estudiante ? estudiante.getProgramasInscripto() : List.of();
         for (String nombrePrograma : nombresProgramas) {
             try {
-                DTProgramaFormacion programa = programas.consultarPrograma(nombrePrograma);
+                DtProgramaFormacion programa = programas.consultarPrograma(nombrePrograma);
                 if (programa != null) {
                     detallesProgramas.add(programa);
                 }
@@ -304,6 +322,7 @@ public class UsuarioServlet extends HttpServlet {
 
     private static String imagenPerfil(String imagen, boolean esDocente) {
         if (imagen != null && (imagen.matches("[a-f0-9-]{36}\\.(png|jpg|gif|webp)")
+                || imagen.matches("Presentacion/Recursos/datos_prueba/usuario_[a-z0-9_-]+\\.(png|jpg|jpeg)")
                 || imagen.endsWith("docente_placeholder.png")
                 || imagen.endsWith("estudiante_placeholder.png"))) {
             return imagen;
@@ -362,7 +381,7 @@ public class UsuarioServlet extends HttpServlet {
             imagenGuardada = guardarImagen(opcionalPart(request, "imagen"));
             // Si no se eligió otra imagen, se conserva la que ya tenía el perfil.
             String imagenPath = imagenGuardada != null ? imagenGuardada : usuarioActual.getImagenPath();
-            usuarios.modificarDatosUsuario(nickname, nombre, apellido, fechaNacimiento, imagenPath);
+            usuarios.modificarDatosUsuario(nickname, nombre, apellido, fechaNacimiento.toString(), imagenPath);
             HttpSession sesion = request.getSession(false);
             if (sesion != null) {
                 sesion.setAttribute("usuarioImagen", imagenPerfil(imagenPath, usuarioActual instanceof DtDocente));

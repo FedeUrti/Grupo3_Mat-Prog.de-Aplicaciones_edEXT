@@ -23,7 +23,8 @@ document.addEventListener("click", (event) => {
 document.addEventListener("DOMContentLoaded", () => {
     const panelTabs = {
         "#ediciones-panel": "#ediciones-tab",
-        "#seguidos-panel": "#seguidos-tab"
+        "#seguidos-panel": "#seguidos-tab",
+        "#seguidores-panel": "#seguidores-tab"
     };
     const tabSelector = panelTabs[window.location.hash];
     const tab = tabSelector && document.querySelector(tabSelector);

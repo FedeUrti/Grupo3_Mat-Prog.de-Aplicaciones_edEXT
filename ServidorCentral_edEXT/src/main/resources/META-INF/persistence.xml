@@ -8,6 +8,8 @@
     <class>com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso</class>
     <class>com.grupo3_mat.edEXT.Logica.Clases.Estudiante</class>
     <class>com.grupo3_mat.edEXT.Logica.Clases.InscripcionEC</class>
+    <class>com.grupo3_mat.edEXT.Logica.Clases.ValoracionCurso</class>
+    <class>com.grupo3_mat.edEXT.Logica.Clases.ValoracionCursoId</class>
     <class>com.grupo3_mat.edEXT.Logica.Clases.ProgramaFormacion</class>
     <class>com.grupo3_mat.edEXT.Logica.Clases.Usuario</class>
     <class>com.grupo3_mat.edEXT.Logica.Clases.Categoria</class>

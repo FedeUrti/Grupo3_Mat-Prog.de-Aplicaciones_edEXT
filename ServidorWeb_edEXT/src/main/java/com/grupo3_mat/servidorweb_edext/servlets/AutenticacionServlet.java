@@ -1,9 +1,9 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 public class AutenticacionServlet extends HttpServlet {
 
     private static final String CLAVE_USUARIO = "usuarioNickname";
-    private final IControladorUsuario usuarios = Fabrica.getInstance().getIControladorUsuario();
+    private final UsuarioSoap usuarios = ControladoresRemotos.getUsuarioSoap();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -69,7 +69,7 @@ public class AutenticacionServlet extends HttpServlet {
             // 1. Delegar la verificación de credenciales y hashes al controlador central.
             usuarios.iniciarSesion(identificador, password);
             // 2. Resolver el nickname para asociar la cuenta a la sesión web.
-            String nickname = resolverNickname(identificador);
+            String nickname = usuarios.resolverNickname(identificador);
             if (nickname == null) {
                 throw new IllegalStateException("La cuenta autenticada no se pudo identificar.");
             }
@@ -110,19 +110,6 @@ public class AutenticacionServlet extends HttpServlet {
         // El perfil propio reutiliza exactamente la vista de consulta, incluidos sus datos y acciones.
         response.sendRedirect(request.getContextPath() + "/consulta-usuario?nickname="
                 + URLEncoder.encode(nickname, StandardCharsets.UTF_8));
-    }
-
-    private String resolverNickname(String identificador) {
-        // iniciarSesion valida credenciales pero no devuelve el identificador interno necesario para la sesión web.
-        for (String nickname : usuarios.listarNicknamesUsuarios()) {
-            DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
-            if (nickname.equals(identificador)
-                    || (usuario != null && usuario.getCorreo() != null
-                    && usuario.getCorreo().equalsIgnoreCase(identificador.trim()))) {
-                return nickname;
-            }
-        }
-        return null;
     }
 
     static void establecerSesionUsuario(HttpServletRequest request, String nickname, String nombre,

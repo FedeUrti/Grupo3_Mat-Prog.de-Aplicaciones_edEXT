@@ -3,7 +3,12 @@ package com.grupo3_mat.edEXT.Logica.DataTypes;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlSeeAlso({DtDocente.class, DtEstudiante.class})
 public class DtUsuario {
     private String nickname;
     private String nombre;
@@ -12,8 +17,13 @@ public class DtUsuario {
     private LocalDate fechaNacimiento;
     private String imagenPath;
     // Se muestran los vínculos sociales, pero nunca se incluye la contraseña en el DTO.
-    private final List<String> seguidores;
-    private final List<String> seguidos;
+    private List<String> seguidores;
+    private List<String> seguidos;
+
+    public DtUsuario() {
+        this.seguidores = new ArrayList<>();
+        this.seguidos = new ArrayList<>();
+    }
 
     public DtUsuario(String nickname, String nombre, String apellido, String correo, LocalDate fechaNacimiento, String imagenPath) {
         this(nickname, nombre, apellido, correo, fechaNacimiento, imagenPath, null, null);

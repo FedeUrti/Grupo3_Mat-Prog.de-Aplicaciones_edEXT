@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by XML-WS Runtime (https://github.com/eclipse-ee4j/metro-jax-ws). Runtime's version is XML-WS Runtime 4.0.3 git-revision#a57c222. --><xs:schema xmlns:tns="http://soap.edext.grupo3_mat.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://soap.edext.grupo3_mat.com/">
+
+<xs:element name="Exception" type="tns:Exception"/>
+
+<xs:element name="altaCategoria" type="tns:altaCategoria"/>
+
+<xs:element name="altaCategoriaResponse" type="tns:altaCategoriaResponse"/>
+
+<xs:element name="listarCategorias" type="tns:listarCategorias"/>
+
+<xs:element name="listarCategoriasResponse" type="tns:listarCategoriasResponse"/>
+
+<xs:element name="modificarCategoria" type="tns:modificarCategoria"/>
+
+<xs:element name="modificarCategoriaResponse" type="tns:modificarCategoriaResponse"/>
+
+<xs:complexType name="modificarCategoria">
+<xs:sequence>
+<xs:element name="nombreActual" type="xs:string" minOccurs="0"/>
+<xs:element name="nuevoNombre" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="modificarCategoriaResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="Exception">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarCategorias">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listarCategoriasResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="altaCategoria">
+<xs:sequence>
+<xs:element name="nombre" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="altaCategoriaResponse">
+<xs:sequence/>
+</xs:complexType>
+</xs:schema>

@@ -12,6 +12,9 @@
     const resultadosInicio = document.querySelector("[data-home-search-results]");
     const cursosInicio = document.querySelector("[data-home-course-list]");
     const filtro = contenedor.querySelector("[data-search-filter]");
+    const ordenarPor = contenedor.querySelector("[data-search-sort]");
+    const direccionBusqueda = contenedor.querySelector("[data-search-direction]");
+    const opcionesOrden = contenedor.querySelector("[data-search-options]");
     const urlBusqueda = contenedor.dataset.searchUrl;
     const urlSeguirUsuario = contenedor.dataset.followUrl;
     const urlDejarDeSeguirUsuario = contenedor.dataset.unfollowUrl;
@@ -22,6 +25,7 @@
         { tipo: "Programa", etiqueta: "Programas" },
         { tipo: "Usuario", etiqueta: "Usuarios" }
     ];
+    const cacheBusqueda = new Map();
     let temporizador;
     let solicitud;
     let indiceActivo = -1;
@@ -54,6 +58,16 @@
             direccion.searchParams.set("tipo", filtro.value);
         } else {
             direccion.searchParams.delete("tipo");
+        }
+        if (ordenarPor && ordenarPor.value !== "alfabetico") {
+            direccion.searchParams.set("ordenarPor", ordenarPor.value);
+        } else {
+            direccion.searchParams.delete("ordenarPor");
+        }
+        if (direccionBusqueda?.value === "desc") {
+            direccion.searchParams.set("direccion", "desc");
+        } else {
+            direccion.searchParams.delete("direccion");
         }
         window.history.replaceState(null, "", direccion);
     };
@@ -170,6 +184,10 @@
             detalle.className = "global-search-result-detail";
             detalle.textContent = resultado.detalle;
             texto.append(titulo, detalle);
+            const valoracion = crearValoracionCurso(resultado);
+            if (valoracion) {
+                texto.append(valoracion);
+            }
 
             const tipo = document.createElement("span");
             tipo.className = "global-search-result-type";
@@ -278,6 +296,10 @@
                     detalle.className = "text-muted small mb-0";
                     detalle.textContent = resultado.detalle;
                     texto.append(titulo, detalle);
+                    const valoracion = crearValoracionCurso(resultado);
+                    if (valoracion) {
+                        texto.append(valoracion);
+                    }
                     tarjeta.append(texto);
                     if (resultado.url) {
                         const enlaceAccion = document.createElement("a");
@@ -340,6 +362,36 @@
         return formulario;
     };
 
+    const crearValoracionCurso = (resultado) => {
+        if (resultado.tipo !== "Curso") {
+            return null;
+        }
+        const enlace = document.createElement("a");
+        enlace.className = "d-inline-flex align-items-center gap-2 small text-decoration-none";
+        enlace.href = `${resultado.url}#valoraciones`;
+        enlace.setAttribute("aria-label",
+            `Valoración ${resultado.promedioValoracion} de 5, ${resultado.cantidadValoraciones} votos`);
+        const promedio = document.createElement("strong");
+        promedio.textContent = resultado.promedioValoracion ?? "0.00";
+        const estrellas = document.createElement("span");
+        estrellas.className = "d-inline-flex gap-1 text-warning";
+        estrellas.setAttribute("aria-hidden", "true");
+        for (let valor = 1; valor <= 5; valor++) {
+            const estrella = document.createElement("i");
+            estrella.className = valor <= resultado.estrellasValoracion
+                ? "bi bi-star-fill"
+                : valor - 0.5 <= resultado.estrellasValoracion
+                    ? "bi bi-star-half"
+                    : "bi bi-star text-secondary";
+            estrellas.append(estrella);
+        }
+        const votos = document.createElement("span");
+        votos.className = "text-muted";
+        votos.textContent = `(${resultado.cantidadValoraciones} votos)`;
+        enlace.append(promedio, estrellas, votos);
+        return enlace;
+    };
+
     document.addEventListener("submit", async (evento) => {
         const formulario = evento.target.closest("[data-follow-form]");
         if (!formulario) {
@@ -380,8 +432,61 @@
             const nuevoEstado = !siguiendo;
             formulario.dataset.following = String(nuevoEstado);
             formulario.action = nuevoEstado ? urlDejarDeSeguirUsuario : urlSeguirUsuario;
-            boton.className = `btn btn-sm flex-shrink-0 ${nuevoEstado ? "btn-siguiendo" : "btn-primary"}`;
-            boton.textContent = nuevoEstado ? "Dejar de seguir" : "Seguir";
+            const nicknameSeguido = formulario.dataset.followNickname
+                    || formulario.querySelector("[name='nicknameASeguir']")?.value;
+            const formulariosRelacionados = [...document.querySelectorAll("[data-follow-form]")]
+                .filter((formularioRelacionado) => {
+                    const destino = formularioRelacionado.dataset.followNickname
+                            || formularioRelacionado.querySelector("[name='nicknameASeguir']")?.value;
+                    return destino === nicknameSeguido;
+                });
+            formulariosRelacionados.forEach((formularioRelacionado) => {
+                formularioRelacionado.dataset.following = String(nuevoEstado);
+                formularioRelacionado.action = nuevoEstado ? urlDejarDeSeguirUsuario : urlSeguirUsuario;
+                const botonRelacionado = formularioRelacionado.querySelector("button[type='submit']");
+                botonRelacionado?.classList.toggle("btn-siguiendo", nuevoEstado);
+                botonRelacionado?.classList.toggle("btn-primary", !nuevoEstado);
+                const etiqueta = botonRelacionado?.querySelector("[data-follow-label]");
+                if (etiqueta) {
+                    etiqueta.textContent = nuevoEstado ? "Dejar de seguir" : "Seguir";
+                } else if (botonRelacionado) {
+                    botonRelacionado.textContent = nuevoEstado ? "Dejar de seguir" : "Seguir";
+                }
+                const icono = botonRelacionado?.querySelector(".bi-person-check-fill, .bi-person-plus-fill");
+                icono?.classList.toggle("bi-person-check-fill", nuevoEstado);
+                icono?.classList.toggle("bi-person-plus-fill", !nuevoEstado);
+            });
+
+            const variacion = nuevoEstado ? 1 : -1;
+            if (formulario.hasAttribute("data-profile-follow-target")) {
+                document.querySelectorAll("[data-profile-target-follower-count]").forEach((contador) => {
+                    contador.textContent = String(Math.max(0, Number(contador.textContent) + variacion));
+                });
+            }
+            if (formulario.dataset.profileOwner === "true"
+                    || formulario.dataset.profileRemoveOnUnfollow === "true") {
+                document.querySelectorAll("[data-profile-following-count]").forEach((contador) => {
+                    contador.textContent = String(Math.max(0, Number(contador.textContent) + variacion));
+                });
+            }
+            if (!nuevoEstado) {
+                const formularioDeSeguidos = formulariosRelacionados.find((formularioRelacionado) =>
+                    formularioRelacionado.dataset.profileRemoveOnUnfollow === "true");
+                const fila = formularioDeSeguidos?.closest("[data-profile-follow-row='following']");
+                const lista = fila?.closest("[data-profile-follow-list='following']");
+                fila?.remove();
+                if (lista && !lista.querySelector("[data-profile-follow-row='following']")) {
+                    lista.hidden = true;
+                    const mensajeVacio = lista.parentElement.querySelector("[data-profile-follow-empty]");
+                    if (mensajeVacio) {
+                        mensajeVacio.hidden = false;
+                    }
+                }
+            }
+            if (formulario.dataset.profileOwner === "true"
+                    && formulario.closest("[data-profile-follow-list='followers']")) {
+                history.replaceState(null, "", `${window.location.pathname}${window.location.search}#seguidores-panel`);
+            }
         } catch (error) {
             if (estado) {
                 estado.textContent = error.message || "No se pudo actualizar el seguimiento.";
@@ -399,9 +504,10 @@
         }
     });
 
-    const buscar = async () => {
+    const buscar = async ({ permitirVacio = false } = {}) => {
         const consulta = entrada.value.trim();
-        if (!consulta) {
+        if (!consulta && !permitirVacio) {
+            opcionesOrden.hidden = true;
             if (solicitud) {
                 solicitud.abort();
             }
@@ -415,11 +521,28 @@
             estado.textContent = "";
             return;
         }
+        if (consulta && consulta.length < 2) {
+            opcionesOrden.hidden = true;
+            if (solicitud) {
+                solicitud.abort();
+                solicitud = null;
+            }
+            resultados.replaceChildren();
+            cerrar();
+            if (resultadosInicio) {
+                resultadosInicio.replaceChildren();
+                resultadosInicio.hidden = true;
+                cursosInicio.hidden = false;
+            }
+            estado.textContent = "Escribí al menos 2 caracteres para buscar.";
+            return;
+        }
         if (consulta.length > 100) {
             mostrarMensaje("La búsqueda no puede superar los 100 caracteres.");
             estado.textContent = "La búsqueda no puede superar los 100 caracteres.";
             return;
         }
+        opcionesOrden.hidden = false;
         actualizarDireccion();
         if (resultadosInicio) {
             resultadosInicio.hidden = false;
@@ -437,11 +560,27 @@
         }
         solicitud = new AbortController();
         const tipoSolicitado = filtro ? filtro.value : "todos";
+        const ordenarSolicitado = ordenarPor ? ordenarPor.value : "alfabetico";
+        const direccionSolicitada = direccionBusqueda ? direccionBusqueda.value : "asc";
+        const claveCache = `${tipoSolicitado}:${ordenarSolicitado}:${direccionSolicitada}:${consulta.toLocaleLowerCase()}`;
+        const cacheado = cacheBusqueda.get(claveCache);
+        if (cacheado && cacheado.vence > Date.now()) {
+            mostrarResultados(cacheado.resultados);
+            estado.textContent = cacheado.resultados.length
+                ? `Se encontraron ${cacheado.resultados.length} resultados.`
+                : "No se encontraron resultados.";
+            return;
+        }
         estado.textContent = "Buscando...";
         try {
             // Se construye la URL con la API de parámetros para codificar correctamente espacios y acentos.
             const url = new URL(urlBusqueda, window.location.href);
             url.searchParams.set("q", consulta);
+            url.searchParams.set("ordenarPor", ordenarSolicitado);
+            url.searchParams.set("direccion", direccionSolicitada);
+            if (!consulta) {
+                url.searchParams.set("incluirTodos", "true");
+            }
             if (tipoSolicitado !== "todos") {
                 url.searchParams.set("tipo", tipoSolicitado);
             }
@@ -455,10 +594,17 @@
             const datos = await respuesta.json();
             // Una respuesta antigua puede terminar justo antes de cancelarse; se descarta si el texto cambió.
             if (entrada.value.trim() !== consulta
-                    || (filtro && filtro.value !== tipoSolicitado)) {
+                    || (filtro && filtro.value !== tipoSolicitado)
+                    || (ordenarPor && ordenarPor.value !== ordenarSolicitado)
+                    || (direccionBusqueda && direccionBusqueda.value !== direccionSolicitada)) {
                 return;
             }
-            mostrarResultados(Array.isArray(datos.results) ? datos.results : []);
+            const listaResultados = Array.isArray(datos.results) ? datos.results : [];
+            cacheBusqueda.set(claveCache, { resultados: listaResultados, vence: Date.now() + 10000 });
+            if (cacheBusqueda.size > 30) {
+                cacheBusqueda.delete(cacheBusqueda.keys().next().value);
+            }
+            mostrarResultados(listaResultados);
             estado.textContent = datos.results && datos.results.length
                 ? `Se encontraron ${datos.results.length} resultados.`
                 : "No se encontraron resultados.";
@@ -473,10 +619,10 @@
     };
 
     entrada.addEventListener("input", () => {
-        // Espera brevemente entre teclas para evitar enviar una petición por cada carácter escrito.
+        // Espera a que termine la escritura para evitar búsquedas completas por cada tecla.
         window.clearTimeout(temporizador);
         actualizarDireccion();
-        temporizador = window.setTimeout(buscar, 160);
+        temporizador = window.setTimeout(buscar, 300);
     });
 
     filtro?.addEventListener("change", () => {
@@ -485,13 +631,21 @@
         buscar();
     });
 
+    [ordenarPor, direccionBusqueda].forEach((selector) => {
+        selector?.addEventListener("change", () => {
+            actualizarDireccion();
+            window.clearTimeout(temporizador);
+            buscar();
+        });
+    });
+
     formulario.addEventListener("submit", (evento) => {
         if (resultadosInicio) {
             // En inicio actualiza la dirección y los resultados sin recargar ni abandonar la portada.
             evento.preventDefault();
             actualizarDireccion();
             window.clearTimeout(temporizador);
-            buscar();
+            buscar({ permitirVacio: true });
         }
     });
 

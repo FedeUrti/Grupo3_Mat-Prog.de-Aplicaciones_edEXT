@@ -1,8 +1,13 @@
 package com.grupo3_mat.edEXT.Logica.Manejadores;
 
 import com.grupo3_mat.edEXT.Logica.Clases.EdicionCurso;
+import com.grupo3_mat.edEXT.Logica.Clases.Curso;
+import com.grupo3_mat.edEXT.Logica.Clases.Docente;
+import com.grupo3_mat.edEXT.Logica.Clases.InscripcionEC;
 import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ManejadorEdicion {
@@ -23,6 +28,17 @@ public class ManejadorEdicion {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
+            Curso curso = edicion.getCurso();
+            if (curso != null) {
+                edicion.setCurso(em.getReference(Curso.class, curso.getNombre()));
+            }
+
+            List<Docente> docentesGestionados = new ArrayList<>();
+            for (Docente docente : edicion.getDocentes()) {
+                docentesGestionados.add(em.getReference(Docente.class, docente.getNickname()));
+            }
+            edicion.setDocentes(docentesGestionados);
+
             em.persist(edicion);
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -82,12 +98,77 @@ public class ManejadorEdicion {
         }
     }
 
+    public void evaluarInscripcion(String nombreEdicion, String nicknameEstudiante, int evaluacion) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            EdicionCurso edicion = em.find(EdicionCurso.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
+            if (edicion == null) {
+                throw new IllegalArgumentException("La edición '" + nombreEdicion + "' no existe.");
+            }
+            edicion.evaluarInscripcion(nicknameEstudiante, evaluacion);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void cerrarEdicion(String nombreEdicion) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            EdicionCurso edicion = em.find(EdicionCurso.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
+            if (edicion == null) {
+                throw new IllegalArgumentException("La edición '" + nombreEdicion + "' no existe.");
+            }
+            edicion.cerrar();
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void desistirInscripcion(String nicknameEstudiante, String nombreEdicion) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            EdicionCurso edicion = em.find(EdicionCurso.class, nombreEdicion, LockModeType.PESSIMISTIC_WRITE);
+            if (edicion == null) {
+                throw new IllegalArgumentException("La edición '" + nombreEdicion + "' no existe.");
+            }
+            InscripcionEC inscripcion = edicion.desistirInscripcion(nicknameEstudiante);
+            em.remove(inscripcion);
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
     public void eliminarEdicion(String nombre) {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             em.getTransaction().begin();
             EdicionCurso edicion = em.find(EdicionCurso.class, nombre);
             if (edicion != null) {
+                Curso curso = edicion.getCurso();
+                if (curso != null && curso.getEdiciones() != null) {
+                    curso.getEdiciones().remove(edicion);
+                }
                 em.remove(edicion);
             }
             em.getTransaction().commit();

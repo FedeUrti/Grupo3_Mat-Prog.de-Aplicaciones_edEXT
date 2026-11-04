@@ -1,7 +1,7 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.generated.ProgramaFormacionSoap;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,7 +15,7 @@ import java.time.LocalDate; // <-- IMPORTANTE: Importar LocalDate
 @WebServlet("/inscribir-programa")
 public class InscribirProgramaServlet extends HttpServlet {
 
-    private final IControladorProgramaFormacion icpf = Fabrica.getInstance().getIControladorProgramaFormacion();
+    private final ProgramaFormacionSoap icpf = ControladoresRemotos.getProgramaFormacionSoap();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -43,7 +43,8 @@ public class InscribirProgramaServlet extends HttpServlet {
 
         try {
             // 3. Invocar el controlador pasando la fecha actual (LocalDate.now())
-            icpf.inscribirEstudianteAPrograma(nickname, nombrePrograma.trim(), LocalDate.now());
+            icpf.inscribirEstudianteAPrograma(
+                    nickname, nombrePrograma.trim(), LocalDate.now().toString());
 
             // Redirigir con mensaje de éxito
             response.sendRedirect(request.getContextPath() + "/consulta-programa?nombre=" 

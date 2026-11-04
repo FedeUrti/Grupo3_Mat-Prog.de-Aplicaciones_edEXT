@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <c:url var="estilosUrl" value="/assets/css/edext.css">
-        <c:param name="v" value="20261012-6"/>
+        <c:param name="v" value="20261015-2"/>
     </c:url>
     <link href="<c:out value='${estilosUrl}'/>" rel="stylesheet">
 </head>
@@ -35,9 +35,9 @@
     </c:if>
 
     <c:choose>
-        <c:when test="${empty query and empty error}">
+        <c:when test="${empty query and empty resultadosBusqueda and empty error}">
             <div class="content-card p-4 text-center">
-                <p class="text-muted mb-0">Ingresá un término para buscar cursos, ediciones, programas y usuarios.</p>
+                <p class="text-muted mb-0">El catálogo de edEXT reúne cursos, ediciones, programas y usuarios.</p>
             </div>
         </c:when>
         <c:when test="${empty resultadosBusqueda and empty error}">
@@ -64,6 +64,29 @@
                             <span class="badge text-bg-primary mb-2"><c:out value="${resultado.tipo}"/></span>
                             <h2 class="h5 fw-bold mb-1"><c:out value="${resultado.nombre}"/></h2>
                             <p class="text-muted mb-0"><c:out value="${resultado.detalle}"/></p>
+                            <c:if test="${resultado.tipo eq 'Curso'}">
+                                <a class="d-inline-flex align-items-center gap-2 small text-decoration-none mt-2"
+                                   href="<c:out value='${resultado.url}'/>#valoraciones"
+                                   aria-label="Valoración <c:out value='${resultado.promedioValoracion}'/> de 5, <c:out value='${resultado.cantidadValoraciones}'/> votos">
+                                    <strong><c:out value="${resultado.promedioValoracion}"/></strong>
+                                    <span class="d-inline-flex gap-1 text-warning" aria-hidden="true">
+                                        <c:forEach begin="1" end="5" var="estrella">
+                                            <c:choose>
+                                                <c:when test="${estrella le resultado.estrellasValoracion}">
+                                                    <i class="bi bi-star-fill"></i>
+                                                </c:when>
+                                                <c:when test="${resultado.estrellasValoracion ge estrella - 0.5}">
+                                                    <i class="bi bi-star-half"></i>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="bi bi-star text-secondary"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:forEach>
+                                    </span>
+                                    <span class="text-muted">(<c:out value="${resultado.cantidadValoraciones}"/> votos)</span>
+                                </a>
+                            </c:if>
                         </div>
                         <c:if test="${not empty resultado.url}">
                             <a class="btn btn-outline-primary flex-shrink-0"

@@ -3,21 +3,30 @@ package com.grupo3_mat.edEXT.Logica.DataTypes;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DTProgramaFormacion {
     
-    private final String nombre;
-    private final String descripcion;
-    private final LocalDate fechaInicio;
-    private final LocalDate fechaFin;
-    private final LocalDate fechaAlta;
-    private final List<String> cursos;
-    private final List<String> categorias;
-    private final String imagenPath;
+    private String nombre;
+    private String descripcion;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
+    private LocalDate fechaAlta;
+    private List<String> cursos;
+    private List<String> categorias;
+    private String imagenPath;
     // Se guardan nombres simples para no exponer entidades persistentes en la presentación.
-    private final String nicknameDocente;
+    private String nicknameDocente;
     // Lista derivada de los institutos de los cursos incluidos en el programa.
-    private final List<String> institutos;
+    private List<String> institutos;
+
+    public DTProgramaFormacion() {
+        this.cursos = new ArrayList<>();
+        this.categorias = new ArrayList<>();
+        this.institutos = new ArrayList<>();
+    }
     
     public DTProgramaFormacion(String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaFin, 
                                LocalDate fechaAlta, List<String> cursos, List<String> categorias, String imagenPath) {

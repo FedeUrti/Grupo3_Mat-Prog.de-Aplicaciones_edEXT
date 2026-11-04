@@ -1,15 +1,17 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtProgramaFormacion;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.SoapValues;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.ProgramaFormacionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEstudiante;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,16 +21,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @WebServlet("/consulta-programa")
 public class ConsultarProgramaServlet extends HttpServlet {
 
-    private final IControladorProgramaFormacion controladorPrograma = Fabrica.getInstance().getIControladorProgramaFormacion();
-    private final IControladorCurso controladorCurso = Fabrica.getInstance().getIControladorCurso();
-    private final IControladorInstituto controladorInstituto = Fabrica.getInstance().getIControladorInstituto();
-    private final IControladorCategoria controladorCategoria = Fabrica.getInstance().getIControladorCategoria();
-    private final IControladorUsuario controladorUsuario = Fabrica.getInstance().getIControladorUsuario();
+    private final ProgramaFormacionSoap controladorPrograma = ControladoresRemotos.getProgramaFormacionSoap();
+    private final CursoSoap controladorCurso = ControladoresRemotos.getCursoSoap();
+    private final InstitutoSoap controladorInstituto = ControladoresRemotos.getInstitutoSoap();
+    private final CategoriaSoap controladorCategoria = ControladoresRemotos.getCategoriaSoap();
+    private final UsuarioSoap controladorUsuario = ControladoresRemotos.getUsuarioSoap();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -49,7 +52,7 @@ public class ConsultarProgramaServlet extends HttpServlet {
         try {
             cargarSidebar(request);
             // 2. Obtener la información del Programa de Formación
-            DTProgramaFormacion dtPrograma = controladorPrograma.consultarPrograma(nombrePrograma.trim());
+            DtProgramaFormacion dtPrograma = controladorPrograma.consultarPrograma(nombrePrograma.trim());
 
             if (dtPrograma == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -76,8 +79,8 @@ public class ConsultarProgramaServlet extends HttpServlet {
                 // 4. Cargar el detalle de los cursos pertenecientes a este programa
                 List<DtCurso> cursosDetalle = new ArrayList<>();
                 if (dtPrograma.getCursos() != null) {
-                    for (String nomCurso : dtPrograma.getCursos()) {
-                        DtCurso curso = controladorCurso.consultarCurso(nomCurso);
+                    for (DtCurso curso : SoapValues.consultarCursos(
+                            controladorCurso, dtPrograma.getCursos())) {
                         if (curso != null) {
                             cursosDetalle.add(curso);
                         }
@@ -85,9 +88,15 @@ public class ConsultarProgramaServlet extends HttpServlet {
                 }
                 request.setAttribute("cursosDetalle", cursosDetalle);
 
-                // 5. Cargar lista completa de cursos para el combo del Modal (Docente)
-                List<String> todosLosCursos = controladorCurso.listarCursos();
-                request.setAttribute("todosLosCursos", todosLosCursos);
+                // El modal solo ofrece cursos de los institutos del docente responsable.
+                List<String> cursosDocente = List.of();
+                if (nickname != null && nickname.equals(dtPrograma.getNicknameDocente())) {
+                    DtUsuario usuario = controladorUsuario.obtenerInfoUsuario(nickname);
+                    if (usuario instanceof DtDocente docente) {
+                        cursosDocente = listarCursosDeInstitutos(docente);
+                    }
+                }
+                request.setAttribute("todosLosCursos", cursosDocente);
             }
 
         } catch (Exception e) {
@@ -104,5 +113,18 @@ public class ConsultarProgramaServlet extends HttpServlet {
         request.setAttribute("categorias", controladorCategoria.listarCategorias());
         request.setAttribute("filtroInstituto", "");
         request.setAttribute("filtroCategoria", "");
+    }
+
+    private List<String> listarCursosDeInstitutos(DtDocente docente) {
+        LinkedHashSet<String> cursos = new LinkedHashSet<>();
+        if (docente.getInstitutos() != null) {
+            for (String instituto : docente.getInstitutos()) {
+                List<String> cursosInstituto = controladorCurso.listarCursosPorInstituto(instituto);
+                if (cursosInstituto != null) {
+                    cursos.addAll(cursosInstituto);
+                }
+            }
+        }
+        return new ArrayList<>(cursos);
     }
 }

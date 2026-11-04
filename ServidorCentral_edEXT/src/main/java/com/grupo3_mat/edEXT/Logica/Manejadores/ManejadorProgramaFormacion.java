@@ -69,16 +69,6 @@ public class ManejadorProgramaFormacion {
             if (c == null) {
                 throw new Exception("No existe el curso ingresado.");
             }
-            if (nicknameDocente != null) {
-                Docente docente = pf.getDocente();
-                Instituto institutoCurso = c.getInstituto();
-                if (docente == null || institutoCurso == null
-                        || !docente.perteneceAInstituto(institutoCurso.getNombre())) {
-                    throw new SecurityException(
-                            "No podés agregar un curso de un instituto al que no pertenecés.");
-                }
-            }
-
             if (pf.getCursos() != null && pf.getCursos().containsKey(c.getNombre())) {
                 throw new Exception("El curso '" + c.getNombre() + "' ya pertenece al programa '" + pf.getNombre() + "'.");
             }
