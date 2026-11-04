@@ -1,10 +1,11 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEstudiante;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.SoapValues;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,8 +22,8 @@ import java.util.Map;
 @WebServlet("/valorar-curso")
 public class ValorarCursoServlet extends HttpServlet {
 
-    private final IControladorCurso controladorCurso = Fabrica.getInstance().getIControladorCurso();
-    private final IControladorUsuario controladorUsuario = Fabrica.getInstance().getIControladorUsuario();
+    private final CursoSoap controladorCurso = ControladoresRemotos.getCursoSoap();
+    private final UsuarioSoap controladorUsuario = ControladoresRemotos.getUsuarioSoap();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -60,7 +61,8 @@ public class ValorarCursoServlet extends HttpServlet {
             controladorCurso.ingresarValoracion(nombreCurso, nickname, puntaje);
             if (esSolicitudAjax(request)) {
                 BigDecimal promedio = controladorCurso.obtenerPuntajePromedioCurso(nombreCurso);
-                Map<Integer, Integer> conteos = controladorCurso.obtenerConteoValoracionesCurso(nombreCurso);
+                Map<Integer, Integer> conteos = SoapValues.valoraciones(
+                        controladorCurso.obtenerConteoValoracionesCurso(nombreCurso));
                 int cantidad = conteos.values().stream().mapToInt(Integer::intValue).sum();
                 double estrellas = Math.round(promedio.doubleValue() * 2.0) / 2.0;
                 response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -124,7 +126,8 @@ public class ValorarCursoServlet extends HttpServlet {
             request.setAttribute("cursos", cursos);
             if (!cursoSeleccionado.isEmpty() && cursos.contains(cursoSeleccionado)) {
                 BigDecimal promedio = controladorCurso.obtenerPuntajePromedioCurso(cursoSeleccionado);
-                Map<Integer, Integer> conteos = controladorCurso.obtenerConteoValoracionesCurso(cursoSeleccionado);
+                Map<Integer, Integer> conteos = SoapValues.valoraciones(
+                        controladorCurso.obtenerConteoValoracionesCurso(cursoSeleccionado));
                 Integer puntajePropio = controladorCurso.obtenerValoracionEstudiante(cursoSeleccionado, nickname);
                 request.setAttribute("cursoSeleccionado", cursoSeleccionado);
                 request.setAttribute("promedio", promedio);

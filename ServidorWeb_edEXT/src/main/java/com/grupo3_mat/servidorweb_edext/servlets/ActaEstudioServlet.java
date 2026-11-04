@@ -1,11 +1,11 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTResultadoEstudio;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtResultadoEstudio;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEstudiante;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.generated.ProgramaFormacionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Font;
@@ -30,10 +30,10 @@ import java.util.List;
 @WebServlet("/acta-estudio")
 public class ActaEstudioServlet extends HttpServlet {
 
-    private final IControladorProgramaFormacion controladorPrograma =
-            Fabrica.getInstance().getIControladorProgramaFormacion();
-    private final IControladorUsuario controladorUsuario =
-            Fabrica.getInstance().getIControladorUsuario();
+    private final ProgramaFormacionSoap controladorPrograma =
+            ControladoresRemotos.getProgramaFormacionSoap();
+    private final UsuarioSoap controladorUsuario =
+            ControladoresRemotos.getUsuarioSoap();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -58,7 +58,7 @@ public class ActaEstudioServlet extends HttpServlet {
                 return;
             }
             try {
-                List<DTResultadoEstudio> resultados =
+                List<DtResultadoEstudio> resultados =
                         controladorPrograma.consultarResultadosActa(estudiante.getNickname(), programa);
                 escribirPdf(estudiante, programa, resultados, response);
             } catch (SecurityException e) {
@@ -97,7 +97,7 @@ public class ActaEstudioServlet extends HttpServlet {
     }
 
     private void escribirPdf(DtEstudiante estudiante, String programa,
-            List<DTResultadoEstudio> resultados, HttpServletResponse response) throws IOException {
+            List<DtResultadoEstudio> resultados, HttpServletResponse response) throws IOException {
         try (ByteArrayOutputStream contenido = new ByteArrayOutputStream()) {
             Document documento = new Document(PageSize.A4.rotate(), 36, 36, 36, 36);
             PdfWriter.getInstance(documento, contenido);
@@ -120,7 +120,7 @@ public class ActaEstudioServlet extends HttpServlet {
             agregarCelda(tabla, "Evaluación", encabezado);
             agregarCelda(tabla, "Resultado", encabezado);
             agregarCelda(tabla, "Fecha del resultado", encabezado);
-            for (DTResultadoEstudio resultado : resultados) {
+            for (DtResultadoEstudio resultado : resultados) {
                 agregarCelda(tabla, resultado.getNombreCurso(), subtitulo);
                 agregarCelda(tabla, texto(resultado.getNombreEdicion(), "—"), subtitulo);
                 agregarCelda(tabla, resultado.getEvaluacion() == null

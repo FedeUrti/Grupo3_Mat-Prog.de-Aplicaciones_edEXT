@@ -1,15 +1,16 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtProgramaFormacion;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.SoapValues;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.ProgramaFormacionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -34,10 +35,10 @@ public class BusquedaServlet extends HttpServlet {
     // El desplegable muestra una cantidad acotada de cada clase para que haya resultados variados.
     private static final int MAX_RESULTADOS_POR_TIPO = 8;
     // La búsqueda reutiliza los controladores del servidor central para consultar datos persistidos.
-    private final IControladorCurso cursos = Fabrica.getInstance().getIControladorCurso();
-    private final IControladorEdicion ediciones = Fabrica.getInstance().getIControladorEdicion();
-    private final IControladorProgramaFormacion programas = Fabrica.getInstance().getIControladorProgramaFormacion();
-    private final IControladorUsuario usuarios = Fabrica.getInstance().getIControladorUsuario();
+    private final CursoSoap cursos = ControladoresRemotos.getCursoSoap();
+    private final EdicionSoap ediciones = ControladoresRemotos.getEdicionSoap();
+    private final ProgramaFormacionSoap programas = ControladoresRemotos.getProgramaFormacionSoap();
+    private final UsuarioSoap usuarios = ControladoresRemotos.getUsuarioSoap();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -152,13 +153,14 @@ public class BusquedaServlet extends HttpServlet {
                 if (curso.getDescripcion() != null && !curso.getDescripcion().isBlank()) {
                     detalle = combinar(detalle, curso.getDescripcion());
                 }
-                detalle = combinar(detalle, textoPublicacion(curso.getFecha()));
+                detalle = combinar(detalle, textoPublicacion(SoapValues.fecha(curso.getFecha())));
                 BigDecimal promedioValoracion = cursos.obtenerPuntajePromedioCurso(curso.getNombre());
-                int cantidadValoraciones = cursos.obtenerConteoValoracionesCurso(curso.getNombre())
-                        .values().stream().mapToInt(Integer::intValue).sum();
+                int cantidadValoraciones = SoapValues.cantidadValoraciones(
+                        cursos.obtenerConteoValoracionesCurso(curso.getNombre()));
                 resultados.add(new Resultado(curso.getNombre(), "Curso", detalle,
                         urlCurso(contextPath, curso.getNombre()), urlImagen(contextPath,
-                                imagenCurso(curso.getImagenPath(), false)), null, false, false, curso.getFecha(),
+                                imagenCurso(curso.getImagenPath(), false)), null, false, false,
+                        SoapValues.fecha(curso.getFecha()),
                         promedioValoracion, cantidadValoraciones,
                         Math.round(promedioValoracion.doubleValue() * 2.0) / 2.0));
                 encontrados++;
@@ -176,12 +178,13 @@ public class BusquedaServlet extends HttpServlet {
                     if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                         break;
                     }
-                    DTEdicionCurso edicion = ediciones.mostrarDetalleEdicion(nombreEdicion);
+                    DtEdicionCurso edicion = ediciones.mostrarDetalleEdicion(nombreEdicion);
                     if (edicion == null || !coincide(query, edicion.getNombre(), nombreCurso)) {
                         continue;
                     }
-                    String fechas = fechas(edicion.getFechaInicio(), edicion.getFechaFin());
-                    LocalDate fechaPublicacion = edicion.getFechaPublicacion();
+                    String fechas = fechas(SoapValues.fecha(edicion.getFechaInicio()),
+                            SoapValues.fecha(edicion.getFechaFin()));
+                    LocalDate fechaPublicacion = SoapValues.fecha(edicion.getFechaPublicacion());
                     resultados.add(new Resultado(edicion.getNombre(), "Edición",
                             combinar(combinar("Curso: " + nombreCurso, fechas), textoPublicacion(fechaPublicacion)),
                             urlCurso(contextPath, nombreCurso),
@@ -195,7 +198,7 @@ public class BusquedaServlet extends HttpServlet {
         // Programas: además de su nombre y descripción se consideran sus cursos, institutos y categorías.
         if (buscarProgramas) {
             int encontrados = 0;
-            for (DTProgramaFormacion programa : programas.listarProgramas()) {
+            for (DtProgramaFormacion programa : programas.listarProgramas()) {
                 if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
@@ -209,7 +212,7 @@ public class BusquedaServlet extends HttpServlet {
                 if (programa.getNicknameDocente() != null && !programa.getNicknameDocente().isBlank()) {
                     detalle = combinar(detalle, "Docente: " + programa.getNicknameDocente());
                 }
-                LocalDate fechaPublicacion = programa.getFechaAlta();
+                LocalDate fechaPublicacion = SoapValues.fecha(programa.getFechaAlta());
                 detalle = combinar(detalle, textoPublicacion(fechaPublicacion));
                 resultados.add(new Resultado(programa.getNombre(), "Programa", detalle,
                         urlPrograma(contextPath, programa.getNombre()),

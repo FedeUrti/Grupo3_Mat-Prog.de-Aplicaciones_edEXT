@@ -1,0 +1,313 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by XML-WS Runtime (https://github.com/eclipse-ee4j/metro-jax-ws). Runtime's version is XML-WS Runtime 4.0.3 git-revision#a57c222. --><xs:schema xmlns:tns="http://soap.edext.grupo3_mat.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://soap.edext.grupo3_mat.com/">
+
+<xs:element name="Exception" type="tns:Exception"/>
+
+<xs:element name="altaEdicionCurso" type="tns:altaEdicionCurso"/>
+
+<xs:element name="altaEdicionCursoResponse" type="tns:altaEdicionCursoResponse"/>
+
+<xs:element name="cambiarEstadoInscripcion" type="tns:cambiarEstadoInscripcion"/>
+
+<xs:element name="cambiarEstadoInscripcionResponse" type="tns:cambiarEstadoInscripcionResponse"/>
+
+<xs:element name="cerrarEdicion" type="tns:cerrarEdicion"/>
+
+<xs:element name="cerrarEdicionResponse" type="tns:cerrarEdicionResponse"/>
+
+<xs:element name="consultarEvaluacionesEdicion" type="tns:consultarEvaluacionesEdicion"/>
+
+<xs:element name="consultarEvaluacionesEdicionResponse" type="tns:consultarEvaluacionesEdicionResponse"/>
+
+<xs:element name="desistirInscripcionEstudiante" type="tns:desistirInscripcionEstudiante"/>
+
+<xs:element name="desistirInscripcionEstudianteResponse" type="tns:desistirInscripcionEstudianteResponse"/>
+
+<xs:element name="evaluarInscripcion" type="tns:evaluarInscripcion"/>
+
+<xs:element name="evaluarInscripcionResponse" type="tns:evaluarInscripcionResponse"/>
+
+<xs:element name="inscribirEstudianteAEdicion" type="tns:inscribirEstudianteAEdicion"/>
+
+<xs:element name="inscribirEstudianteAEdicionConVideo" type="tns:inscribirEstudianteAEdicionConVideo"/>
+
+<xs:element name="inscribirEstudianteAEdicionConVideoResponse" type="tns:inscribirEstudianteAEdicionConVideoResponse"/>
+
+<xs:element name="inscribirEstudianteAEdicionResponse" type="tns:inscribirEstudianteAEdicionResponse"/>
+
+<xs:element name="listarAceptadosAEdicion" type="tns:listarAceptadosAEdicion"/>
+
+<xs:element name="listarAceptadosAEdicionResponse" type="tns:listarAceptadosAEdicionResponse"/>
+
+<xs:element name="listarEdicionesDeDocente" type="tns:listarEdicionesDeDocente"/>
+
+<xs:element name="listarEdicionesDeDocenteResponse" type="tns:listarEdicionesDeDocenteResponse"/>
+
+<xs:element name="listarEdicionesDeEstudiante" type="tns:listarEdicionesDeEstudiante"/>
+
+<xs:element name="listarEdicionesDeEstudianteResponse" type="tns:listarEdicionesDeEstudianteResponse"/>
+
+<xs:element name="listarEdicionesPorCurso" type="tns:listarEdicionesPorCurso"/>
+
+<xs:element name="listarEdicionesPorCursoResponse" type="tns:listarEdicionesPorCursoResponse"/>
+
+<xs:element name="listarInscripcionesAEdicion" type="tns:listarInscripcionesAEdicion"/>
+
+<xs:element name="listarInscripcionesAEdicionResponse" type="tns:listarInscripcionesAEdicionResponse"/>
+
+<xs:element name="listarResultadosInscripcionesEstudiante" type="tns:listarResultadosInscripcionesEstudiante"/>
+
+<xs:element name="listarResultadosInscripcionesEstudianteResponse" type="tns:listarResultadosInscripcionesEstudianteResponse"/>
+
+<xs:element name="mostrarDetalleEdicion" type="tns:mostrarDetalleEdicion"/>
+
+<xs:element name="mostrarDetalleEdicionResponse" type="tns:mostrarDetalleEdicionResponse"/>
+
+<xs:element name="obtenerCursoDeEdicion" type="tns:obtenerCursoDeEdicion"/>
+
+<xs:element name="obtenerCursoDeEdicionResponse" type="tns:obtenerCursoDeEdicionResponse"/>
+
+<xs:complexType name="mostrarDetalleEdicion">
+<xs:sequence>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="mostrarDetalleEdicionResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtEdicionCurso" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="dtEdicionCurso">
+<xs:sequence>
+<xs:element name="nombre" type="xs:string" minOccurs="0"/>
+<xs:element name="fechaInicio" type="xs:string" minOccurs="0"/>
+<xs:element name="fechaFin" type="xs:string" minOccurs="0"/>
+<xs:element name="cupo" type="xs:int"/>
+<xs:element name="cupoDisponible" type="xs:int"/>
+<xs:element name="fechaPublicacion" type="xs:string" minOccurs="0"/>
+<xs:element name="docentes" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="imagenPath" type="xs:string" minOccurs="0"/>
+<xs:element name="cerrada" type="xs:boolean"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarEdicionesDeEstudiante">
+<xs:sequence>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarEdicionesDeEstudianteResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarEvaluacionesEdicion">
+<xs:sequence>
+<xs:element name="nicknameDocente" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarEvaluacionesEdicionResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtInscripcionEdicion" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="dtInscripcionEdicion">
+<xs:sequence>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+<xs:element name="fechaInscripcion" type="xs:string" minOccurs="0"/>
+<xs:element name="estado" type="tns:estadoInscripcion" minOccurs="0"/>
+<xs:element name="prioridad" type="xs:double" minOccurs="0"/>
+<xs:element name="enlaceVideo" type="xs:string" minOccurs="0"/>
+<xs:element name="evaluacion" type="xs:int" minOccurs="0"/>
+<xs:element name="edicionCerrada" type="xs:boolean"/>
+<xs:element name="enlaceVideoEmbebido" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="Exception">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarInscripcionesAEdicion">
+<xs:sequence>
+<xs:element name="nicknameDocente" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+<xs:element name="criterio" type="tns:criterioOrdenInscripciones" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarInscripcionesAEdicionResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtInscripcionEdicion" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarEdicionesPorCurso">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarEdicionesPorCursoResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="desistirInscripcionEstudiante">
+<xs:sequence>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="desistirInscripcionEstudianteResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="altaEdicionCurso">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+<xs:element name="datosEdicion" type="tns:dtEdicionCurso" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="altaEdicionCursoResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="cerrarEdicion">
+<xs:sequence>
+<xs:element name="nicknameDocente" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="cerrarEdicionResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="cambiarEstadoInscripcion">
+<xs:sequence>
+<xs:element name="nicknameDocente" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+<xs:element name="nuevoEstado" type="tns:estadoInscripcion" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="cambiarEstadoInscripcionResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="obtenerCursoDeEdicion">
+<xs:sequence>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerCursoDeEdicionResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarEdicionesDeDocente">
+<xs:sequence>
+<xs:element name="nicknameDocente" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarEdicionesDeDocenteResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarResultadosInscripcionesEstudiante">
+<xs:sequence>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarResultadosInscripcionesEstudianteResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtInscripcionEdicion" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="inscribirEstudianteAEdicion">
+<xs:sequence>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+<xs:element name="fechaInscripcion" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="inscribirEstudianteAEdicionResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="inscribirEstudianteAEdicionConVideo">
+<xs:sequence>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+<xs:element name="fechaInscripcion" type="xs:string" minOccurs="0"/>
+<xs:element name="enlaceVideo" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="inscribirEstudianteAEdicionConVideoResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listarAceptadosAEdicion">
+<xs:sequence>
+<xs:element name="nicknameDocente" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarAceptadosAEdicionResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtInscripcionEdicion" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="evaluarInscripcion">
+<xs:sequence>
+<xs:element name="nicknameDocente" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreEdicion" type="xs:string" minOccurs="0"/>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+<xs:element name="evaluacion" type="xs:int"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="evaluarInscripcionResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:simpleType name="estadoInscripcion">
+<xs:restriction base="xs:string">
+<xs:enumeration value="INSCRIPTO"/>
+<xs:enumeration value="ACEPTADA"/>
+<xs:enumeration value="RECHAZADA"/>
+</xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="criterioOrdenInscripciones">
+<xs:restriction base="xs:string">
+<xs:enumeration value="FECHA_INSCRIPCION"/>
+<xs:enumeration value="PRIORIDAD"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:schema>

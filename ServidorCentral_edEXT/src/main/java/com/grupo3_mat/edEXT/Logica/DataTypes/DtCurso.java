@@ -3,23 +3,33 @@ package com.grupo3_mat.edEXT.Logica.DataTypes;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DtCurso {
 
-    private final String nombre;
-    private final String descripcion;
-    private final int duracion;
-    private final int cantHoras;
-    private final int creditos;
-    private final String url;
-    private final LocalDate fecha;
-    private final String nomInstituto;
-    private final String imagenPath;
+    private String nombre;
+    private String descripcion;
+    private int duracion;
+    private int cantHoras;
+    private int creditos;
+    private String url;
+    private LocalDate fecha;
+    private String nomInstituto;
+    private String imagenPath;
     // Las relaciones se comparten como nombres, no como entidades de base de datos.
-    private final List<String> previas;
-    private final List<String> ediciones;
-    private final List<String> programas;
-    private final List<String> categorias;
+    private List<String> previas;
+    private List<String> ediciones;
+    private List<String> programas;
+    private List<String> categorias;
+
+    public DtCurso() {
+        this.previas = new ArrayList<>();
+        this.ediciones = new ArrayList<>();
+        this.programas = new ArrayList<>();
+        this.categorias = new ArrayList<>();
+    }
 
     public DtCurso(String nombre, String descripcion, int duracion, int cantHoras, int creditos, String url, LocalDate fecha, String nomInstituto, List<String> previas, List<String> ediciones, List<String> programas) {
         // Este constructor mantiene compatibilidad con pantallas que todavía no pasan categorías ni imagen.

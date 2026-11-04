@@ -4,15 +4,15 @@
  */
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -43,20 +43,20 @@ import java.nio.charset.StandardCharsets;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 5 * 1024 * 1024, maxRequestSize = 6 * 1024 * 1024)
 public class AltaEdicionServlet extends HttpServlet {
 
-    private IControladorCurso controladorCurso;
-    private IControladorEdicion controladorEdicion;
-    private IControladorUsuario controladorUsuario;
-    private IControladorInstituto controladorInstituto;
-    private IControladorCategoria controladorCategoria;
+    private CursoSoap controladorCurso;
+    private EdicionSoap controladorEdicion;
+    private UsuarioSoap controladorUsuario;
+    private InstitutoSoap controladorInstituto;
+    private CategoriaSoap controladorCategoria;
 
     @Override
     public void init() throws ServletException {
-        Fabrica fabrica = Fabrica.getInstance();
-        this.controladorCurso = fabrica.getIControladorCurso();
-        this.controladorEdicion = fabrica.getIControladorEdicion();
-        this.controladorUsuario = fabrica.getIControladorUsuario();
-        this.controladorInstituto = fabrica.getIControladorInstituto();
-        this.controladorCategoria = fabrica.getIControladorCategoria();
+
+        this.controladorCurso = ControladoresRemotos.getCursoSoap();
+        this.controladorEdicion = ControladoresRemotos.getEdicionSoap();
+        this.controladorUsuario = ControladoresRemotos.getUsuarioSoap();
+        this.controladorInstituto = ControladoresRemotos.getInstitutoSoap();
+        this.controladorCategoria = ControladoresRemotos.getCategoriaSoap();
     }
 
     @Override
@@ -189,16 +189,15 @@ public class AltaEdicionServlet extends HttpServlet {
             // Guardado físico de la imagen en disco
             imagenGuardada = guardarImagen(request.getPart("imagen"));
 
-            DTEdicionCurso dtEdicion = new DTEdicionCurso(
-                nombreEdicion,
-                fechaInicio,
-                fechaFin,
-                cupo,
-                cupoDisponible,
-                fechaPublicacion,
-                listaDocentes,
-                imagenGuardada != null ? imagenGuardada : ""
-            );
+            DtEdicionCurso dtEdicion = new DtEdicionCurso();
+            dtEdicion.setNombre(nombreEdicion);
+            dtEdicion.setFechaInicio(fechaInicio.toString());
+            dtEdicion.setFechaFin(fechaFin.toString());
+            dtEdicion.setCupo(cupo);
+            dtEdicion.setCupoDisponible(cupoDisponible);
+            dtEdicion.setFechaPublicacion(fechaPublicacion.toString());
+            dtEdicion.getDocentes().addAll(listaDocentes);
+            dtEdicion.setImagenPath(imagenGuardada != null ? imagenGuardada : "");
 
             controladorEdicion.altaEdicionCurso(nombreCurso, dtEdicion);
 

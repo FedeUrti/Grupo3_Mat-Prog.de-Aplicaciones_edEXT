@@ -3,17 +3,24 @@ package com.grupo3_mat.edEXT.Logica.DataTypes;
 import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
 import java.net.URI;
 import java.time.LocalDate;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DTInscripcionEdicion {
-    private final String nicknameEstudiante;
-    private final String nombreEdicion;
-    private final LocalDate fechaInscripcion;
-    private final EstadoInscripcion estado;
+    private String nicknameEstudiante;
+    private String nombreEdicion;
+    private LocalDate fechaInscripcion;
+    private EstadoInscripcion estado;
     // Es decimal porque cada rechazo previo suma medio punto de prioridad.
-    private final Double prioridad;
-    private final String enlaceVideo;
-    private final Integer evaluacion;
-    private final boolean edicionCerrada;
+    private Double prioridad;
+    private String enlaceVideo;
+    private Integer evaluacion;
+    private boolean edicionCerrada;
+
+    public DTInscripcionEdicion() {
+    }
 
     public DTInscripcionEdicion(String nicknameEstudiante, String nombreEdicion, LocalDate fechaInscripcion, EstadoInscripcion estado, Double prioridad) {
         this(nicknameEstudiante, nombreEdicion, fechaInscripcion, estado, prioridad, null);
@@ -45,6 +52,7 @@ public class DTInscripcionEdicion {
     public Integer getEvaluacion() { return evaluacion; }
     public boolean isEdicionCerrada() { return edicionCerrada; }
 
+    @XmlElement
     public String getEnlaceVideoEmbebido() {
         if (enlaceVideo == null) {
             return null;

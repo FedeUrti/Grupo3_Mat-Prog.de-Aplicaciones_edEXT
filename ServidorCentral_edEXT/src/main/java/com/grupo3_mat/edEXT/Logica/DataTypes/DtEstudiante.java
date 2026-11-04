@@ -3,12 +3,22 @@ package com.grupo3_mat.edEXT.Logica.DataTypes;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DtEstudiante extends DtUsuario {
     // La inscripción detallada incluye estado y prioridad; la lista de nombres conserva compatibilidad.
-    private final List<DTInscripcionEdicion> inscripcionesEdicion;
-    private final List<String> edicionesInscripto;
-    private final List<String> programasInscripto;
+    private List<DTInscripcionEdicion> inscripcionesEdicion;
+    private List<String> edicionesInscripto;
+    private List<String> programasInscripto;
+
+    public DtEstudiante() {
+        super();
+        this.inscripcionesEdicion = new ArrayList<>();
+        this.edicionesInscripto = new ArrayList<>();
+        this.programasInscripto = new ArrayList<>();
+    }
 
     public DtEstudiante(String nickname, String nombre, String apellido, String correo, LocalDate fechaNacimiento, String imagenPath, List<String> edicionesInscripto, List<String> programasInscripto) {
         this(nickname, nombre, apellido, correo, fechaNacimiento, imagenPath, null, null, new ArrayList<>(), edicionesInscripto, programasInscripto);

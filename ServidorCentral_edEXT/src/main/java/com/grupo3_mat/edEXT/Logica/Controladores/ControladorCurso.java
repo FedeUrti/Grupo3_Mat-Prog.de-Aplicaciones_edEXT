@@ -18,7 +18,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import jakarta.jws.WebService;
 
+@WebService(endpointInterface = "com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso",
+        serviceName = "CursoSoapService", portName = "CursoSoapPort",
+        targetNamespace = "http://soap.edext.grupo3_mat.com/")
 public class ControladorCurso implements IControladorCurso {
 
     @Override
@@ -146,6 +150,21 @@ public class ControladorCurso implements IControladorCurso {
                 categorias,
                 curso.getImagenPath()
         );
+    }
+
+    @Override
+    public List<DtCurso> consultarCursos(List<String> nombresCurso) throws Exception {
+        if (nombresCurso == null || nombresCurso.isEmpty()) {
+            return new ArrayList<>();
+        }
+        if (nombresCurso.size() > 100) {
+            throw new IllegalArgumentException("La consulta por lotes admite hasta 100 cursos.");
+        }
+        List<DtCurso> cursos = new ArrayList<>(nombresCurso.size());
+        for (String nombreCurso : nombresCurso) {
+            cursos.add(consultarCurso(nombreCurso));
+        }
+        return cursos;
     }
 
     @Override

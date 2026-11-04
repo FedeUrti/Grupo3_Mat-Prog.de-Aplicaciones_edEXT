@@ -1,0 +1,258 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by XML-WS Runtime (https://github.com/eclipse-ee4j/metro-jax-ws). Runtime's version is XML-WS Runtime 4.0.3 git-revision#a57c222. --><xs:schema xmlns:tns="http://soap.edext.grupo3_mat.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://soap.edext.grupo3_mat.com/">
+
+<xs:element name="Exception" type="tns:Exception"/>
+
+<xs:element name="altaCurso" type="tns:altaCurso"/>
+
+<xs:element name="altaCursoResponse" type="tns:altaCursoResponse"/>
+
+<xs:element name="consultarCurso" type="tns:consultarCurso"/>
+
+<xs:element name="consultarCursoResponse" type="tns:consultarCursoResponse"/>
+
+<xs:element name="consultarCursos" type="tns:consultarCursos"/>
+
+<xs:element name="consultarCursosResponse" type="tns:consultarCursosResponse"/>
+
+<xs:element name="consultarValoracion" type="tns:consultarValoracion"/>
+
+<xs:element name="consultarValoracionResponse" type="tns:consultarValoracionResponse"/>
+
+<xs:element name="ingresarValoracion" type="tns:ingresarValoracion"/>
+
+<xs:element name="ingresarValoracionResponse" type="tns:ingresarValoracionResponse"/>
+
+<xs:element name="listarCursos" type="tns:listarCursos"/>
+
+<xs:element name="listarCursosPorCategoria" type="tns:listarCursosPorCategoria"/>
+
+<xs:element name="listarCursosPorCategoriaResponse" type="tns:listarCursosPorCategoriaResponse"/>
+
+<xs:element name="listarCursosPorInstituto" type="tns:listarCursosPorInstituto"/>
+
+<xs:element name="listarCursosPorInstitutoResponse" type="tns:listarCursosPorInstitutoResponse"/>
+
+<xs:element name="listarCursosResponse" type="tns:listarCursosResponse"/>
+
+<xs:element name="listarCursosValorables" type="tns:listarCursosValorables"/>
+
+<xs:element name="listarCursosValorablesResponse" type="tns:listarCursosValorablesResponse"/>
+
+<xs:element name="obtenerConteoValoracionesCurso" type="tns:obtenerConteoValoracionesCurso"/>
+
+<xs:element name="obtenerConteoValoracionesCursoResponse" type="tns:obtenerConteoValoracionesCursoResponse"/>
+
+<xs:element name="obtenerEdicionVigente" type="tns:obtenerEdicionVigente"/>
+
+<xs:element name="obtenerEdicionVigenteResponse" type="tns:obtenerEdicionVigenteResponse"/>
+
+<xs:element name="obtenerPuntajePromedioCurso" type="tns:obtenerPuntajePromedioCurso"/>
+
+<xs:element name="obtenerPuntajePromedioCursoResponse" type="tns:obtenerPuntajePromedioCursoResponse"/>
+
+<xs:element name="obtenerValoracionEstudiante" type="tns:obtenerValoracionEstudiante"/>
+
+<xs:element name="obtenerValoracionEstudianteResponse" type="tns:obtenerValoracionEstudianteResponse"/>
+
+<xs:complexType name="ingresarValoracion">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+<xs:element name="puntaje" type="xs:int"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="ingresarValoracionResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="Exception">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarCursosPorInstituto">
+<xs:sequence>
+<xs:element name="nombreInstituto" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarCursosPorInstitutoResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarCursos">
+<xs:sequence>
+<xs:element name="nombresCurso" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarCursosResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtCurso" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="dtCurso">
+<xs:sequence>
+<xs:element name="nombre" type="xs:string" minOccurs="0"/>
+<xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+<xs:element name="duracion" type="xs:int"/>
+<xs:element name="cantHoras" type="xs:int"/>
+<xs:element name="creditos" type="xs:int"/>
+<xs:element name="url" type="xs:string" minOccurs="0"/>
+<xs:element name="fecha" type="xs:string" minOccurs="0"/>
+<xs:element name="nomInstituto" type="xs:string" minOccurs="0"/>
+<xs:element name="imagenPath" type="xs:string" minOccurs="0"/>
+<xs:element name="previas" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="ediciones" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="programas" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="categorias" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerConteoValoracionesCurso">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerConteoValoracionesCursoResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:valoracionesXml" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="valoracionesXml">
+<xs:sequence>
+<xs:element name="valoracion" type="tns:entrada" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="entrada">
+<xs:sequence>
+<xs:element name="puntaje" type="xs:int"/>
+<xs:element name="cantidad" type="xs:int"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerPuntajePromedioCurso">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerPuntajePromedioCursoResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:decimal" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerEdicionVigente">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+<xs:element name="fechaReferencia" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerEdicionVigenteResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="altaCurso">
+<xs:sequence>
+<xs:element name="nombreInstituto" type="xs:string" minOccurs="0"/>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+<xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+<xs:element name="duracion" type="xs:int"/>
+<xs:element name="cantidadHoras" type="xs:int"/>
+<xs:element name="creditos" type="xs:int"/>
+<xs:element name="url" type="xs:string" minOccurs="0"/>
+<xs:element name="fecha" type="xs:string" minOccurs="0"/>
+<xs:element name="previas" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="categorias" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="imagenPath" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="altaCursoResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listarCursosValorables">
+<xs:sequence>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarCursosValorablesResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarCurso">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarCursoResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtCurso" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarCursos">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listarCursosResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarCursosPorCategoria">
+<xs:sequence>
+<xs:element name="nombreCategoria" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="listarCursosPorCategoriaResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarValoracion">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarValoracionResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:int"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerValoracionEstudiante">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+<xs:element name="nicknameEstudiante" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerValoracionEstudianteResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:int" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>

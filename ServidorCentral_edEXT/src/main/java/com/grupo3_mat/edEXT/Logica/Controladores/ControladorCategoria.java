@@ -5,7 +5,11 @@ import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCategoria;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.jws.WebService;
 
+@WebService(endpointInterface = "com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria",
+        serviceName = "CategoriaSoapService", portName = "CategoriaSoapPort",
+        targetNamespace = "http://soap.edext.grupo3_mat.com/")
 public class ControladorCategoria implements IControladorCategoria {
 
     @Override

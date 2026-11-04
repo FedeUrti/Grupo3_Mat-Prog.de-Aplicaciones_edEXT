@@ -1,17 +1,18 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtProgramaFormacion;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.SoapValues;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.ProgramaFormacionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -43,12 +44,12 @@ import java.util.UUID;
         maxRequestSize = 6 * 1024 * 1024)
 public class CursoServlet extends HttpServlet {
 
-    private final IControladorCurso cursos = Fabrica.getInstance().getIControladorCurso();
-    private final IControladorEdicion ediciones = Fabrica.getInstance().getIControladorEdicion();
-    private final IControladorInstituto institutos = Fabrica.getInstance().getIControladorInstituto();
-    private final IControladorCategoria categorias = Fabrica.getInstance().getIControladorCategoria();
-    private final IControladorUsuario usuarios = Fabrica.getInstance().getIControladorUsuario();
-    private final IControladorProgramaFormacion programas = Fabrica.getInstance().getIControladorProgramaFormacion();
+    private final CursoSoap cursos = ControladoresRemotos.getCursoSoap();
+    private final EdicionSoap ediciones = ControladoresRemotos.getEdicionSoap();
+    private final InstitutoSoap institutos = ControladoresRemotos.getInstitutoSoap();
+    private final CategoriaSoap categorias = ControladoresRemotos.getCategoriaSoap();
+    private final UsuarioSoap usuarios = ControladoresRemotos.getUsuarioSoap();
+    private final ProgramaFormacionSoap programas = ControladoresRemotos.getProgramaFormacionSoap();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -96,17 +97,17 @@ public class CursoServlet extends HttpServlet {
                     session.removeAttribute("errorValoracion");
                 }
             }
-            List<DTProgramaFormacion> programasCurso = new ArrayList<>();
+            List<DtProgramaFormacion> programasCurso = new ArrayList<>();
             for (String nombrePrograma : curso.getProgramas()) {
-                DTProgramaFormacion programa = programas.consultarPrograma(nombrePrograma);
+                DtProgramaFormacion programa = programas.consultarPrograma(nombrePrograma);
                 if (programa != null) {
                     programasCurso.add(programa);
                 }
             }
             request.setAttribute("programasCurso", programasCurso);
-            List<DTEdicionCurso> ediciones = new ArrayList<>();
+            List<DtEdicionCurso> ediciones = new ArrayList<>();
             for (String nombreEdicion : curso.getEdiciones()) {
-                DTEdicionCurso edicion = this.ediciones.mostrarDetalleEdicion(nombreEdicion);
+                DtEdicionCurso edicion = this.ediciones.mostrarDetalleEdicion(nombreEdicion);
                 if (edicion != null) {
                     ediciones.add(edicion);
                 }
@@ -114,7 +115,7 @@ public class CursoServlet extends HttpServlet {
             request.setAttribute("edicionesCurso", ediciones);
             Map<String, List<DtDocente>> docentesPorEdicion = new LinkedHashMap<>();
             Map<String, String> imagenesDocentes = new LinkedHashMap<>();
-            for (DTEdicionCurso edicion : ediciones) {
+            for (DtEdicionCurso edicion : ediciones) {
                 List<DtDocente> docentes = obtenerDocentes(edicion);
                 docentesPorEdicion.put(edicion.getNombre(), docentes);
                 for (DtDocente docente : docentes) {
@@ -139,7 +140,8 @@ public class CursoServlet extends HttpServlet {
 
     private void cargarValoraciones(HttpServletRequest request, String nombreCurso) throws Exception {
         BigDecimal promedio = cursos.obtenerPuntajePromedioCurso(nombreCurso);
-        Map<Integer, Integer> conteos = cursos.obtenerConteoValoracionesCurso(nombreCurso);
+        Map<Integer, Integer> conteos = SoapValues.valoraciones(
+                cursos.obtenerConteoValoracionesCurso(nombreCurso));
         int cantidad = conteos.values().stream().mapToInt(Integer::intValue).sum();
         double promedioEstrellas = Math.round(promedio.doubleValue() * 2.0) / 2.0;
         request.setAttribute("promedioValoraciones", promedio);
@@ -199,7 +201,7 @@ public class CursoServlet extends HttpServlet {
             // 2. Guardar la imagen con nombre aleatorio fuera del WAR y enviar ese nombre al controlador.
             imagenGuardada = guardarImagen(request.getPart("imagen"));
             cursos.altaCurso(instituto, nombre, descripcion, duracion, cantHoras, creditos,
-                    url, fecha, previasElegidas, categoriasElegidas, imagenGuardada);
+                    url, SoapValues.fecha(fecha), previasElegidas, categoriasElegidas, imagenGuardada);
 
             // 3. Redirigir tras guardar evita duplicar el alta al recargar (patrón PRG).
             String nombreUrl = URLEncoder.encode(nombre, java.nio.charset.StandardCharsets.UTF_8);
@@ -281,7 +283,7 @@ public class CursoServlet extends HttpServlet {
         }
     }
 
-    private List<DtDocente> obtenerDocentes(DTEdicionCurso edicion) {
+    private List<DtDocente> obtenerDocentes(DtEdicionCurso edicion) {
         List<DtDocente> resultado = new ArrayList<>();
         for (String nickname : edicion.getDocentes()) {
             DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);

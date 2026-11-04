@@ -22,9 +22,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import jakarta.jws.WebService;
 import java.util.List;
 import java.util.Map;
 
+@WebService(endpointInterface = "com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion",
+        serviceName = "ProgramaFormacionSoapService", portName = "ProgramaFormacionSoapPort",
+        targetNamespace = "http://soap.edext.grupo3_mat.com/")
 public class ControladorProgramaFormacion implements IControladorProgramaFormacion {
 
     @Override

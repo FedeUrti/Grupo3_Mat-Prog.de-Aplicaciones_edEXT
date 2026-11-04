@@ -1,13 +1,20 @@
 package com.grupo3_mat.edEXT.Logica.DataTypes;
 
 import java.time.LocalDate;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DTResultadoEstudio {
 
-    private final String nombreCurso;
-    private final String nombreEdicion;
-    private final Integer evaluacion;
-    private final LocalDate fechaResultado;
+    private String nombreCurso;
+    private String nombreEdicion;
+    private Integer evaluacion;
+    private LocalDate fechaResultado;
+
+    public DTResultadoEstudio() {
+    }
 
     public DTResultadoEstudio(String nombreCurso, String nombreEdicion, Integer evaluacion,
             LocalDate fechaResultado) {
@@ -33,10 +40,12 @@ public class DTResultadoEstudio {
         return fechaResultado;
     }
 
+    @XmlElement
     public boolean isAprobado() {
         return evaluacion != null && evaluacion >= 6;
     }
 
+    @XmlElement
     public boolean isTieneResultado() {
         return evaluacion != null;
     }

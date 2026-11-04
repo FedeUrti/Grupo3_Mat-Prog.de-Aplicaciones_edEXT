@@ -1,16 +1,17 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.SoapValues;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtInscripcionEdicion;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,20 +28,20 @@ import java.util.Map;
 @WebServlet("/consulta-edicion-curso")
 public class ConsultaEdicionServlet extends HttpServlet {
 
-    private IControladorCurso controladorCurso;
-    private IControladorEdicion controladorEdicion;
-    private IControladorInstituto controladorInstituto;
-    private IControladorCategoria controladorCategoria;
-    private IControladorUsuario controladorUsuario;
+    private CursoSoap controladorCurso;
+    private EdicionSoap controladorEdicion;
+    private InstitutoSoap controladorInstituto;
+    private CategoriaSoap controladorCategoria;
+    private UsuarioSoap controladorUsuario;
 
     @Override
     public void init() throws ServletException {
-        Fabrica fabrica = Fabrica.getInstance();
-        this.controladorCurso = fabrica.getIControladorCurso();
-        this.controladorEdicion = fabrica.getIControladorEdicion();
-        this.controladorInstituto = fabrica.getIControladorInstituto();
-        this.controladorCategoria = fabrica.getIControladorCategoria();
-        this.controladorUsuario = fabrica.getIControladorUsuario();
+
+        this.controladorCurso = ControladoresRemotos.getCursoSoap();
+        this.controladorEdicion = ControladoresRemotos.getEdicionSoap();
+        this.controladorInstituto = ControladoresRemotos.getInstitutoSoap();
+        this.controladorCategoria = ControladoresRemotos.getCategoriaSoap();
+        this.controladorUsuario = ControladoresRemotos.getUsuarioSoap();
     }
 
     @Override
@@ -70,10 +71,9 @@ public class ConsultaEdicionServlet extends HttpServlet {
                         ? controladorCurso.listarCursosPorInstituto(instituto)
                         : controladorCurso.listarCursosPorCategoria(categoria);
                 cursosDisponibles = new ArrayList<>();
-                for (String candidato : candidatos) {
-                    DtCurso curso = controladorCurso.consultarCurso(candidato);
+                for (DtCurso curso : SoapValues.consultarCursos(controladorCurso, candidatos)) {
                     if (curso != null && (categoria.isEmpty() || curso.getCategorias().contains(categoria))) {
-                        cursosDisponibles.add(candidato);
+                        cursosDisponibles.add(curso.getNombre());
                     }
                 }
             } else if (!nombreCurso.isEmpty()) {
@@ -111,7 +111,7 @@ public class ConsultaEdicionServlet extends HttpServlet {
                 }
                 request.setAttribute("edicionSeleccionada", nombreEdicion);
 
-                DTEdicionCurso dtEdicion = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
+                DtEdicionCurso dtEdicion = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
 
                 if (dtEdicion != null) {
                     request.setAttribute("edicion", dtEdicion);
@@ -136,7 +136,7 @@ public class ConsultaEdicionServlet extends HttpServlet {
                     request.setAttribute("puedeVerAceptados", docenteParticipante);
                     if (docenteParticipante && "true".equalsIgnoreCase(
                             limpiar(request.getParameter("verAceptados")))) {
-                        List<DTInscripcionEdicion> aceptados = controladorEdicion.listarAceptadosAEdicion(
+                        List<DtInscripcionEdicion> aceptados = controladorEdicion.listarAceptadosAEdicion(
                                 nicknameSesion, nombreEdicion);
                         request.setAttribute("inscripcionesAceptadas", aceptados);
                         request.setAttribute("mostrarAceptados", true);
@@ -162,7 +162,7 @@ public class ConsultaEdicionServlet extends HttpServlet {
         request.setAttribute("categorias", controladorCategoria.listarCategorias());
     }
 
-    private Map<String, DtDocente> obtenerDocentes(DTEdicionCurso edicion) {
+    private Map<String, DtDocente> obtenerDocentes(DtEdicionCurso edicion) {
         Map<String, DtDocente> docentes = new LinkedHashMap<>();
         for (String nickname : edicion.getDocentes()) {
             DtUsuario usuario = controladorUsuario.obtenerInfoUsuario(nickname);

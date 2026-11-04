@@ -12,7 +12,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import jakarta.jws.WebService;
 
+@WebService(endpointInterface = "com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario",
+        serviceName = "UsuarioSoapService", portName = "UsuarioSoapPort",
+        targetNamespace = "http://soap.edext.grupo3_mat.com/")
 public class ControladorUsuario implements IControladorUsuario {
 
     public ControladorUsuario() {
@@ -92,6 +96,20 @@ public class ControladorUsuario implements IControladorUsuario {
             }
         }
         return nicknames;
+    }
+
+    @Override
+    public String resolverNickname(String identificador) {
+        if (identificador == null || identificador.isBlank()) {
+            return null;
+        }
+        String valor = identificador.trim();
+        ManejadorUsuario manejador = ManejadorUsuario.getInstancia();
+        Usuario usuario = manejador.buscarUsuarioPorNickname(valor);
+        if (usuario == null) {
+            usuario = manejador.buscarUsuarioPorCorreo(valor);
+        }
+        return usuario == null ? null : usuario.getNickname();
     }
 
     @Override

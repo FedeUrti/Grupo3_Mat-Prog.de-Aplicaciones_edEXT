@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by XML-WS Runtime (https://github.com/eclipse-ee4j/metro-jax-ws). Runtime's version is XML-WS Runtime 4.0.3 git-revision#a57c222. --><xs:schema xmlns:tns="http://soap.edext.grupo3_mat.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://soap.edext.grupo3_mat.com/">
+
+<xs:element name="altaInstituto" type="tns:altaInstituto"/>
+
+<xs:element name="altaInstitutoResponse" type="tns:altaInstitutoResponse"/>
+
+<xs:element name="listarInstitutos" type="tns:listarInstitutos"/>
+
+<xs:element name="listarInstitutosResponse" type="tns:listarInstitutosResponse"/>
+
+<xs:complexType name="altaInstituto">
+<xs:sequence>
+<xs:element name="nombre" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="altaInstitutoResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listarInstitutos">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listarInstitutosResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>

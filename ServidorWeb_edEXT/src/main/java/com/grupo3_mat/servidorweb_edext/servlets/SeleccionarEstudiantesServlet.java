@@ -1,16 +1,16 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
-import com.grupo3_mat.edEXT.Logica.Fabrica;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
-import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DTInscripcionEdicion;
-import com.grupo3_mat.edEXT.Logica.DataTypes.CriterioOrdenInscripciones;
-import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
+import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtInscripcionEdicion;
+import com.grupo3_mat.servidorweb_edext.soap.generated.CriterioOrdenInscripciones;
+import com.grupo3_mat.servidorweb_edext.soap.generated.EstadoInscripcion;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,18 +27,18 @@ import java.util.List;
 @WebServlet("/seleccion-estudiantes")
 public class SeleccionarEstudiantesServlet extends HttpServlet {
 
-    private IControladorCurso controladorCurso;
-    private IControladorEdicion controladorEdicion;
-    private IControladorCategoria controladorCategoria;
-    private IControladorUsuario controladorUsuario;
+    private CursoSoap controladorCurso;
+    private EdicionSoap controladorEdicion;
+    private CategoriaSoap controladorCategoria;
+    private UsuarioSoap controladorUsuario;
 
     @Override
     public void init() throws ServletException {
-        Fabrica fabrica = Fabrica.getInstance();
-        this.controladorCurso = fabrica.getIControladorCurso();
-        this.controladorEdicion = fabrica.getIControladorEdicion();
-        this.controladorCategoria = fabrica.getIControladorCategoria();
-        this.controladorUsuario = fabrica.getIControladorUsuario();
+
+        this.controladorCurso = ControladoresRemotos.getCursoSoap();
+        this.controladorEdicion = ControladoresRemotos.getEdicionSoap();
+        this.controladorCategoria = ControladoresRemotos.getCategoriaSoap();
+        this.controladorUsuario = ControladoresRemotos.getUsuarioSoap();
     }
 
     @Override
@@ -107,7 +107,8 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
                         throw new IllegalArgumentException("La edición seleccionada no pertenece al curso indicado.");
                     }
                 } else {
-                    nombreEdicionGestion = controladorCurso.obtenerEdicionVigente(nombreCurso, LocalDate.now());
+                    nombreEdicionGestion = controladorCurso.obtenerEdicionVigente(
+                            nombreCurso, LocalDate.now().toString());
                     if ((nombreEdicionGestion == null || nombreEdicionGestion.isBlank())
                             && !edicionesDelCurso.isEmpty()) {
                         nombreEdicionGestion = seleccionarEdicionParaGestion(edicionesDelCurso);
@@ -116,7 +117,7 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
 
                 if (nombreEdicionGestion != null && !nombreEdicionGestion.trim().isEmpty()) {
                     if (edicionesDocente != null && edicionesDocente.contains(nombreEdicionGestion)) {
-                        DTEdicionCurso edicionVigente = controladorEdicion.mostrarDetalleEdicion(nombreEdicionGestion);
+                        DtEdicionCurso edicionVigente = controladorEdicion.mostrarDetalleEdicion(nombreEdicionGestion);
 
                         if (edicionVigente != null) {
                             request.setAttribute("edicionVigente", edicionVigente);
@@ -129,7 +130,7 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
                                 request.setAttribute("criterioSeleccionado", "fecha");
                             }
 
-                            List<DTInscripcionEdicion> inscripciones = edicionVigente.isCerrada()
+                            List<DtInscripcionEdicion> inscripciones = edicionVigente.isCerrada()
                                     ? controladorEdicion.consultarEvaluacionesEdicion(usuarioNickname, edicionVigente.getNombre())
                                     : controladorEdicion.listarInscripcionesAEdicion(
                                             usuarioNickname, edicionVigente.getNombre(), criterio);
@@ -210,7 +211,7 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
                 if (nuevoEstado != EstadoInscripcion.ACEPTADA && nuevoEstado != EstadoInscripcion.RECHAZADA) {
                     throw new IllegalArgumentException("El estado seleccionado no es válido.");
                 }
-                DTEdicionCurso edicionAntes = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
+                DtEdicionCurso edicionAntes = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
                 boolean seCompletaCupo = nuevoEstado == EstadoInscripcion.ACEPTADA
                         && edicionAntes != null
                         && edicionAntes.getCupo() > 0
@@ -256,10 +257,10 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
     }
 
     private String seleccionarEdicionParaGestion(List<String> ediciones) throws Exception {
-        DTEdicionCurso ultimaEdicion = null;
-        DTEdicionCurso ultimaEdicionAbierta = null;
+        DtEdicionCurso ultimaEdicion = null;
+        DtEdicionCurso ultimaEdicionAbierta = null;
         for (String nombreEdicion : ediciones) {
-            DTEdicionCurso edicion = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
+            DtEdicionCurso edicion = controladorEdicion.mostrarDetalleEdicion(nombreEdicion);
             if (edicion == null) {
                 continue;
             }
@@ -279,9 +280,10 @@ public class SeleccionarEstudiantesServlet extends HttpServlet {
         return ediciones.get(0);
     }
 
-    private static boolean esMasReciente(DTEdicionCurso candidata, DTEdicionCurso actual) {
+    private static boolean esMasReciente(DtEdicionCurso candidata, DtEdicionCurso actual) {
         return actual == null
                 || (candidata.getFechaFin() != null
-                && (actual.getFechaFin() == null || candidata.getFechaFin().isAfter(actual.getFechaFin())));
+                && (actual.getFechaFin() == null || LocalDate.parse(candidata.getFechaFin())
+                        .isAfter(LocalDate.parse(actual.getFechaFin()))));
     }
 }

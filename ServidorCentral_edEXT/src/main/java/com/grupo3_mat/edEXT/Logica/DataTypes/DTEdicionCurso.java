@@ -3,18 +3,25 @@ package com.grupo3_mat.edEXT.Logica.DataTypes;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DTEdicionCurso {
 
-    private final String nombre;
-    private final LocalDate fechaInicio;
-    private final LocalDate fechaFin;
-    private final int cupo;
-    private final int cupoDisponible;
-    private final LocalDate fechaPublicacion;
-    private final List<String> docentes;
-    private final String imagenPath;
-    private final boolean cerrada;
+    private String nombre;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
+    private int cupo;
+    private int cupoDisponible;
+    private LocalDate fechaPublicacion;
+    private List<String> docentes;
+    private String imagenPath;
+    private boolean cerrada;
+
+    public DTEdicionCurso() {
+        this.docentes = new ArrayList<>();
+    }
 
     // Constructor completo de 8 parámetros
     public DTEdicionCurso(String nombre, LocalDate fechaInicio, LocalDate fechaFin, int cupo, 

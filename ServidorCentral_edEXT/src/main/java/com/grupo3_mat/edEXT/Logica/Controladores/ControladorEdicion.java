@@ -17,7 +17,11 @@ import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
 
 import java.time.LocalDate;
 import java.util.*;
+import jakarta.jws.WebService;
 
+@WebService(endpointInterface = "com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion",
+        serviceName = "EdicionSoapService", portName = "EdicionSoapPort",
+        targetNamespace = "http://soap.edext.grupo3_mat.com/")
 public class ControladorEdicion implements IControladorEdicion {
 
     @Override

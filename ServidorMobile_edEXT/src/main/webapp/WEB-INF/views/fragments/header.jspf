@@ -1,0 +1,14 @@
+<header class="topbar">
+    <a class="brand" href="${pageContext.request.contextPath}/app" aria-label="edEXT Mobile, inicio">
+        <span class="brand-mark">e</span><span>edEXT <strong>Mobile</strong></span>
+    </a>
+    <details class="menu">
+        <summary aria-label="Abrir menú"><span></span><span></span><span></span></summary>
+        <nav class="menu-panel" aria-label="Navegación">
+            <a href="${pageContext.request.contextPath}/app">Ver cursos</a>
+            <form method="post" action="${pageContext.request.contextPath}/logout">
+                <button type="submit">Cerrar sesión</button>
+            </form>
+        </nav>
+    </details>
+</header>

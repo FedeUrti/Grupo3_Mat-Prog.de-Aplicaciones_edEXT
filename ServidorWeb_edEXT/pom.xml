@@ -38,19 +38,31 @@
             <version>3.0.1</version>
         </dependency>
         <dependency>
-            <!-- 3. Incluye en el WAR los controladores y modelos del sistema central. -->
-            <groupId>com.grupo3.mat</groupId>
-            <artifactId>Grupo3_Mat-Prog.de-Aplicaciones_edEXT</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.librepdf</groupId>
             <artifactId>openpdf</artifactId>
             <version>2.0.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>4.0.3</version>
+        </dependency>
     </dependencies>
     
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/wsdl</directory>
+                <targetPath>wsdl</targetPath>
+                <includes>
+                    <include>*.wsdl</include>
+                    <include>*.xsd</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -64,6 +76,37 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
+            </plugin>
+            <!-- Los stubs se generan offline desde contratos WSDL versionados junto al WAR.
+                 El empaquetado web no depende del JAR central ni del módulo de contratos. -->
+            <plugin>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>4.0.3</version>
+                <executions>
+                    <execution>
+                        <id>generar-clientes-soap-locales</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlDirectory>${project.basedir}/src/main/wsdl</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>categoria.wsdl</wsdlFile>
+                                <wsdlFile>curso.wsdl</wsdlFile>
+                                <wsdlFile>edicion.wsdl</wsdlFile>
+                                <wsdlFile>instituto.wsdl</wsdlFile>
+                                <wsdlFile>programa.wsdl</wsdlFile>
+                                <wsdlFile>usuario.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>com.grupo3_mat.servidorweb_edext.soap.generated</packageName>
+                            <sourceDestDir>${project.build.directory}/generated-sources/wsimport</sourceDestDir>
+                            <keep>true</keep>
+                            <xnocompile>true</xnocompile>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
