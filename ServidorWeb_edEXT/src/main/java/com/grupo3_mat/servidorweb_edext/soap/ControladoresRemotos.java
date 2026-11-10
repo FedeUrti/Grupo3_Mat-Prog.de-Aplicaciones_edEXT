@@ -1,5 +1,6 @@
 package com.grupo3_mat.servidorweb_edext.soap;
 
+import com.grupo3_mat.servidorweb_edext.configuracion.ConfiguracionWeb;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
@@ -13,6 +14,7 @@ import jakarta.xml.ws.soap.SOAPFaultException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.net.URI;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
@@ -25,20 +27,18 @@ import org.w3c.dom.NodeList;
  */
 public final class ControladoresRemotos {
     private static final String NAMESPACE = "http://soap.edext.grupo3_mat.com/";
-    private static final String BASE_PREDETERMINADA = "http://central:9128/edext/soap";
-
     private static final CategoriaSoap CATEGORIA =
-            cliente(CategoriaSoap.class, "CategoriaSoapService", "CategoriaSoapPort", "categoria");
+            clienteSeguro(CategoriaSoap.class, "CategoriaSoapService", "CategoriaSoapPort", "categoria");
     private static final CursoSoap CURSO =
-            cliente(CursoSoap.class, "CursoSoapService", "CursoSoapPort", "curso");
+            clienteSeguro(CursoSoap.class, "CursoSoapService", "CursoSoapPort", "curso");
     private static final EdicionSoap EDICION =
-            cliente(EdicionSoap.class, "EdicionSoapService", "EdicionSoapPort", "edicion");
+            clienteSeguro(EdicionSoap.class, "EdicionSoapService", "EdicionSoapPort", "edicion");
     private static final InstitutoSoap INSTITUTO =
-            cliente(InstitutoSoap.class, "InstitutoSoapService", "InstitutoSoapPort", "instituto");
+            clienteSeguro(InstitutoSoap.class, "InstitutoSoapService", "InstitutoSoapPort", "instituto");
     private static final ProgramaFormacionSoap PROGRAMA =
-            cliente(ProgramaFormacionSoap.class, "ProgramaFormacionSoapService", "ProgramaFormacionSoapPort", "programa");
+            clienteSeguro(ProgramaFormacionSoap.class, "ProgramaFormacionSoapService", "ProgramaFormacionSoapPort", "programa");
     private static final UsuarioSoap USUARIO =
-            cliente(UsuarioSoap.class, "UsuarioSoapService", "UsuarioSoapPort", "usuario");
+            clienteSeguro(UsuarioSoap.class, "UsuarioSoapService", "UsuarioSoapPort", "usuario");
 
     private ControladoresRemotos() {
     }
@@ -67,17 +67,26 @@ public final class ControladoresRemotos {
         return USUARIO;
     }
 
-    private static <T> T cliente(Class<T> contrato, String servicio, String puerto, String ruta) {
-        String base = System.getenv("EDEXT_SOAP_BASE_URL");
-        if (base == null || base.isBlank()) {
-            base = BASE_PREDETERMINADA;
-        } else {
-            base = base.trim();
+    private static <T> T clienteSeguro(Class<T> contrato, String servicio, String puerto, String ruta) {
+        try {
+            return cliente(contrato, servicio, puerto, ruta);
+        } catch (RuntimeException error) {
+            return clienteNoDisponible(contrato, servicio, error);
         }
+    }
+
+    private static <T> T cliente(Class<T> contrato, String servicio, String puerto, String ruta) {
+        ConfiguracionWeb configuracion = ConfiguracionWeb.get();
+        String base = configuracion.getCentralSoapUrl().trim();
         while (base.endsWith("/")) {
             base = base.substring(0, base.length() - 1);
         }
         String direccion = base + "/" + ruta;
+        URI endpoint = URI.create(direccion);
+        if (!("http".equalsIgnoreCase(endpoint.getScheme()) || "https".equalsIgnoreCase(endpoint.getScheme()))
+                || endpoint.getHost() == null) {
+            throw new IllegalArgumentException("La URL del servicio central no es válida: " + base);
+        }
         URL wsdl = ControladoresRemotos.class.getClassLoader().getResource("wsdl/" + ruta + ".wsdl");
         if (wsdl == null) {
             throw new IllegalStateException("No se encontró el WSDL local del servicio '" + servicio + "'.");
@@ -89,8 +98,8 @@ public final class ControladoresRemotos {
         T remoto = service.getPort(puertoQName, contrato);
         var contexto = ((BindingProvider) remoto).getRequestContext();
         contexto.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, direccion);
-        contexto.put("com.sun.xml.ws.connect.timeout", 5000);
-        contexto.put("com.sun.xml.ws.request.timeout", 30000);
+        contexto.put("com.sun.xml.ws.connect.timeout", configuracion.getSoapConnectTimeoutMillis());
+        contexto.put("com.sun.xml.ws.request.timeout", configuracion.getSoapRequestTimeoutMillis());
 
         AtomicReference<T> port = new AtomicReference<>(remoto);
         return contrato.cast(Proxy.newProxyInstance(
@@ -128,6 +137,25 @@ public final class ControladoresRemotos {
                         }
                         throw causa;
                     }
+                }));
+    }
+
+    private static <T> T clienteNoDisponible(Class<T> contrato, String servicio, RuntimeException causa) {
+        String mensaje = "No se pudo inicializar el cliente SOAP de " + servicio
+                + ". Revise central.soap.url en ~/.edEXT/web.properties.";
+        return contrato.cast(Proxy.newProxyInstance(
+                contrato.getClassLoader(),
+                new Class<?>[]{contrato},
+                (proxy, metodo, argumentos) -> {
+                    if (metodo.getDeclaringClass() == Object.class) {
+                        return switch (metodo.getName()) {
+                            case "toString" -> mensaje;
+                            case "hashCode" -> System.identityHashCode(proxy);
+                            case "equals" -> proxy == argumentos[0];
+                            default -> throw new UnsupportedOperationException(metodo.getName());
+                        };
+                    }
+                    throw new ServicioCentralNoDisponibleException(mensaje, causa);
                 }));
     }
 

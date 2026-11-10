@@ -11,7 +11,7 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 
 public final class SoapClients {
-    private static final String DEFAULT_BASE_URL = "http://central:9128/edext/soap";
+    private static final String DEFAULT_BASE_URL = "http://localhost:9128/edext/soap";
     private static final String NAMESPACE = "http://soap.edext.grupo3_mat.com/";
 
     private static final UsuarioSoap USUARIOS = createUsuarios();

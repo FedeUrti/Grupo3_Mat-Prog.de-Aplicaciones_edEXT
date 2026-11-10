@@ -1,5 +1,6 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
+import com.grupo3_mat.servidorweb_edext.configuracion.ConfiguracionWeb;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtCurso;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
@@ -28,7 +29,6 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -371,12 +371,7 @@ public class CursoServlet extends HttpServlet {
     }
 
     private Path carpetaImagenes() {
-        String configurada = System.getenv("EDEXT_UPLOAD_DIR");
-        if (configurada != null && !configurada.isBlank()) {
-            return Paths.get(configurada).toAbsolutePath().normalize();
-        }
-        return Paths.get(System.getProperty("user.home"), ".edext", "uploads")
-                .toAbsolutePath().normalize();
+        return ConfiguracionWeb.get().getUploadDirectory();
     }
 
     private void borrarImagenSiExiste(String nombre) {

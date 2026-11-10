@@ -1,5 +1,6 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
+import com.grupo3_mat.servidorweb_edext.configuracion.ConfiguracionWeb;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtEstudiante;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
@@ -37,7 +38,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = {
-    "/alta-usuario", "/consulta-usuario", "/modificar-usuario",
+    "/alta-usuario", "/disponibilidad-usuario", "/consulta-usuario", "/modificar-usuario",
     "/seguir-usuario", "/dejar-de-seguir-usuario"
 })
 // El contenedor limita el tamaño total y por archivo de las imágenes de perfil recibidas.
@@ -70,6 +71,9 @@ public class UsuarioServlet extends HttpServlet {
             case "/alta-usuario":
                 mostrarAlta(request, response);
                 break;
+            case "/disponibilidad-usuario":
+                verificarDisponibilidad(request, response);
+                break;
             case "/consulta-usuario":
                 mostrarConsulta(request, response);
                 break;
@@ -83,6 +87,49 @@ public class UsuarioServlet extends HttpServlet {
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
+    }
+
+    private void verificarDisponibilidad(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Cache-Control", "no-store");
+
+        String campo = request.getParameter("campo");
+        String valor = limpiar(request.getParameter("valor"));
+        try {
+            if (valor.isEmpty()) {
+                throw new IllegalArgumentException("Ingresá un valor para verificar.");
+            }
+
+            boolean disponible;
+            if ("nickname".equals(campo)) {
+                validarNickname(valor);
+                disponible = usuarios.listarNicknamesUsuarios().stream()
+                        .noneMatch(nickname -> nickname != null && nickname.equalsIgnoreCase(valor));
+            } else if ("correo".equals(campo)) {
+                validarCorreo(valor);
+                // Un correo válido no puede coincidir con un nickname según las reglas del alta.
+                disponible = usuarios.resolverNickname(valor) == null;
+            } else {
+                throw new IllegalArgumentException("El campo a verificar no es válido.");
+            }
+
+            response.getWriter().write("{\"disponible\":" + disponible + "}");
+        } catch (IllegalArgumentException error) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            escribirErrorJson(response, error.getMessage());
+        } catch (Exception error) {
+            getServletContext().log("No se pudo verificar la disponibilidad de un usuario.", error);
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            escribirErrorJson(response, "No se pudo verificar la disponibilidad. Intentá nuevamente.");
+        }
+    }
+
+    private static void escribirErrorJson(HttpServletResponse response, String mensaje) throws IOException {
+        String escapado = mensaje.replace("\\", "\\\\").replace("\"", "\\\"")
+                .replace("\r", "\\r").replace("\n", "\\n");
+        response.getWriter().write("{\"error\":\"" + escapado + "\"}");
     }
 
     @Override
@@ -628,13 +675,7 @@ public class UsuarioServlet extends HttpServlet {
     }
 
     private Path carpetaImagenes() {
-        // La variable de entorno permite compartir el mismo directorio con el despliegue en contenedor.
-        String configurada = System.getenv("EDEXT_UPLOAD_DIR");
-        if (configurada != null && !configurada.isBlank()) {
-            return Paths.get(configurada).toAbsolutePath().normalize();
-        }
-        return Paths.get(System.getProperty("user.home"), ".edext", "uploads")
-                .toAbsolutePath().normalize();
+        return ConfiguracionWeb.get().getUploadDirectory();
     }
 
     private void borrarImagenSiExiste(String nombre) {

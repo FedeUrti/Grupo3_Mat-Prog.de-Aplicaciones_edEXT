@@ -7,7 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#f4f6fb">
     <title><c:out value="${curso.nombre}"/> · edEXT Mobile</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/mobile.css">
+    <script>
+        try {
+            if (localStorage.getItem("edext-mobile-theme") === "dark") {
+                document.documentElement.dataset.theme = "dark";
+            }
+        } catch (error) {
+            // Si el navegador bloquea el almacenamiento, se conserva el tema claro.
+        }
+    </script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/mobile.css?v=20261110-2">
 </head>
 <body>
 <%@ include file="fragments/header.jspf" %>
@@ -67,5 +76,6 @@
         </div>
     </article>
 </main>
+<script src="${pageContext.request.contextPath}/assets/theme.js?v=20261110-1" defer></script>
 </body>
 </html>

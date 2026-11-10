@@ -12,8 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <!-- Ruta de la clase ejecutable principal -->
-        <main.class>com.grupo3_mat.edEXT.Presentacion.Pantallas.Principal</main.class>
+        <main.class>com.grupo3_mat.edEXT.Presentacion.ServidorEdExtMain</main.class>
     </properties>
 
     <repositories>
@@ -108,69 +107,30 @@
                 <version>3.2.5</version>
             </plugin>
 
-            <!-- Plugin para empaquetar el JAR ejecutable con dependencias -->
+            <!-- Conserva los proveedores JAX-WS al combinar las dependencias del servidor. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${main.class}</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>make-central-server</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!-- Artefacto separado para el backend: el JAR Swing conserva su main original. -->
-                            <finalName>edext-central-server</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.grupo3_mat.edEXT.Presentacion.ServidorCentralMain</mainClass>
-                                </manifest>
-                            </archive>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
+                            <outputFile>${project.build.directory}/servidor.jar</outputFile>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${main.class}</mainClass>
+                                </transformer>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!-- <plugin>
-                <groupId>com.sun.xml.ws</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <version>4.0.3</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <wsdlUrls>
-                                <wsdlUrl>http://localhost:9128/publicador?wsdl</wsdlUrl>
-                            </wsdlUrls>
-                            <packageName>com.grupo3_mat.edEXT.cliente</packageName>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin> -->
             <!-- Plugin de JaCoCo para cobertura de código -->
             <plugin>
                 <groupId>org.jacoco</groupId>

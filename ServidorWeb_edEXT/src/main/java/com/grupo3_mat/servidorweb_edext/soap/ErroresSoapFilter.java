@@ -25,7 +25,8 @@ public class ErroresSoapFilter implements Filter {
             HttpServletResponse http = (HttpServletResponse) response;
             if (!http.isCommitted()) {
                 http.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
-                        "El servicio central no está disponible. Intente nuevamente en unos minutos.");
+                        "El servicio central no está disponible. Revise central.soap.url en "
+                                + "~/.edEXT/web.properties y verifique que el central esté activo.");
             } else {
                 throw new ServletException(error);
             }

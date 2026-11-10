@@ -1,5 +1,6 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
+import com.grupo3_mat.servidorweb_edext.configuracion.ConfiguracionWeb;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @WebServlet(urlPatterns = {"/imagenes-curso/*", "/imagenes-usuario"})
 public class ImagenCursoServlet extends HttpServlet {
@@ -24,7 +24,7 @@ public class ImagenCursoServlet extends HttpServlet {
             return;
         }
 
-        // 2. Las imágenes predeterminadas se sirven desde el JAR central; el nombre se limita a una lista segura.
+        // 2. Las imágenes predeterminadas se sirven desde los recursos del WAR y el nombre se limita a una lista segura.
         String recursoPredeterminado = obtenerRecursoPredeterminado(nombre);
         if (recursoPredeterminado != null) {
             try (InputStream imagen = getClass().getClassLoader().getResourceAsStream(recursoPredeterminado)) {
@@ -44,8 +44,7 @@ public class ImagenCursoServlet extends HttpServlet {
         boolean imagenProgramaEscritorio = nombre.matches(
                 "(?i)programa_[a-z0-9_-]+_\\d+\\.(png|jpg|jpeg|gif|webp)");
         if (imagenProgramaEscritorio) {
-            Path carpetaProgramas = Paths.get(System.getProperty("user.home"), ".edEXT", "imagenes")
-                    .toAbsolutePath().normalize();
+            Path carpetaProgramas = ConfiguracionWeb.get().getImageDirectory();
             servirArchivo(carpetaProgramas, nombre, response);
             return;
         }
@@ -57,11 +56,7 @@ public class ImagenCursoServlet extends HttpServlet {
         }
 
         // 5. Usar la carpeta configurada para Docker o la carpeta local predeterminada.
-        String configurada = System.getenv("EDEXT_UPLOAD_DIR");
-        Path carpeta = configurada != null && !configurada.isBlank()
-                ? Paths.get(configurada).toAbsolutePath().normalize()
-                : Paths.get(System.getProperty("user.home"), ".edext", "uploads").toAbsolutePath().normalize();
-        servirArchivo(carpeta, nombre, response);
+        servirArchivo(ConfiguracionWeb.get().getUploadDirectory(), nombre, response);
     }
 
     private static void servirArchivo(Path carpeta, String nombre, HttpServletResponse response)

@@ -23,6 +23,7 @@ import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorEdicion;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCategoria;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorUsuario;
+import com.grupo3_mat.edEXT.Persistencia.TestDatabaseExtension;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@ExtendWith(TestDatabaseExtension.class)
 public class ControladoresTest {
 
     private static IControladorInstituto ctrlInstituto;

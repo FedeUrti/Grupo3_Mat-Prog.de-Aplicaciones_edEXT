@@ -1,28 +1,19 @@
 package com.grupo3_mat.edEXT.Presentacion.Utils;
 
+import com.grupo3_mat.edEXT.Configuracion.ConfiguracionServidor;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class GestorImagenes {
 
-    private static final String DIRECTORIO_BASE = System.getProperty("user.home") 
-            + File.separator + ".edEXT" 
-            + File.separator + "imagenes";
-
-    static {
-        File dir = new File(DIRECTORIO_BASE);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-    }
+    private static final Path DIRECTORIO_BASE = ConfiguracionServidor.get().getImageDirectory();
 
     public static String guardarImagenLocal(File archivoOrigen, String nickname) throws IOException {
         if (archivoOrigen == null || !archivoOrigen.exists()) {
@@ -36,7 +27,8 @@ public class GestorImagenes {
         }
 
         String nombreFinal = nickname + "_" + System.currentTimeMillis() + extension;
-        Path destino = Paths.get(DIRECTORIO_BASE, nombreFinal);
+        Files.createDirectories(DIRECTORIO_BASE);
+        Path destino = DIRECTORIO_BASE.resolve(nombreFinal);
 
         Files.copy(archivoOrigen.toPath(), destino, StandardCopyOption.REPLACE_EXISTING);
         return nombreFinal;
@@ -95,7 +87,7 @@ public class GestorImagenes {
             return false;
         }
 
-        File archivoLocal = new File(DIRECTORIO_BASE, imagenPath);
+        File archivoLocal = DIRECTORIO_BASE.resolve(imagenPath).toFile();
         if (!archivoLocal.isFile()) {
             archivoLocal = new File(imagenPath);
         }

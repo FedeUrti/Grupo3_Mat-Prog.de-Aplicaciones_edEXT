@@ -15,11 +15,13 @@ import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCategoria;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorEdicion;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorInstituto;
+import com.grupo3_mat.edEXT.Persistencia.TestDatabaseExtension;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(TestDatabaseExtension.class)
 class CoberturaJaCoCoTest {
 
     private final String sufijo = UUID.randomUUID().toString();

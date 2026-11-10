@@ -9,7 +9,10 @@ escritorio desplegado como ROOT.
 - **Inicio de sesión y cierre:** solo cuentas existentes de tipo estudiante.
   El login admite nickname o correo y reutiliza la autenticación SOAP central.
   Un docente autenticado correctamente recibe HTTP 403 en Mobile; no se crean
-  cuentas desde esta aplicación.
+  cuentas desde esta aplicación. El login Mobile usa una tarjeta translúcida,
+  iconografía y fondo luminoso; su formulario conserva los mensajes y el
+  flujo de autenticación actuales. Login, catálogo, curso y edición incluyen
+  un selector claro/oscuro que persiste en el navegador y solo afecta a Mobile.
 - **Consulta de curso:** catálogo y detalle con instituto, descripción,
   duración, horas, créditos, categorías, programas y ediciones.
 - **Consulta de edición:** fechas, disponibilidad de cupos, estado y docentes.
@@ -34,6 +37,10 @@ seguridad contra suplantación.
   `scripts/exportar-contrato.sh` en el Web y luego compilá Mobile.
 - Los WSDL/XSD se empaquetan en el WAR. El servicio se invoca por
   `EDEXT_SOAP_BASE_URL`, que en Compose apunta a `http://central:9128/edext/soap`.
+- Fuera de Compose, el valor predeterminado es
+  `http://localhost:9128/edext/soap`, adecuado cuando Mobile y el Central
+  corren en la misma máquina. Si están en máquinas distintas, configure
+  `EDEXT_SOAP_BASE_URL` con una URL alcanzable desde Tomcat.
 - No tiene dependencias de código del Web/Central ni configuración de JDBC o
   credenciales de base de datos.
 

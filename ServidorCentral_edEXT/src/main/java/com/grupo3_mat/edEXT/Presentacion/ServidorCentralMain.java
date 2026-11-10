@@ -1,5 +1,6 @@
 package com.grupo3_mat.edEXT.Presentacion;
 
+import com.grupo3_mat.edEXT.Configuracion.ConfiguracionServidor;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
@@ -20,18 +21,13 @@ import java.util.concurrent.CountDownLatch;
  * como 0.0.0.0; al ejecutar localmente, el valor predeterminado solo escucha en loopback.
  */
 public final class ServidorCentralMain {
-    private static final String DIRECCION_PREDETERMINADA = "http://127.0.0.1:9128/edext/soap";
     private static final List<Endpoint> ENDPOINTS = new ArrayList<>();
 
     private ServidorCentralMain() {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        String base = System.getenv("EDEXT_SOAP_BIND_ADDRESS");
-        if (base == null || base.isBlank()) {
-            base = DIRECCION_PREDETERMINADA;
-        }
-        base = quitarBarraFinal(base.trim());
+        String base = quitarBarraFinal(ConfiguracionServidor.get().getSoapBindUrl());
 
         CountDownLatch cierre = new CountDownLatch(1);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
