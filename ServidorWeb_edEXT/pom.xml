@@ -106,6 +106,7 @@
                             <wsdlDirectory>${project.basedir}/src/main/wsdl</wsdlDirectory>
                             <wsdlFiles>
                                 <wsdlFile>categoria.wsdl</wsdlFile>
+                                <wsdlFile>busqueda.wsdl</wsdlFile>
                                 <wsdlFile>curso.wsdl</wsdlFile>
                                 <wsdlFile>edicion.wsdl</wsdlFile>
                                 <wsdlFile>instituto.wsdl</wsdlFile>

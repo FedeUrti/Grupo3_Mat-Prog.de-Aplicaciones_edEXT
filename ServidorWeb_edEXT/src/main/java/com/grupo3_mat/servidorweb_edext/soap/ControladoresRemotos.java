@@ -2,6 +2,7 @@ package com.grupo3_mat.servidorweb_edext.soap;
 
 import com.grupo3_mat.servidorweb_edext.configuracion.ConfiguracionWeb;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
+import com.grupo3_mat.servidorweb_edext.soap.generated.BusquedaSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
@@ -29,6 +30,8 @@ public final class ControladoresRemotos {
     private static final String NAMESPACE = "http://soap.edext.grupo3_mat.com/";
     private static final CategoriaSoap CATEGORIA =
             clienteSeguro(CategoriaSoap.class, "CategoriaSoapService", "CategoriaSoapPort", "categoria");
+    private static final BusquedaSoap BUSQUEDA =
+            clienteSeguro(BusquedaSoap.class, "BusquedaSoapService", "BusquedaSoapPort", "busqueda");
     private static final CursoSoap CURSO =
             clienteSeguro(CursoSoap.class, "CursoSoapService", "CursoSoapPort", "curso");
     private static final EdicionSoap EDICION =
@@ -45,6 +48,10 @@ public final class ControladoresRemotos {
 
     public static CategoriaSoap getCategoriaSoap() {
         return CATEGORIA;
+    }
+
+    public static BusquedaSoap getBusquedaSoap() {
+        return BUSQUEDA;
     }
 
     public static CursoSoap getCursoSoap() {

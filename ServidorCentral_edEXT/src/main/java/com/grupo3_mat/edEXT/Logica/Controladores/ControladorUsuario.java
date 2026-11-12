@@ -114,6 +114,23 @@ public class ControladorUsuario implements IControladorUsuario {
         return convertirUsuario(usuario);
     }
 
+    @Override
+    public DtUsuario obtenerInfoUsuarioBasica(String nickname) {
+        ManejadorUsuario.DatosUsuarioBasicos datos =
+                ManejadorUsuario.getInstancia().buscarDatosBasicosPorNickname(nickname);
+        if (datos == null) {
+            return null;
+        }
+        if (datos.docente()) {
+            return new DtDocente(datos.nickname(), datos.nombre(), datos.apellido(), datos.correo(),
+                    datos.fechaNacimiento(), datos.imagenPath(), List.of(), List.of(),
+                    List.of(), List.of(), List.of());
+        }
+        return new DtEstudiante(datos.nickname(), datos.nombre(), datos.apellido(), datos.correo(),
+                datos.fechaNacimiento(), datos.imagenPath(), List.of(), List.of(),
+                List.of(), List.of());
+    }
+
     private DtUsuario convertirUsuario(Usuario usuario) {
         List<String> seguidores = usuario.getNicknamesSeguidores();
         List<String> seguidos = usuario.getNicknamesSeguidos();
@@ -191,19 +208,8 @@ public class ControladorUsuario implements IControladorUsuario {
 
     @Override
     public void modificarDatosUsuario(String nickname, String nombre, String apellido, LocalDate fechaNac, String imagenPath) throws Exception {
-        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
-        Usuario u = mu.buscarUsuarioPorNickname(nickname);
-
-        if (u == null) {
-            throw new Exception("El usuario seleccionado no existe.");
-        }
-
-        u.setNombre(nombre);
-        u.setApellido(apellido);
-        u.setFechaNacimiento(fechaNac);
-        u.setImagenPath(imagenPath);
-
-        mu.modificarUsuario(u);
+        ManejadorUsuario.getInstancia().actualizarDatosBasicos(
+                nickname, nombre, apellido, fechaNac, imagenPath);
     }
 
     @Override
@@ -228,34 +234,12 @@ public class ControladorUsuario implements IControladorUsuario {
 
     @Override
     public List<String> listarEstudiantes() {
-        List<String> estudiantes = new ArrayList<>();
-        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
-        List<Usuario> usuarios = mu.getUsuarios();
-
-        if (usuarios != null) {
-            for (Usuario u : usuarios) {
-                if (u instanceof Estudiante) {
-                    estudiantes.add(u.getNickname());
-                }
-            }
-        }
-        return estudiantes;
+        return ManejadorUsuario.getInstancia().listarNicknamesEstudiantes();
     }
 
     @Override
     public List<String> listarDocentes() {
-        List<String> docentes = new ArrayList<>();
-        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
-        List<Usuario> usuarios = mu.getUsuarios();
-
-        if (usuarios != null) {
-            for (Usuario u : usuarios) {
-                if (u instanceof Docente) {
-                    docentes.add(u.getNickname());
-                }
-            }
-        }
-        return docentes;
+        return ManejadorUsuario.getInstancia().listarNicknamesDocentes();
     }
 
     @Override
@@ -266,7 +250,29 @@ public class ControladorUsuario implements IControladorUsuario {
 
     @Override
     public DtUsuario iniciarSesionConDatos(String nicknameOrEmail, String password) throws Exception {
-        return convertirUsuario(autenticarUsuario(nicknameOrEmail, password));
+        if (nicknameOrEmail == null || nicknameOrEmail.isBlank() || password == null || password.isEmpty()) {
+            throw new Exception("Ingrese usuario y contraseña.");
+        }
+
+        ManejadorUsuario manejador = ManejadorUsuario.getInstancia();
+        ManejadorUsuario.DatosAcceso datos = manejador.buscarDatosAcceso(nicknameOrEmail.trim());
+        if (datos == null) {
+            throw new Exception("El usuario o correo ingresado no existe.");
+        }
+        if (!PasswordHasher.verify(password, datos.passwordHash())) {
+            throw new Exception("Contraseña incorrecta.");
+        }
+        if (PasswordHasher.needsRehash(datos.passwordHash())) {
+            manejador.actualizarPassword(datos.nickname(), PasswordHasher.hash(password));
+        }
+
+        if (datos.docente()) {
+            return new DtDocente(datos.nickname(), datos.nombre(), datos.apellido(), datos.correo(),
+                    datos.fechaNacimiento(), datos.imagenPath(), List.of(), List.of(),
+                    List.of(), List.of(), List.of());
+        }
+        return new DtEstudiante(datos.nickname(), datos.nombre(), datos.apellido(), datos.correo(),
+                datos.fechaNacimiento(), datos.imagenPath(), List.of(), List.of(), List.of(), List.of());
     }
 
     private Usuario autenticarUsuario(String nicknameOrEmail, String password) throws Exception {

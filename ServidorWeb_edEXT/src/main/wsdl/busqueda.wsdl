@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:tns="http://soap.edext.grupo3_mat.com/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             targetNamespace="http://soap.edext.grupo3_mat.com/"
+             name="BusquedaSoapService">
+    <types>
+        <xsd:schema>
+            <xsd:import namespace="http://soap.edext.grupo3_mat.com/" schemaLocation="busqueda.xsd"/>
+        </xsd:schema>
+    </types>
+    <message name="buscarResultados">
+        <part name="parameters" element="tns:buscarResultados"/>
+    </message>
+    <message name="buscarResultadosResponse">
+        <part name="parameters" element="tns:buscarResultadosResponse"/>
+    </message>
+    <portType name="BusquedaSoap">
+        <operation name="buscarResultados">
+            <input message="tns:buscarResultados"/>
+            <output message="tns:buscarResultadosResponse"/>
+        </operation>
+    </portType>
+    <binding name="BusquedaSoapPortBinding" type="tns:BusquedaSoap">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <operation name="buscarResultados">
+            <soap:operation soapAction=""/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+    </binding>
+    <service name="BusquedaSoapService">
+        <port name="BusquedaSoapPort" binding="tns:BusquedaSoapPortBinding">
+            <soap:address location="http://127.0.0.1:9128/edext/soap/busqueda"/>
+        </port>
+    </service>
+</definitions>

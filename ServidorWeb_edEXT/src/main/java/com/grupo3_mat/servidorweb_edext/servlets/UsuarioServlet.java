@@ -365,7 +365,7 @@ public class UsuarioServlet extends HttpServlet {
         return imagenPerfil(usuario.getImagenPath(), usuario instanceof DtDocente);
     }
 
-    private static String imagenPerfil(String imagen, boolean esDocente) {
+    static String imagenPerfil(String imagen, boolean esDocente) {
         if (imagen != null && (imagen.matches("[a-f0-9-]{36}\\.(png|jpg|gif|webp)")
                 || imagen.matches("Presentacion/Recursos/datos_prueba/usuario_[a-z0-9_-]+\\.(png|jpg|jpeg)")
                 || imagen.endsWith("docente_placeholder.png")

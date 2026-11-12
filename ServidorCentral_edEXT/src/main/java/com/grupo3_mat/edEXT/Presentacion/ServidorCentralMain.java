@@ -3,6 +3,7 @@ package com.grupo3_mat.edEXT.Presentacion;
 import com.grupo3_mat.edEXT.Configuracion.ConfiguracionServidor;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
+import com.grupo3_mat.edEXT.Logica.Controladores.ControladorBusqueda;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
@@ -41,6 +42,7 @@ public final class ServidorCentralMain {
         try {
             Fabrica fabrica = Fabrica.getInstance();
             publicar(base, "/categoria", fabrica.getIControladorCategoria());
+            publicar(base, "/busqueda", new ControladorBusqueda());
             publicar(base, "/curso", fabrica.getIControladorCurso());
             publicar(base, "/edicion", fabrica.getIControladorEdicion());
             publicar(base, "/instituto", fabrica.getIControladorInstituto());

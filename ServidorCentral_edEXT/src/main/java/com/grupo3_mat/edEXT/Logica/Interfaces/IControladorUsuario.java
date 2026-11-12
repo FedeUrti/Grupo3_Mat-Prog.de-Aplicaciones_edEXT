@@ -27,6 +27,7 @@ public interface IControladorUsuario {
     List<String> listarNicknamesUsuarios();
     String resolverNickname(@WebParam(name = "identificador") String identificador);
     DtUsuario obtenerInfoUsuario(@WebParam(name = "nickname") String nickname);
+    DtUsuario obtenerInfoUsuarioBasica(@WebParam(name = "nickname") String nickname);
     List<DtUsuario> obtenerInfoUsuarios(@WebParam(name = "nicknames") List<String> nicknames);
     DtUsuario iniciarSesionConDatos(@WebParam(name = "identificador") String nicknameOrEmail,
             @WebParam(name = "password") String password) throws Exception;

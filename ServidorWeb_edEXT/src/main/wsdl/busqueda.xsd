@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:tns="http://soap.edext.grupo3_mat.com/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://soap.edext.grupo3_mat.com/">
+    <xs:element name="buscarResultados" type="tns:buscarResultados"/>
+    <xs:element name="buscarResultadosResponse" type="tns:buscarResultadosResponse"/>
+    <xs:complexType name="buscarResultados">
+        <xs:sequence>
+            <xs:element name="consulta" type="xs:string" minOccurs="0"/>
+            <xs:element name="tipo" type="xs:string" minOccurs="0"/>
+            <xs:element name="nicknameSesion" type="xs:string" minOccurs="0"/>
+            <xs:element name="ordenarPor" type="xs:string" minOccurs="0"/>
+            <xs:element name="direccion" type="xs:string" minOccurs="0"/>
+            <xs:element name="limitePorTipo" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="buscarResultadosResponse">
+        <xs:sequence>
+            <xs:element name="return" type="tns:dtResultadoBusqueda"
+                        minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="dtResultadoBusqueda">
+        <xs:sequence>
+            <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+            <xs:element name="apellido" type="xs:string" minOccurs="0"/>
+            <xs:element name="nickname" type="xs:string" minOccurs="0"/>
+            <xs:element name="tipo" type="xs:string" minOccurs="0"/>
+            <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+            <xs:element name="imagenPath" type="xs:string" minOccurs="0"/>
+            <xs:element name="instituto" type="xs:string" minOccurs="0"/>
+            <xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+            <xs:element name="nicknameDocente" type="xs:string" minOccurs="0"/>
+            <xs:element name="fechaPublicacion" type="xs:string" minOccurs="0"/>
+            <xs:element name="fechaInicio" type="xs:string" minOccurs="0"/>
+            <xs:element name="fechaFin" type="xs:string" minOccurs="0"/>
+            <xs:element name="promedioValoracion" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="cantidadValoraciones" type="xs:long"/>
+            <xs:element name="rol" type="xs:string" minOccurs="0"/>
+            <xs:element name="siguiendo" type="xs:boolean"/>
+            <xs:element name="propio" type="xs:boolean"/>
+            <xs:element name="relevancia" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

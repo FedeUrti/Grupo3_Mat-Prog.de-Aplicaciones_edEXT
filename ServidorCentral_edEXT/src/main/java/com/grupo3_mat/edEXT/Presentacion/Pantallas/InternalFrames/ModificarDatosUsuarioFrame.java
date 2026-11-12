@@ -5,7 +5,6 @@
 package com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames;
 
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
-import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
@@ -14,12 +13,16 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import java.util.concurrent.ExecutionException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -34,6 +37,10 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
     private String rutaImagenNuevaSeleccionada = null;
     private String rutaImagenActualUsuario = null;
     private boolean esDocenteSeleccionado = false;
+    private List<String> nicknamesUsuarios = List.of();
+    private Set<String> nicknamesDocentes = Set.of();
+    private Set<String> nicknamesEstudiantes = Set.of();
+    private SwingWorker<DtUsuario, Void> cargaUsuarioActual;
 
     public ModificarDatosUsuarioFrame() {
         initComponents();
@@ -56,7 +63,6 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
      * Limpia todos los campos y deshabilita la interacción con el formulario.
      */
     private void limpiarYBloquearFormulario() {
-        buscarTxt.setText("");
         txtNick.setText("");
         txtCorreo.setText("");
         txtNombre.setText("");
@@ -141,6 +147,9 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
                 if (nickname != null) {
                     cargarDatosUsuarioEnFormulario(nickname);
                 } else {
+                    if (cargaUsuarioActual != null) {
+                        cargaUsuarioActual.cancel(true);
+                    }
                     limpiarYBloquearFormulario();
                 }
             }
@@ -148,7 +157,16 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
     }
 
     private void cargarUsuarios() {
-        aplicarFiltros();
+        try {
+            IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
+            nicknamesUsuarios = icu.listarNicknamesUsuarios();
+            nicknamesDocentes = new HashSet<>(icu.listarDocentes());
+            nicknamesEstudiantes = new HashSet<>(icu.listarEstudiantes());
+            aplicarFiltros();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar la lista de usuarios: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void aplicarFiltros() {
@@ -161,18 +179,10 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
         DefaultListModel<String> model = new DefaultListModel<>();
 
         try {
-            IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
-            List<String> nicknames = icu.listarNicknamesUsuarios();
-
-            if (nicknames != null) {
-                for (String nick : nicknames) {
-                    DtUsuario dt = icu.obtenerInfoUsuario(nick);
-                    if (dt == null) {
-                        continue;
-                    }
-
-                    boolean esDocente = (dt instanceof DtDocente);
-                    boolean esEstudiante = (dt instanceof DtEstudiante);
+            if (nicknamesUsuarios != null) {
+                for (String nick : nicknamesUsuarios) {
+                    boolean esDocente = nicknamesDocentes.contains(nick);
+                    boolean esEstudiante = nicknamesEstudiantes.contains(nick);
 
                     // 1. Filtrado por Tipo (RadioButtons)
                     boolean coincideTipo = true;
@@ -183,13 +193,13 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
                     }
 
                     // 2. Filtrado por Texto (con protección anti-null)
-                    String nickStr = (dt.getNickname() != null) ? dt.getNickname().toLowerCase() : "";
+                    String nickStr = (nick != null) ? nick.toLowerCase() : "";
                    
                     boolean coincideTexto = texto.isEmpty()
                             || nickStr.contains(texto);
 
                     if (coincideTipo && coincideTexto) {
-                        model.addElement(dt.getNickname());
+                        model.addElement(nick);
                     }
                 }
             }
@@ -206,37 +216,77 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
     }
 
     private void cargarDatosUsuarioEnFormulario(String nickname) {
-        try {
-            IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
-            DtUsuario dt = icu.obtenerInfoUsuario(nickname);
-            if (dt == null) {
-                limpiarYBloquearFormulario();
-                return;
-            }
-
-            txtNick.setText(dt.getNickname());
-            txtCorreo.setText(dt.getCorreo());
-            txtNombre.setText(dt.getNombre());
-            txtApellido.setText(dt.getApellido());
-
-            if (dt.getFechaNacimiento() != null) {
-                jFecha.setDate(java.sql.Date.valueOf(dt.getFechaNacimiento()));
-            } else {
-                jFecha.setDate(null);
-            }
-
-            this.esDocenteSeleccionado = (dt instanceof DtDocente);
-            this.rutaImagenActualUsuario = dt.getImagenPath();
-            this.rutaImagenNuevaSeleccionada = null;
-
-            GestorImagenes.cargarImagenEnLabel(this.rutaImagenActualUsuario, lblImagenPerfil, this.esDocenteSeleccionado);
-
-            // Se habilitan únicamente los campos modificables
-            habilitarCamposModificables();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al obtener datos del usuario: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (cargaUsuarioActual != null) {
+            cargaUsuarioActual.cancel(true);
         }
+        limpiarDatosEnCarga();
+        SwingWorker<DtUsuario, Void> worker = new SwingWorker<>() {
+            @Override
+            protected DtUsuario doInBackground() {
+                return Fabrica.getInstance().getIControladorUsuario().obtenerInfoUsuarioBasica(nickname);
+            }
+
+            @Override
+            protected void done() {
+                if (isCancelled() || !nickname.equals(lstSeleccioneUsuario.getSelectedValue())) {
+                    return;
+                }
+                try {
+                    mostrarDatosUsuarioEnFormulario(get());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    mostrarErrorCargaUsuario(e);
+                } catch (ExecutionException e) {
+                    mostrarErrorCargaUsuario(e.getCause());
+                }
+            }
+        };
+        cargaUsuarioActual = worker;
+        worker.execute();
+    }
+
+    private void limpiarDatosEnCarga() {
+        txtNick.setText("");
+        txtCorreo.setText("");
+        txtNombre.setText("");
+        txtApellido.setText("");
+        jFecha.setDate(null);
+        lblImagenPerfil.setIcon(null);
+        lblImagenPerfil.setText("Cargando...");
+        txtNombre.setEnabled(false);
+        txtApellido.setEnabled(false);
+        jFecha.setEnabled(false);
+        btnSeleccionarImagen.setEnabled(false);
+        btnGuardar.setEnabled(false);
+    }
+
+    private void mostrarDatosUsuarioEnFormulario(DtUsuario dt) {
+        if (dt == null) {
+            limpiarYBloquearFormulario();
+            return;
+        }
+        txtNick.setText(dt.getNickname());
+        txtCorreo.setText(dt.getCorreo());
+        txtNombre.setText(dt.getNombre());
+        txtApellido.setText(dt.getApellido());
+
+        if (dt.getFechaNacimiento() != null) {
+            jFecha.setDate(java.sql.Date.valueOf(dt.getFechaNacimiento()));
+        } else {
+            jFecha.setDate(null);
+        }
+
+        esDocenteSeleccionado = dt instanceof DtDocente;
+        rutaImagenActualUsuario = dt.getImagenPath();
+        rutaImagenNuevaSeleccionada = null;
+        GestorImagenes.cargarImagenEnLabel(rutaImagenActualUsuario, lblImagenPerfil, esDocenteSeleccionado);
+        habilitarCamposModificables();
+    }
+
+    private void mostrarErrorCargaUsuario(Throwable error) {
+        JOptionPane.showMessageDialog(this, "Error al obtener datos del usuario: " + error.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        limpiarYBloquearFormulario();
     }
 
     /**
@@ -588,24 +638,45 @@ public class ModificarDatosUsuarioFrame extends javax.swing.JInternalFrame {
 
         LocalDate fechaNac = fechaDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-        try {
-            String rutaFinalImagen = this.rutaImagenActualUsuario;
-
-            if (this.rutaImagenNuevaSeleccionada != null && !this.rutaImagenNuevaSeleccionada.isEmpty()) {
-                File origen = new File(this.rutaImagenNuevaSeleccionada);
-                rutaFinalImagen = GestorImagenes.guardarImagenLocal(origen, nickname);
+        String rutaImagenSeleccionada = rutaImagenNuevaSeleccionada;
+        String rutaImagenActual = rutaImagenActualUsuario;
+        btnGuardar.setEnabled(false);
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                String rutaFinalImagen = rutaImagenActual;
+                if (rutaImagenSeleccionada != null && !rutaImagenSeleccionada.isEmpty()) {
+                    rutaFinalImagen = GestorImagenes.guardarImagenLocal(new File(rutaImagenSeleccionada), nickname);
+                }
+                Fabrica.getInstance().getIControladorUsuario()
+                        .modificarDatosUsuario(nickname, nombre, apellido, fechaNac, rutaFinalImagen);
+                return null;
             }
 
-            IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
-            icu.modificarDatosUsuario(nickname, nombre, apellido, fechaNac, rutaFinalImagen);
-
-            JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            this.dispose();
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error al modificar el usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+            @Override
+            protected void done() {
+                try {
+                    get();
+                    JOptionPane.showMessageDialog(ModificarDatosUsuarioFrame.this,
+                            "Usuario actualizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    btnGuardar.setEnabled(true);
+                    mostrarErrorModificacion(ex);
+                } catch (ExecutionException ex) {
+                    btnGuardar.setEnabled(true);
+                    mostrarErrorModificacion(ex.getCause());
+                }
+            }
+        };
+        worker.execute();
     }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void mostrarErrorModificacion(Throwable error) {
+        JOptionPane.showMessageDialog(this, "Error al modificar el usuario: " + error.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
     private void filtroBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtroBtnActionPerformed
         // TODO add your handling code here:

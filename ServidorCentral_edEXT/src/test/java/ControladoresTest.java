@@ -1,5 +1,6 @@
 
 import com.grupo3_mat.edEXT.Logica.Fabrica;
+import com.grupo3_mat.edEXT.Logica.Controladores.ControladorBusqueda;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
@@ -16,6 +17,7 @@ import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtDocente;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtEstudiante;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTProgramaFormacion;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtResultadoBusqueda;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DtUsuario;
 import com.grupo3_mat.edEXT.Logica.DataTypes.CriterioOrdenInscripciones;
 import com.grupo3_mat.edEXT.Logica.Clases.EstadoInscripcion;
@@ -125,6 +127,14 @@ public class ControladoresTest {
         DtUsuario infoDoc = ctrlUsuario.obtenerInfoUsuario("docente1");
         assertNotNull(infoDoc);
         assertTrue(infoDoc instanceof DtDocente);
+        DtUsuario datosBasicosEstudiante = ctrlUsuario.obtenerInfoUsuarioBasica("estudiante1");
+        assertTrue(datosBasicosEstudiante instanceof DtEstudiante);
+        assertEquals("juan@test.com", datosBasicosEstudiante.getCorreo());
+        assertTrue(((DtEstudiante) datosBasicosEstudiante).getInscripcionesEdicion().isEmpty());
+        DtUsuario datosBasicosDocente = ctrlUsuario.obtenerInfoUsuarioBasica("docente1");
+        assertTrue(datosBasicosDocente instanceof DtDocente);
+        assertTrue(((DtDocente) datosBasicosDocente).getInstitutos().isEmpty());
+        assertNull(ctrlUsuario.obtenerInfoUsuarioBasica("noExiste"));
         List<DtUsuario> usuariosPorLote = ctrlUsuario.obtenerInfoUsuarios(
                 List.of("estudiante1", "docente1", "usuario-inexistente"));
         assertEquals(2, usuariosPorLote.size());
@@ -294,6 +304,8 @@ public class ControladoresTest {
         // Listar Ediciones de Docente
         List<String> edDocente = ctrlEdicion.listarEdicionesDeDocente("docente1");
         assertTrue(edDocente.contains("Prog1-2026"));
+        assertEquals(List.of("Prog1"),
+                ctrlEdicion.listarCursosDeEdiciones(List.of("Prog1-2026", "edicion-inexistente")));
 
         // Inscribir Estudiante
         LocalDate hoy = LocalDate.now();
@@ -482,5 +494,31 @@ public class ControladoresTest {
 
         // Seleccionar curso inexistente
         assertThrows(Exception.class, () -> ctrlPrograma.seleccionarCurso("CursoInexistente"));
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Busqueda: límite en base de datos y edición con curso")
+    void testBusquedaLimitadaYEdiciones() throws Exception {
+        ControladorBusqueda busqueda = new ControladorBusqueda();
+        for (int i = 0; i < 9; i++) {
+            ctrlCurso.altaCurso("INCO", "BusquedaRendimiento" + i, "Curso de prueba",
+                    10, 60, 10, "", LocalDate.now(), null, null, "");
+        }
+
+        List<DtResultadoBusqueda> cursos = busqueda.buscarResultados(
+                "BusquedaRendimiento", "curso", null, "alfabetico", "asc", 8);
+        assertEquals(8, cursos.size());
+
+        List<DtResultadoBusqueda> ediciones = busqueda.buscarResultados(
+                "Prog1-2026", "edicion", null, "publicacion", "desc", 8);
+        assertEquals(1, ediciones.size());
+        assertEquals("Prog1-2026", ediciones.get(0).getNombre());
+        assertEquals("Prog1", ediciones.get(0).getNombreCurso());
+
+        assertEquals(1, busqueda.buscarResultados(
+                "Desarrollo Java", "programa", null, "alfabetico", "asc", 8).size());
+        assertEquals(1, busqueda.buscarResultados(
+                "docente1", "usuario", null, "alfabetico", "asc", 8).size());
     }
 }

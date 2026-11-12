@@ -191,6 +191,11 @@ public class ControladorEdicion implements IControladorEdicion {
     }
 
     @Override
+    public List<String> listarCursosDeEdiciones(List<String> nombresEdiciones) {
+        return ManejadorEdicion.getInstancia().listarCursosDeEdiciones(nombresEdiciones);
+    }
+
+    @Override
     public List<String> listarEdicionesDeEstudiante(String nicknameEstudiante) {
         ManejadorUsuario mu = ManejadorUsuario.getInstancia();
         Usuario usr = mu.buscarUsuarioPorNickname(nicknameEstudiante);
