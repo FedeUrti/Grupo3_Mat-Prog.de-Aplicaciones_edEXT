@@ -8,6 +8,7 @@ import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtInscripcionEdicion;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtProgramaFormacion;
 import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.SoapValues;
 import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
@@ -32,6 +33,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -254,19 +256,20 @@ public class UsuarioServlet extends HttpServlet {
                     request.setAttribute("tipoUsuario", usuario instanceof DtDocente ? "Docente" : "Estudiante");
                     prepararRelacionesUsuario(request, usuario);
                     request.setAttribute("imagenPerfil", imagenPerfil(usuario));
-                    Map<String, DtUsuario> perfilesRelacionados = prepararPerfilesRelacionados(usuario);
+                    HttpSession sesion = request.getSession(false);
+                    String nicknameSesion = sesion == null ? null
+                            : (String) sesion.getAttribute(CLAVE_USUARIO);
+                    Map<String, DtUsuario> perfilesRelacionados =
+                            prepararPerfilesRelacionados(usuario, nicknameSesion);
                     request.setAttribute("perfilesRelacionados", perfilesRelacionados);
                     Map<String, String> imagenesRelacionadas = new HashMap<>();
                     for (Map.Entry<String, DtUsuario> perfil : perfilesRelacionados.entrySet()) {
                         imagenesRelacionadas.put(perfil.getKey(), imagenPerfil(perfil.getValue()));
                     }
                     request.setAttribute("imagenesRelacionadas", imagenesRelacionadas);
-                    HttpSession sesion = request.getSession(false);
-                    String nicknameSesion = sesion == null ? null
-                            : (String) sesion.getAttribute(CLAVE_USUARIO);
                     Map<String, Boolean> siguiendoRelacionados = new HashMap<>();
                     if (nicknameSesion != null) {
-                        DtUsuario usuarioSesion = usuarios.obtenerInfoUsuario(nicknameSesion);
+                        DtUsuario usuarioSesion = perfilesRelacionados.get(nicknameSesion);
                         if (usuarioSesion != null) {
                             for (String nicknameRelacionado : perfilesRelacionados.keySet()) {
                                 siguiendoRelacionados.put(nicknameRelacionado,
@@ -345,20 +348,15 @@ public class UsuarioServlet extends HttpServlet {
         request.setAttribute("detallesProgramasUsuario", detallesProgramas);
     }
 
-    private Map<String, DtUsuario> prepararPerfilesRelacionados(DtUsuario usuario) {
-        // Se combinan seguidos y seguidores sin duplicados para preparar los datos de ambas subpestañas.
+    private Map<String, DtUsuario> prepararPerfilesRelacionados(DtUsuario usuario, String nicknameSesion) {
         Map<String, DtUsuario> perfiles = new HashMap<>();
-        List<String> nicknamesRelacionados = new ArrayList<>(usuario.getSeguidos());
-        for (String nickname : usuario.getSeguidores()) {
-            if (!nicknamesRelacionados.contains(nickname)) {
-                nicknamesRelacionados.add(nickname);
-            }
+        LinkedHashSet<String> nicknames = new LinkedHashSet<>(usuario.getSeguidos());
+        nicknames.addAll(usuario.getSeguidores());
+        if (nicknameSesion != null) {
+            nicknames.add(nicknameSesion);
         }
-        for (String nickname : nicknamesRelacionados) {
-            DtUsuario perfil = usuarios.obtenerInfoUsuario(nickname);
-            if (perfil != null) {
-                perfiles.put(nickname, perfil);
-            }
+        for (DtUsuario perfil : SoapValues.obtenerInfoUsuarios(usuarios, new ArrayList<>(nicknames))) {
+            perfiles.put(perfil.getNickname(), perfil);
         }
         return perfiles;
     }

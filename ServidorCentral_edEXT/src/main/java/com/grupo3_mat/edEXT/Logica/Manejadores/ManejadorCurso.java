@@ -68,6 +68,20 @@ public class ManejadorCurso {
         }
     }
 
+    public List<Curso> buscarCursosPorNombres(List<String> nombres) {
+        if (nombres == null || nombres.isEmpty()) {
+            return List.of();
+        }
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            return em.createQuery("SELECT c FROM Curso c WHERE c.nombre IN :nombres", Curso.class)
+                    .setParameter("nombres", nombres)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Curso> listarCursosPorInstituto(String nomInstituto) {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {

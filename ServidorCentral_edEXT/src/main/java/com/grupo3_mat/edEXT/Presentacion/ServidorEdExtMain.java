@@ -1,34 +1,40 @@
 package com.grupo3_mat.edEXT.Presentacion;
 
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.Principal;
-import java.awt.EventQueue;
 import java.awt.GraphicsEnvironment;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public final class ServidorEdExtMain {
-    private static final Logger LOGGER = Logger.getLogger(ServidorEdExtMain.class.getName());
-
     private ServidorEdExtMain() {
     }
 
     public static void main(String[] args) {
-        Thread servidor = new Thread(() -> {
-            try {
-                ServidorCentralMain.main(args);
-            } catch (InterruptedException error) {
-                Thread.currentThread().interrupt();
-                LOGGER.log(Level.SEVERE, "Se interrumpió el servidor central SOAP.", error);
-            }
-        }, "edext-servidor-central");
-        servidor.setUncaughtExceptionHandler((thread, error) ->
-                LOGGER.log(Level.SEVERE, "No se pudo iniciar el servidor central SOAP.", error));
-        servidor.start();
-
-        if (GraphicsEnvironment.isHeadless()) {
-            LOGGER.warning("No hay una pantalla disponible; la Estación de Trabajo no puede abrirse.");
+        if (args.length == 0) {
+            iniciarServicio();
             return;
         }
-        EventQueue.invokeLater(() -> new Principal().setVisible(true));
+
+        if (args.length == 1 && "--estacion".equals(args[0])) {
+            iniciarEstacion();
+            return;
+        }
+
+        System.err.println("Argumentos no reconocidos. Uso: java -jar servidor.jar [--estacion]");
+    }
+
+    private static void iniciarServicio() {
+        try {
+            ServidorCentralMain.main(new String[0]);
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Se interrumpió el servidor central SOAP.", error);
+        }
+    }
+
+    private static void iniciarEstacion() {
+        if (GraphicsEnvironment.isHeadless()) {
+            System.err.println("No se puede abrir la Estación de Trabajo: no hay una pantalla disponible.");
+            return;
+        }
+        Principal.main(new String[0]);
     }
 }

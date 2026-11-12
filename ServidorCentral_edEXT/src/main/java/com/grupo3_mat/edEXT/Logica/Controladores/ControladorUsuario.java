@@ -86,16 +86,7 @@ public class ControladorUsuario implements IControladorUsuario {
 
     @Override
     public List<String> listarNicknamesUsuarios() {
-        ManejadorUsuario mu = ManejadorUsuario.getInstancia();
-        List<Usuario> usuarios = mu.getUsuarios();
-        List<String> nicknames = new ArrayList<>();
-
-        if (usuarios != null) {
-            for (Usuario u : usuarios) {
-                nicknames.add(u.getNickname());
-            }
-        }
-        return nicknames;
+        return ManejadorUsuario.getInstancia().listarNicknamesUsuarios();
     }
 
     @Override
@@ -120,6 +111,10 @@ public class ControladorUsuario implements IControladorUsuario {
             return null;
         }
 
+        return convertirUsuario(usuario);
+    }
+
+    private DtUsuario convertirUsuario(Usuario usuario) {
         List<String> seguidores = usuario.getNicknamesSeguidores();
         List<String> seguidos = usuario.getNicknamesSeguidos();
         // Cada tipo de usuario se convierte al DTO que representa sus relaciones propias.
@@ -173,6 +168,25 @@ public class ControladorUsuario implements IControladorUsuario {
                 estudiante.getCorreo(), estudiante.getFechaNacimiento(), estudiante.getImagenPath(),
                 seguidores, seguidos, inscripcionesEdicion, programas
         );
+    }
+
+    @Override
+    public List<DtUsuario> obtenerInfoUsuarios(List<String> nicknames) {
+        List<DtUsuario> usuarios = new ArrayList<>();
+        if (nicknames == null) {
+            return usuarios;
+        }
+        if (nicknames.size() > 100) {
+            throw new IllegalArgumentException("La consulta por lotes admite hasta 100 usuarios.");
+        }
+        List<String> solicitados = nicknames.stream()
+                .filter(nickname -> nickname != null && !nickname.isBlank())
+                .distinct()
+                .toList();
+        for (Usuario usuario : ManejadorUsuario.getInstancia().buscarUsuariosPorNicknames(solicitados)) {
+            usuarios.add(convertirUsuario(usuario));
+        }
+        return usuarios;
     }
 
     @Override
@@ -246,6 +260,16 @@ public class ControladorUsuario implements IControladorUsuario {
 
     @Override
     public boolean iniciarSesion(String nicknameOrEmail, String password) throws Exception {
+        autenticarUsuario(nicknameOrEmail, password);
+        return true;
+    }
+
+    @Override
+    public DtUsuario iniciarSesionConDatos(String nicknameOrEmail, String password) throws Exception {
+        return convertirUsuario(autenticarUsuario(nicknameOrEmail, password));
+    }
+
+    private Usuario autenticarUsuario(String nicknameOrEmail, String password) throws Exception {
         if (nicknameOrEmail == null || nicknameOrEmail.isBlank() || password == null || password.isEmpty()) {
             throw new Exception("Ingrese usuario y contraseña.");
         }
@@ -274,7 +298,7 @@ public class ControladorUsuario implements IControladorUsuario {
             mu.modificarUsuario(u);
         }
 
-        return true;
+        return u;
     }
 
     @Override

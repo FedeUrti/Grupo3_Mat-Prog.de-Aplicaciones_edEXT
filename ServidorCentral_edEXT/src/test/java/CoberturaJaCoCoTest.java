@@ -11,6 +11,7 @@ import com.grupo3_mat.edEXT.Logica.Controladores.ControladorInstituto;
 import com.grupo3_mat.edEXT.Logica.Controladores.ControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Controladores.ControladorUsuario;
 import com.grupo3_mat.edEXT.Logica.DataTypes.DTEdicionCurso;
+import com.grupo3_mat.edEXT.Logica.DataTypes.DtCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCategoria;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorCurso;
 import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorEdicion;
@@ -106,7 +107,13 @@ class CoberturaJaCoCoTest {
 
         assertTrue(cursos.listarCursosValorables(estudiante).contains(curso));
         assertTrue(cursos.consultarCurso(curso).getPrevias().contains(cursoPrevia));
-        assertEquals(1, cursos.consultarCursos(List.of(curso)).size());
+        List<DtCurso> cursosPorLote = cursos.consultarCursos(List.of(curso, cursoPrevia));
+        assertEquals(2, cursosPorLote.size());
+        assertEquals(curso, cursosPorLote.get(0).getNombre());
+        assertEquals(cursoPrevia, cursosPorLote.get(1).getNombre());
+        assertEquals(4, cursosPorLote.get(0).getPromedioValoracion().intValue());
+        assertEquals(1, cursosPorLote.get(0).getCantidadValoraciones());
+        assertEquals(0, cursosPorLote.get(1).getCantidadValoraciones());
         assertTrue(cursos.consultarCursos(null).isEmpty());
         assertTrue(cursos.consultarCursos(List.of()).isEmpty());
         assertThrows(IllegalArgumentException.class,

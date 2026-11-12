@@ -23,7 +23,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.text.Normalizer;
-import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -134,16 +133,16 @@ public class BusquedaServlet extends HttpServlet {
         boolean buscarProgramas = buscarTodo || tipo.equalsIgnoreCase("programa");
         boolean buscarUsuarios = buscarTodo || tipo.equalsIgnoreCase("usuario");
         // Solo se carga el catálogo cuando el filtro necesita cursos o ediciones.
-        List<String> nombresCursos = buscarCursos || buscarEdiciones ? cursos.listarCursos() : List.of();
+        List<DtCurso> cursosDisponibles = buscarCursos || buscarEdiciones
+                ? SoapValues.consultarCursos(cursos, cursos.listarCursos()) : List.of();
 
         // Cursos: se buscan coincidencias en el nombre, descripción, instituto y categorías.
         if (buscarCursos) {
             int encontrados = 0;
-            for (String nombreCurso : nombresCursos) {
+            for (DtCurso curso : cursosDisponibles) {
                 if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
-                DtCurso curso = cursos.consultarCurso(nombreCurso);
                 if (!coincide(query, curso.getNombre(), curso.getDescripcion(),
                         curso.getNomInstituto(), String.join(" ", curso.getCategorias()))) {
                     continue;
@@ -154,9 +153,8 @@ public class BusquedaServlet extends HttpServlet {
                     detalle = combinar(detalle, curso.getDescripcion());
                 }
                 detalle = combinar(detalle, textoPublicacion(SoapValues.fecha(curso.getFecha())));
-                BigDecimal promedioValoracion = cursos.obtenerPuntajePromedioCurso(curso.getNombre());
-                int cantidadValoraciones = SoapValues.cantidadValoraciones(
-                        cursos.obtenerConteoValoracionesCurso(curso.getNombre()));
+                var promedioValoracion = curso.getPromedioValoracion();
+                int cantidadValoraciones = curso.getCantidadValoraciones();
                 resultados.add(new Resultado(curso.getNombre(), "Curso", detalle,
                         urlCurso(contextPath, curso.getNombre()), urlImagen(contextPath,
                                 imagenCurso(curso.getImagenPath(), false)), null, false, false,
@@ -170,24 +168,29 @@ public class BusquedaServlet extends HttpServlet {
         // Las ediciones se consultan desde cada curso, que es la relación expuesta por el controlador.
         if (buscarEdiciones) {
             int encontrados = 0;
-            for (String nombreCurso : nombresCursos) {
+            for (DtCurso curso : cursosDisponibles) {
                 if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
-                for (String nombreEdicion : ediciones.listarEdicionesPorCurso(nombreCurso)) {
+                List<String> nombresEdiciones = curso.getEdiciones() == null
+                        ? List.of() : curso.getEdiciones();
+                for (String nombreEdicion : nombresEdiciones) {
                     if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                         break;
                     }
+                    if (!coincide(query, nombreEdicion, curso.getNombre())) {
+                        continue;
+                    }
                     DtEdicionCurso edicion = ediciones.mostrarDetalleEdicion(nombreEdicion);
-                    if (edicion == null || !coincide(query, edicion.getNombre(), nombreCurso)) {
+                    if (edicion == null || !coincide(query, edicion.getNombre(), curso.getNombre())) {
                         continue;
                     }
                     String fechas = fechas(SoapValues.fecha(edicion.getFechaInicio()),
                             SoapValues.fecha(edicion.getFechaFin()));
                     LocalDate fechaPublicacion = SoapValues.fecha(edicion.getFechaPublicacion());
                     resultados.add(new Resultado(edicion.getNombre(), "Edición",
-                            combinar(combinar("Curso: " + nombreCurso, fechas), textoPublicacion(fechaPublicacion)),
-                            urlCurso(contextPath, nombreCurso),
+                            combinar(combinar("Curso: " + curso.getNombre(), fechas), textoPublicacion(fechaPublicacion)),
+                            urlCurso(contextPath, curso.getNombre()),
                             urlImagen(contextPath, imagenCurso(edicion.getImagenPath(), true)),
                             null, false, false, fechaPublicacion));
                     encontrados++;
@@ -225,11 +228,12 @@ public class BusquedaServlet extends HttpServlet {
         // Los usuarios se buscan por identidad y, para docentes, también por instituto asociado.
         if (buscarUsuarios) {
             int encontrados = 0;
-            for (String nickname : usuarios.listarNicknamesUsuarios()) {
+            List<DtUsuario> usuariosDisponibles = SoapValues.obtenerInfoUsuarios(
+                    usuarios, usuarios.listarNicknamesUsuarios());
+            for (DtUsuario usuario : usuariosDisponibles) {
                 if (limitarResultados && encontrados >= MAX_RESULTADOS_POR_TIPO) {
                     break;
                 }
-                DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
                 String institutosUsuario = usuario instanceof DtDocente docente
                         ? String.join(" ", docente.getInstitutos()) : "";
                 if (usuario == null || !coincide(query, usuario.getNickname(),

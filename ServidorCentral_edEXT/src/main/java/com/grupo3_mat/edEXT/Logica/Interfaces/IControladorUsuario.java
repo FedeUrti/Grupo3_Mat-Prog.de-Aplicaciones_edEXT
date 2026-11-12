@@ -27,6 +27,9 @@ public interface IControladorUsuario {
     List<String> listarNicknamesUsuarios();
     String resolverNickname(@WebParam(name = "identificador") String identificador);
     DtUsuario obtenerInfoUsuario(@WebParam(name = "nickname") String nickname);
+    List<DtUsuario> obtenerInfoUsuarios(@WebParam(name = "nicknames") List<String> nicknames);
+    DtUsuario iniciarSesionConDatos(@WebParam(name = "identificador") String nicknameOrEmail,
+            @WebParam(name = "password") String password) throws Exception;
     void modificarDatosUsuario(@WebParam(name = "nickname") String nickname,
             @WebParam(name = "nombre") String nombre, @WebParam(name = "apellido") String apellido,
             @WebParam(name = "fechaNacimiento") @XmlJavaTypeAdapter(LocalDateAdapter.class)

@@ -16,6 +16,7 @@ import com.grupo3_mat.edEXT.Logica.Manejadores.ManejadorUsuario;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jakarta.jws.WebService;
@@ -104,7 +105,10 @@ public class ControladorCurso implements IControladorCurso {
         if (curso == null) {
             throw new Exception("No existe el curso especificado.");
         }
+        return convertirCurso(curso);
+    }
 
+    private DtCurso convertirCurso(Curso curso) {
         // El DTO entrega nombres para que la presentación no dependa de entidades JPA.
         List<String> ediciones = new ArrayList<>();
         if (curso.getEdiciones() != null) {
@@ -135,7 +139,7 @@ public class ControladorCurso implements IControladorCurso {
             }
         }
 
-        return new DtCurso(
+        DtCurso datosCurso = new DtCurso(
                 curso.getNombre(),
                 curso.getDescripcion(),
                 curso.getDuracion(),
@@ -150,6 +154,10 @@ public class ControladorCurso implements IControladorCurso {
                 categorias,
                 curso.getImagenPath()
         );
+        datosCurso.setPromedioValoracion(curso.obtenerPuntajePromedio());
+        datosCurso.setCantidadValoraciones(curso.obtenerConteoValoraciones().values().stream()
+                .mapToInt(Integer::intValue).sum());
+        return datosCurso;
     }
 
     @Override
@@ -160,9 +168,17 @@ public class ControladorCurso implements IControladorCurso {
         if (nombresCurso.size() > 100) {
             throw new IllegalArgumentException("La consulta por lotes admite hasta 100 cursos.");
         }
+        Map<String, Curso> cursosPorNombre = new HashMap<>();
+        for (Curso curso : ManejadorCurso.getInstancia().buscarCursosPorNombres(nombresCurso)) {
+            cursosPorNombre.put(curso.getNombre(), curso);
+        }
         List<DtCurso> cursos = new ArrayList<>(nombresCurso.size());
         for (String nombreCurso : nombresCurso) {
-            cursos.add(consultarCurso(nombreCurso));
+            Curso curso = cursosPorNombre.get(nombreCurso);
+            if (curso == null) {
+                throw new Exception("No existe el curso especificado.");
+            }
+            cursos.add(convertirCurso(curso));
         }
         return cursos;
     }

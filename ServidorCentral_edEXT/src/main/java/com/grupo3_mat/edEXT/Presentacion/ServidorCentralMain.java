@@ -8,9 +8,11 @@ import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import com.sun.xml.ws.api.BindingID;
 import com.sun.xml.ws.transport.http.server.EndpointImpl;
 import jakarta.xml.ws.Endpoint;
+import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -31,6 +33,7 @@ public final class ServidorCentralMain {
 
         CountDownLatch cierre = new CountDownLatch(1);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Cierre limpio del servidor central SOAP.");
             detenerServicios();
             cierre.countDown();
         }, "cierre-servidor-central"));
@@ -47,6 +50,11 @@ public final class ServidorCentralMain {
             cierre.await();
         } catch (RuntimeException error) {
             detenerServicios();
+            if (esPuertoOcupado(error)) {
+                System.err.println("No se pudo publicar el servicio SOAP en " + base
+                        + ": el puerto está ocupado. Cierre el otro proceso o cambie soap.bind.url.");
+                System.exit(1);
+            }
             throw error;
         }
     }
@@ -62,6 +70,17 @@ public final class ServidorCentralMain {
         System.out.println("Servicio SOAP publicado: " + direccion + "?wsdl");
     }
 
+    private static boolean esPuertoOcupado(Throwable error) {
+        for (Throwable causa = error; causa != null; causa = causa.getCause()) {
+            if (causa instanceof BindException
+                    || (causa.getMessage() != null
+                    && causa.getMessage().toLowerCase(java.util.Locale.ROOT).contains("address already in use"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static String quitarBarraFinal(String direccion) {
         int fin = direccion.length();
         while (fin > 0 && direccion.charAt(fin - 1) == '/') {
@@ -75,5 +94,6 @@ public final class ServidorCentralMain {
             ENDPOINTS.get(indice).stop();
         }
         ENDPOINTS.clear();
+        Conexion.cerrar();
     }
 }

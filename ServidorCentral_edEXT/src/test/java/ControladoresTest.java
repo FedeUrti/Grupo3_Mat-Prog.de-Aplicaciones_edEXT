@@ -125,12 +125,21 @@ public class ControladoresTest {
         DtUsuario infoDoc = ctrlUsuario.obtenerInfoUsuario("docente1");
         assertNotNull(infoDoc);
         assertTrue(infoDoc instanceof DtDocente);
+        List<DtUsuario> usuariosPorLote = ctrlUsuario.obtenerInfoUsuarios(
+                List.of("estudiante1", "docente1", "usuario-inexistente"));
+        assertEquals(2, usuariosPorLote.size());
+        assertTrue(usuariosPorLote.stream().anyMatch(usuario -> usuario.getNickname().equals("estudiante1")));
+        assertTrue(usuariosPorLote.stream().anyMatch(usuario -> usuario.getNickname().equals("docente1")));
         DtDocente infoDocMulti = (DtDocente) ctrlUsuario.obtenerInfoUsuario("docenteMulti");
         assertEquals(2, infoDocMulti.getInstitutos().size());
         assertTrue(infoDocMulti.getInstitutos().containsAll(List.of("INCO", "IMERL")));
         assertTrue(ctrlUsuario.iniciarSesion("estudiante1", "clave-estudiante1"));
         assertTrue(ctrlUsuario.iniciarSesion("maria@test.com", "clave-docente1"));
+        assertEquals("estudiante1",
+                ctrlUsuario.iniciarSesionConDatos("estudiante1", "clave-estudiante1").getNickname());
         assertThrows(Exception.class, () -> ctrlUsuario.iniciarSesion("estudiante1", "incorrecta"));
+        assertThrows(Exception.class,
+                () -> ctrlUsuario.iniciarSesionConDatos("estudiante1", "incorrecta"));
         assertThrows(Exception.class, () -> ctrlUsuario.iniciarSesion(" ", "clave"));
         assertThrows(Exception.class, () -> ctrlUsuario.iniciarSesion("noExiste", "clave"));
         assertTrue(ctrlUsuario.listarDocentes().containsAll(List.of("docente1", "docenteMulti")));

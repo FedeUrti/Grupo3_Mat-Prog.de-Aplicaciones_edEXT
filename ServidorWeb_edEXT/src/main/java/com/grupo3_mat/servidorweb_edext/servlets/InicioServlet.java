@@ -47,9 +47,9 @@ public class InicioServlet extends HttpServlet {
                 nombres = cursos.listarCursos();
             }
 
+            List<DtCurso> cursosCandidatos = SoapValues.consultarCursos(cursos, nombres);
             List<DtCurso> cursosPortada = new ArrayList<>();
-            for (String nombre : nombres) {
-                DtCurso curso = cursos.consultarCurso(nombre);
+            for (DtCurso curso : cursosCandidatos) {
                 boolean coincideInstituto = institutoSeleccionado.isEmpty()
                         || institutoSeleccionado.equals(curso.getNomInstituto());
                 boolean coincideCategoria = categoriaSeleccionada.isEmpty()
@@ -63,9 +63,8 @@ public class InicioServlet extends HttpServlet {
             Map<String, Integer> cantidadesValoracion = new HashMap<>();
             Map<String, Double> estrellasValoracion = new HashMap<>();
             for (DtCurso curso : cursosPortada) {
-                BigDecimal promedio = cursos.obtenerPuntajePromedioCurso(curso.getNombre());
-                int cantidad = SoapValues.cantidadValoraciones(
-                        cursos.obtenerConteoValoracionesCurso(curso.getNombre()));
+                BigDecimal promedio = curso.getPromedioValoracion();
+                int cantidad = curso.getCantidadValoraciones();
                 promediosValoracion.put(curso.getNombre(), promedio);
                 cantidadesValoracion.put(curso.getNombre(), cantidad);
                 estrellasValoracion.put(curso.getNombre(),

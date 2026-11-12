@@ -1,5 +1,6 @@
 package com.grupo3_mat.edEXT.Logica.DataTypes;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,8 @@ public class DtCurso {
     private LocalDate fecha;
     private String nomInstituto;
     private String imagenPath;
+    private BigDecimal promedioValoracion = BigDecimal.ZERO.setScale(2);
+    private int cantidadValoraciones;
     // Las relaciones se comparten como nombres, no como entidades de base de datos.
     private List<String> previas;
     private List<String> ediciones;
@@ -65,6 +68,14 @@ public class DtCurso {
     public LocalDate getFecha() { return fecha; }
     public String getNomInstituto() { return nomInstituto; }
     public String getImagenPath() { return imagenPath; }
+    public BigDecimal getPromedioValoracion() { return promedioValoracion; }
+    public void setPromedioValoracion(BigDecimal promedioValoracion) {
+        this.promedioValoracion = promedioValoracion == null ? BigDecimal.ZERO.setScale(2) : promedioValoracion;
+    }
+    public int getCantidadValoraciones() { return cantidadValoraciones; }
+    public void setCantidadValoraciones(int cantidadValoraciones) {
+        this.cantidadValoraciones = cantidadValoraciones;
+    }
     public List<String> getPrevias() { return previas; }
     public List<String> getEdiciones() { return ediciones; }
     public List<String> getProgramas() { return programas; }

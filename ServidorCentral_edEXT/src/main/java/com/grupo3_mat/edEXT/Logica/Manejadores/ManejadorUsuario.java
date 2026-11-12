@@ -112,6 +112,30 @@ public class ManejadorUsuario {
         }
     }
 
+    public List<Usuario> buscarUsuariosPorNicknames(List<String> nicknames) {
+        if (nicknames == null || nicknames.isEmpty()) {
+            return List.of();
+        }
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            return em.createQuery("SELECT u FROM Usuario u WHERE u.nickname IN :nicknames", Usuario.class)
+                    .setParameter("nicknames", nicknames)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<String> listarNicknamesUsuarios() {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            return em.createQuery("SELECT u.nickname FROM Usuario u", String.class)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Usuario> getUsuarios() {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
