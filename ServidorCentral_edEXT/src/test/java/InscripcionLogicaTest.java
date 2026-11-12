@@ -59,9 +59,11 @@ class InscripcionLogicaTest {
     }
 
     @Test
-    void evaluacionAceptaSoloValoresEntreUnoYDoce() {
+    void evaluacionAceptaValoresEntreCeroYDoce() {
         InscripcionEC inscripcion = inscripcionSinEstado("estudiante", "Curso", "Edición");
 
+        inscripcion.setEvaluacion(0);
+        assertEquals(0, inscripcion.getEvaluacion());
         inscripcion.setEvaluacion(1);
         assertEquals(1, inscripcion.getEvaluacion());
         assertEquals(LocalDate.now(), inscripcion.getFechaEvaluacion());
@@ -70,7 +72,7 @@ class InscripcionLogicaTest {
         assertEquals(LocalDate.now(), inscripcion.getFechaEvaluacion());
         inscripcion.setEvaluacion(null);
         assertNull(inscripcion.getFechaEvaluacion());
-        assertThrows(IllegalArgumentException.class, () -> inscripcion.setEvaluacion(0));
+        assertThrows(IllegalArgumentException.class, () -> inscripcion.setEvaluacion(-1));
         assertThrows(IllegalArgumentException.class, () -> inscripcion.setEvaluacion(13));
     }
 

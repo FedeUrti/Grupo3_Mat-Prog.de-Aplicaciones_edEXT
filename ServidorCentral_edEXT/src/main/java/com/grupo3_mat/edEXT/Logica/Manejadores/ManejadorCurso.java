@@ -113,6 +113,40 @@ public class ManejadorCurso {
         }
     }
 
+    public List<String> listarCursosPorVisitas() {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT c.nombre FROM Curso c ORDER BY COALESCE(c.visitas, 0) DESC, c.nombre ASC",
+                    String.class)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void registrarVisitaCurso(String nombreCurso) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            int actualizados = em.createQuery(
+                    "UPDATE Curso c SET c.visitas = COALESCE(c.visitas, 0) + 1 WHERE c.nombre = :nombre")
+                    .setParameter("nombre", nombreCurso)
+                    .executeUpdate();
+            if (actualizados != 1) {
+                throw new IllegalArgumentException("No existe el curso especificado.");
+            }
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
     public List<String> listarCursosValorables(String nicknameEstudiante) {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {

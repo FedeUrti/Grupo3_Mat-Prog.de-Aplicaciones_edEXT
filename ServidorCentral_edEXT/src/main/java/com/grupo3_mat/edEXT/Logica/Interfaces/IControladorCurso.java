@@ -30,6 +30,8 @@ public interface IControladorCurso {
     DtCurso consultarCurso(@WebParam(name = "nombreCurso") String nombreCurso) throws Exception;
     List<DtCurso> consultarCursos(@WebParam(name = "nombresCurso") List<String> nombresCurso) throws Exception;
     List<String> listarCursos();
+    List<String> listarCursosPorVisitas();
+    void registrarVisitaCurso(@WebParam(name = "nombreCurso") String nombreCurso);
     String obtenerEdicionVigente(@WebParam(name = "nombreCurso") String nombreCurso,
             @WebParam(name = "fechaReferencia") @XmlJavaTypeAdapter(LocalDateAdapter.class)
             LocalDate fechaReferencia) throws Exception;

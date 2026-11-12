@@ -1,5 +1,5 @@
 (() => {
-    // La búsqueda se comparte entre vistas; en la portada los resultados se integran al contenido principal.
+    // La búsqueda se comparte entre vistas; escribir muestra sugerencias y el formulario navega al enviar.
     const contenedor = document.querySelector("[data-global-search]");
     if (!contenedor) {
         return;
@@ -34,43 +34,10 @@
     const incrementoCursos = Number(botonMasCursos?.dataset.increment || 8);
     let cursosVisibles = incrementoCursos;
 
-    if (resultadosInicio) {
-        entrada.removeAttribute("role");
-        entrada.removeAttribute("aria-autocomplete");
-        entrada.removeAttribute("aria-controls");
-        entrada.removeAttribute("aria-expanded");
-    } else {
-        entrada.setAttribute("role", "combobox");
-        entrada.setAttribute("aria-autocomplete", "list");
-        entrada.setAttribute("aria-expanded", "false");
-        entrada.setAttribute("aria-controls", "resultados-busqueda-global");
-    }
-
-    const actualizarDireccion = () => {
-        const direccion = new URL(window.location.href);
-        const consulta = entrada.value.trim();
-        if (consulta) {
-            direccion.searchParams.set("query", consulta);
-        } else {
-            direccion.searchParams.delete("query");
-        }
-        if (filtro && filtro.value !== "todos") {
-            direccion.searchParams.set("tipo", filtro.value);
-        } else {
-            direccion.searchParams.delete("tipo");
-        }
-        if (ordenarPor && ordenarPor.value !== "alfabetico") {
-            direccion.searchParams.set("ordenarPor", ordenarPor.value);
-        } else {
-            direccion.searchParams.delete("ordenarPor");
-        }
-        if (direccionBusqueda?.value === "desc") {
-            direccion.searchParams.set("direccion", "desc");
-        } else {
-            direccion.searchParams.delete("direccion");
-        }
-        window.history.replaceState(null, "", direccion);
-    };
+    entrada.setAttribute("role", "combobox");
+    entrada.setAttribute("aria-autocomplete", "list");
+    entrada.setAttribute("aria-expanded", "false");
+    entrada.setAttribute("aria-controls", "resultados-busqueda-global");
 
     const actualizarPaginacionCursos = () => {
         opcionesCursos.forEach((curso, indice) => {
@@ -543,7 +510,6 @@
             return;
         }
         opcionesOrden.hidden = false;
-        actualizarDireccion();
         if (resultadosInicio) {
             resultadosInicio.hidden = false;
             cursosInicio.hidden = true;
@@ -621,32 +587,19 @@
     entrada.addEventListener("input", () => {
         // Espera a que termine la escritura para evitar búsquedas completas por cada tecla.
         window.clearTimeout(temporizador);
-        actualizarDireccion();
         temporizador = window.setTimeout(buscar, 300);
     });
 
     filtro?.addEventListener("change", () => {
-        actualizarDireccion();
         window.clearTimeout(temporizador);
         buscar();
     });
 
     [ordenarPor, direccionBusqueda].forEach((selector) => {
         selector?.addEventListener("change", () => {
-            actualizarDireccion();
             window.clearTimeout(temporizador);
             buscar();
         });
-    });
-
-    formulario.addEventListener("submit", (evento) => {
-        if (resultadosInicio) {
-            // En inicio actualiza la dirección y los resultados sin recargar ni abandonar la portada.
-            evento.preventDefault();
-            actualizarDireccion();
-            window.clearTimeout(temporizador);
-            buscar({ permitirVacio: true });
-        }
     });
 
     entrada.addEventListener("keydown", (evento) => {

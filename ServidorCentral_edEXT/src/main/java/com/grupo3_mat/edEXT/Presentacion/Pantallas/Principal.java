@@ -18,6 +18,8 @@ import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.CrearProgramaF
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ConsultaEdicionCursoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.InscripcionEdicionCursoFrame;
 import com.grupo3_mat.edEXT.Presentacion.Pantallas.InternalFrames.ModificarDatosUsuarioFrame;
+import java.util.concurrent.ExecutionException;
+import javax.swing.SwingWorker;
 
 /**
  *
@@ -34,6 +36,52 @@ public class Principal extends javax.swing.JFrame {
     public Principal() {
         initComponents();
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        verificarDisponibilidadCargaDatos();
+    }
+
+    private void verificarDisponibilidadCargaDatos() {
+        CargaTotalbtn.setEnabled(false);
+        CargaTotalbtn.setText("Verificando datos...");
+        CargaTotalbtn.setToolTipText("Se habilitará solo si la base de datos está vacía.");
+
+        new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() {
+                return new CargadorDatosPrueba().hayDatosExistentes();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    if (get()) {
+                        CargaTotalbtn.setText("Datos existentes: carga deshabilitada");
+                        CargaTotalbtn.setToolTipText(
+                                "La carga de prueba borraría los datos existentes y por eso está deshabilitada.");
+                    } else {
+                        CargaTotalbtn.setText("Carga Total Automatica");
+                        CargaTotalbtn.setToolTipText("Cargar los datos de prueba en una base vacía.");
+                        CargaTotalbtn.setEnabled(true);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    informarErrorVerificacionCarga(e);
+                } catch (ExecutionException e) {
+                    informarErrorVerificacionCarga(e.getCause());
+                }
+            }
+        }.execute();
+    }
+
+    private void informarErrorVerificacionCarga(Throwable error) {
+        logger.log(java.util.logging.Level.SEVERE, "No se pudo verificar si la base contiene datos.", error);
+        CargaTotalbtn.setText("Carga no disponible");
+        CargaTotalbtn.setToolTipText("No se pudo verificar la base; la carga permanece deshabilitada.");
+        CargaTotalbtn.setEnabled(false);
+        javax.swing.JOptionPane.showMessageDialog(this,
+                "No se pudo verificar si la base de datos tiene información. "
+                + "La carga de prueba permanecerá deshabilitada para evitar borrar datos.\n"
+                + error.getMessage(),
+                "No se pudo verificar la base", javax.swing.JOptionPane.ERROR_MESSAGE);
     }
 
     /**
@@ -368,34 +416,57 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_modificarDatosUsuarioMenuItemActionPerformed
 
     private void CargaTotalbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CargaTotalbtnActionPerformed
-        // TODO add your handling code here:
-        // 1. Instanciamos la clase que contiene todos los datos
-        CargadorDatosPrueba cargador = new CargadorDatosPrueba();
+        CargaTotalbtn.setEnabled(false);
+        CargaTotalbtn.setText("Cargando datos de prueba...");
 
-        try {
-            // 2. Ejecutamos la carga masiva
-            cargador.cargarDatosTotales();
+        new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                CargadorDatosPrueba cargador = new CargadorDatosPrueba();
+                if (cargador.hayDatosExistentes()) {
+                    return false;
+                }
+                cargador.cargarDatosTotales();
+                return true;
+            }
 
-            // 3. Mostramos un mensaje de éxito en pantalla
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "¡Todos los datos de prueba fueron cargados con éxito!",
-                    "Carga Completada",
-                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
-
-            // 4. Deshabilitamos el botón para que no se pueda volver a presionar
-            // Nota: Asegúrate de que "CargaTotalbtn" sea el nombre real de la variable de tu botón
-            // Si tu botón se llama distinto, cámbialo en la línea de abajo.
-            ((javax.swing.JMenuItem) evt.getSource()).setEnabled(false);
-
-        } catch (Exception e) {
-            // 5. Si algo falla, le avisamos al usuario por pantalla
-            e.printStackTrace();
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "Ocurrió un error durante la carga de datos:\n" + e.getMessage(),
-                    "Error en la Carga",
-                    javax.swing.JOptionPane.ERROR_MESSAGE);
-        }
+            @Override
+            protected void done() {
+                try {
+                    if (get()) {
+                        CargaTotalbtn.setText("Datos de prueba cargados");
+                        CargaTotalbtn.setToolTipText("La base ya contiene los datos de prueba.");
+                        javax.swing.JOptionPane.showMessageDialog(Principal.this,
+                                "¡Todos los datos de prueba fueron cargados con éxito!",
+                                "Carga completada", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        CargaTotalbtn.setText("Datos existentes: carga deshabilitada");
+                        CargaTotalbtn.setToolTipText(
+                                "La carga de prueba borraría los datos existentes y por eso está deshabilitada.");
+                        javax.swing.JOptionPane.showMessageDialog(Principal.this,
+                                "La base ya contiene datos. Se canceló la carga para evitar borrarlos.",
+                                "Carga cancelada", javax.swing.JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    informarErrorCarga(e);
+                } catch (ExecutionException e) {
+                    informarErrorCarga(e.getCause());
+                }
+            }
+        }.execute();
     }//GEN-LAST:event_CargaTotalbtnActionPerformed
+
+    private void informarErrorCarga(Throwable error) {
+        logger.log(java.util.logging.Level.SEVERE, "Falló la carga de datos de prueba.", error);
+        CargaTotalbtn.setText("Carga deshabilitada");
+        CargaTotalbtn.setToolTipText(
+                "La carga se deshabilitó para evitar borrar datos si quedó una carga parcial.");
+        javax.swing.JOptionPane.showMessageDialog(this,
+                "Ocurrió un error durante la carga de datos. El botón quedó deshabilitado para evitar "
+                + "borrar datos si la carga fue parcial:\n" + error.getMessage(),
+                "Error en la carga", javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:

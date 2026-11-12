@@ -236,6 +236,12 @@ public class ControladoresTest {
         assertEquals("Prog2", dtProg2.getNombre());
         assertTrue(dtProg2.getPrevias().contains("Prog1"));
         assertTrue(dtProg2.getCategorias().contains("Educativo"));
+        ctrlCurso.registrarVisitaCurso("Prog1");
+        ctrlCurso.registrarVisitaCurso("Prog1");
+        assertEquals(2, ctrlCurso.consultarCurso("Prog1").getVisitas());
+        assertEquals("Prog1", ctrlCurso.listarCursosPorVisitas().get(0));
+        assertThrows(IllegalArgumentException.class,
+                () -> ctrlCurso.registrarVisitaCurso("curso-inexistente"));
         assertThrows(Exception.class, () -> ctrlCategoria.altaCategoria("Educativo"));
         assertTrue(ctrlCurso.listarCursosPorCategoria("Educativo").contains("Prog2"));
         ctrlCategoria.modificarCategoria("Educativo", "Educativo actualizado");

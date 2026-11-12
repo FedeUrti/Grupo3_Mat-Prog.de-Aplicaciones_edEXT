@@ -12,12 +12,15 @@ import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
  * @author fede1
  */
 public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
+    private SwingWorker<DtCurso, Void> cargaCursoActual;
 
     /**
      * Creates new form ConsultaCursoFrame
@@ -69,59 +72,83 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         if (valorURL != null) {
             valorURL.setText("");
         }
+        valorVisitas.setText("");
         lstEdiciones.setModel(new DefaultListModel<>());
         lstProgramas.setModel(new DefaultListModel<>());
         jList1.setModel(new DefaultListModel<>());
     }
 
     private void mostrarDatosCurso(String nombreCurso) {
-        try {
-            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-            DtCurso dt = icc.consultarCurso(nombreCurso);
-
-            if (dt == null) {
-                return;
-            }
-
-            GestorImagenes.cargarImagenEnLabel(dt.getImagenPath(), lblImg);
-
-            // 1. Cargar Datos Básicos en las etiquetas correspondientes
-            valorNombre.setText(dt.getNombre());
-            txtDescripcion.setText(dt.getDescripcion() != null ? dt.getDescripcion() : "");
-            valorDuracion.setText(String.valueOf(dt.getDuracion()) + " meses");
-            valorHoras.setText(String.valueOf(dt.getCantHoras()) + " hs");
-            valorCreditos.setText(String.valueOf(dt.getCreditos()));
-            valorURL.setText(dt.getUrl());
-
-            DefaultListModel<String> modeloCategorias = new DefaultListModel<>();
-            if (dt.getCategorias() != null) {
-                for (String categoria : dt.getCategorias()) {
-                    modeloCategorias.addElement(categoria);
-                }
-            }
-            jList1.setModel(modeloCategorias);
-
-            // 2. Cargar Lista de Ediciones
-            DefaultListModel<String> modEdiciones = new DefaultListModel<>();
-            if (dt.getEdiciones() != null) {
-                for (String ed : dt.getEdiciones()) {
-                    modEdiciones.addElement(ed);
-                }
-            }
-            lstEdiciones.setModel(modEdiciones);
-
-            // 3. Cargar Lista de Programas de Formación
-            DefaultListModel<String> modProgramas = new DefaultListModel<>();
-            if (dt.getProgramas() != null) {
-                for (String prog : dt.getProgramas()) {
-                    modProgramas.addElement(prog);
-                }
-            }
-            lstProgramas.setModel(modProgramas);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al consultar curso: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (cargaCursoActual != null) {
+            cargaCursoActual.cancel(true);
         }
+        limpiarDatosDerecha();
+        valorNombre.setText("Cargando...");
+        SwingWorker<DtCurso, Void> worker = new SwingWorker<>() {
+            @Override
+            protected DtCurso doInBackground() throws Exception {
+                IControladorCurso controlador = Fabrica.getInstance().getIControladorCurso();
+                controlador.registrarVisitaCurso(nombreCurso);
+                return controlador.consultarCurso(nombreCurso);
+            }
+
+            @Override
+            protected void done() {
+                if (isCancelled()) {
+                    return;
+                }
+                String seleccionado = lstCursos.getSelectedValue();
+                if (seleccionado != null && !nombreCurso.equals(seleccionado)) {
+                    return;
+                }
+                try {
+                    mostrarDatosCursoEnInterfaz(get());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    mostrarErrorCurso(e);
+                } catch (ExecutionException e) {
+                    mostrarErrorCurso(e.getCause());
+                }
+            }
+        };
+        cargaCursoActual = worker;
+        worker.execute();
+    }
+
+    private void mostrarDatosCursoEnInterfaz(DtCurso dt) {
+        if (dt == null) {
+            return;
+        }
+        GestorImagenes.cargarImagenEnLabel(dt.getImagenPath(), lblImg);
+        valorNombre.setText(dt.getNombre());
+        txtDescripcion.setText(dt.getDescripcion() != null ? dt.getDescripcion() : "");
+        valorDuracion.setText(dt.getDuracion() + " meses");
+        valorHoras.setText(dt.getCantHoras() + " hs");
+        valorCreditos.setText(String.valueOf(dt.getCreditos()));
+        valorVisitas.setText(String.valueOf(dt.getVisitas()));
+        valorURL.setText(dt.getUrl());
+
+        DefaultListModel<String> modeloCategorias = new DefaultListModel<>();
+        if (dt.getCategorias() != null) {
+            dt.getCategorias().forEach(modeloCategorias::addElement);
+        }
+        jList1.setModel(modeloCategorias);
+        DefaultListModel<String> modEdiciones = new DefaultListModel<>();
+        if (dt.getEdiciones() != null) {
+            dt.getEdiciones().forEach(modEdiciones::addElement);
+        }
+        lstEdiciones.setModel(modEdiciones);
+        DefaultListModel<String> modProgramas = new DefaultListModel<>();
+        if (dt.getProgramas() != null) {
+            dt.getProgramas().forEach(modProgramas::addElement);
+        }
+        lstProgramas.setModel(modProgramas);
+    }
+
+    private void mostrarErrorCurso(Throwable error) {
+        JOptionPane.showMessageDialog(this, "Error al consultar curso: " + error.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        limpiarDatosDerecha();
     }
 
     public void cargarDatosCurso(String nombreCurso) {
@@ -177,10 +204,12 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         btnVerPF = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         lblNombre = new javax.swing.JLabel();
+        lblVisitas = new javax.swing.JLabel();
         lblDescripcion = new javax.swing.JLabel();
         lblDuracion = new javax.swing.JLabel();
         valorDuracion = new javax.swing.JLabel();
         valorNombre = new javax.swing.JLabel();
+        valorVisitas = new javax.swing.JLabel();
         lblNombre1 = new javax.swing.JLabel();
         lblInstituto1 = new javax.swing.JLabel();
         valorCreditos = new javax.swing.JLabel();
@@ -305,6 +334,12 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
         lblNombre.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblNombre.setText("Nombre");
 
+        lblVisitas.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        lblVisitas.setText("Visitas");
+
+        valorVisitas.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+        valorVisitas.setText("");
+
         lblDescripcion.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         lblDescripcion.setText("Descripcion");
 
@@ -413,7 +448,11 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(lblNombre)
                         .addGap(18, 18, 18)
-                        .addComponent(valorNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(valorNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(lblVisitas)
+                        .addGap(18, 18, 18)
+                        .addComponent(valorVisitas, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
@@ -435,6 +474,10 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblNombre)
                             .addComponent(valorNombre))
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblVisitas)
+                            .addComponent(valorVisitas))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblDescripcion)
@@ -683,6 +726,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel lblInstituto2;
     private javax.swing.JLabel lblNombre;
     private javax.swing.JLabel lblNombre1;
+    private javax.swing.JLabel lblVisitas;
     private javax.swing.JList<String> lstCursos;
     private javax.swing.JList<String> lstEdiciones;
     private javax.swing.JList<String> lstProgramas;
@@ -691,6 +735,7 @@ public class ConsultaCursoFrame extends javax.swing.JInternalFrame {
     private javax.swing.JLabel valorDuracion;
     private javax.swing.JLabel valorHoras;
     private javax.swing.JLabel valorNombre;
+    private javax.swing.JLabel valorVisitas;
     private javax.swing.JTextField valorURL;
     // End of variables declaration//GEN-END:variables
 }

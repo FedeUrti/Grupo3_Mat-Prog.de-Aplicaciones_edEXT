@@ -24,6 +24,14 @@
 
 <xs:element name="listarCursos" type="tns:listarCursos"/>
 
+<xs:element name="listarCursosPorVisitas" type="tns:listarCursosPorVisitas"/>
+
+<xs:element name="listarCursosPorVisitasResponse" type="tns:listarCursosPorVisitasResponse"/>
+
+<xs:element name="registrarVisitaCurso" type="tns:registrarVisitaCurso"/>
+
+<xs:element name="registrarVisitaCursoResponse" type="tns:registrarVisitaCursoResponse"/>
+
 <xs:element name="listarCursosPorCategoria" type="tns:listarCursosPorCategoria"/>
 
 <xs:element name="listarCursosPorCategoriaResponse" type="tns:listarCursosPorCategoriaResponse"/>
@@ -109,6 +117,7 @@
 <xs:element name="imagenPath" type="xs:string" minOccurs="0"/>
 <xs:element name="promedioValoracion" type="xs:decimal" minOccurs="0"/>
 <xs:element name="cantidadValoraciones" type="xs:int" minOccurs="0"/>
+<xs:element name="visitas" type="xs:int" minOccurs="0"/>
 <xs:element name="previas" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="ediciones" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="programas" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
@@ -211,6 +220,26 @@
 </xs:complexType>
 
 <xs:complexType name="listarCursos">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listarCursosPorVisitas">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listarCursosPorVisitasResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registrarVisitaCurso">
+<xs:sequence>
+<xs:element name="nombreCurso" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registrarVisitaCursoResponse">
 <xs:sequence/>
 </xs:complexType>
 

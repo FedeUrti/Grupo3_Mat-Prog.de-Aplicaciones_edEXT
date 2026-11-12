@@ -35,6 +35,8 @@ public class Curso implements Serializable {
     private String url;
     private LocalDate fecha;
     private String imagenPath;
+    @Column(name = "visitas", nullable = false, columnDefinition = "INT NOT NULL DEFAULT 0")
+    private int visitas = 0;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -112,6 +114,8 @@ public class Curso implements Serializable {
 
     public String getImagenPath() { return imagenPath; }
     public void setImagenPath(String imagenPath) { this.imagenPath = imagenPath; }
+    public int getVisitas() { return visitas; }
+    public void setVisitas(int visitas) { this.visitas = visitas; }
 
     // Relaciones
     public Set<Curso> getPrevias() { return previas; }

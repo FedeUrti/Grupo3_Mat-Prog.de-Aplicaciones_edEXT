@@ -13,7 +13,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class CargadorDatosPrueba {
 
@@ -52,6 +54,11 @@ public class CargadorDatosPrueba {
     private static final String EDICION_KOMIKAN_2026 = CURSO_KOMIKAN + " - 2026";
     private static final String CURSO_INGLES = "Herramientas de apoyo a la enseñanza de inglés. Instalación y evaluación";
     private static final String EDICION_INGLES_2026 = CURSO_INGLES + " - 26";
+    private static final List<String> TABLAS_EN_ORDEN = List.of(
+            "Usuario_Seguimiento", "Docente_Instituto", "Docente_Participa_EdicionCurso",
+            "Curso_Categoria", "Curso_Precorrelativa", "programa_curso", "ValoracionCurso", "InscripcionEC",
+            "InscripcionPF", "EdicionCurso", "ProgramaFormacion", "Estudiante", "Docente",
+            "Usuario", "Curso", "Categoria", "Instituto");
 
     private final IControladorInstituto institutos;
     private final IControladorCategoria categorias;
@@ -85,9 +92,14 @@ public class CargadorDatosPrueba {
     }
 
     public void cargarDatosTotales() throws Exception {
-        String fase = "limpieza de los datos anteriores";
+        String fase = "verificación de datos existentes";
 
         try {
+            if (hayDatosExistentes()) {
+                throw new IllegalStateException(
+                        "Ya existen datos en la base. Se canceló la carga para evitar borrarlos.");
+            }
+            fase = "limpieza de los datos anteriores";
             limpiarDatosEdext();
             fase = "institutos";
             cargarInstitutos(institutos);
@@ -99,6 +111,8 @@ public class CargadorDatosPrueba {
             cargarSeguimientos(usuarios);
             fase = "cursos";
             cargarCursos(cursos);
+            fase = "visitas a cursos";
+            cargarVisitasCursos();
             fase = "ediciones";
             cargarEdiciones(ediciones);
             fase = "inscripciones a ediciones";
@@ -117,6 +131,19 @@ public class CargadorDatosPrueba {
         }
     }
 
+    public boolean hayDatosExistentes() {
+        EntityManager em = entityManagerProvider.get();
+        try {
+            String consulta = "SELECT " + TABLAS_EN_ORDEN.stream()
+                    .map(tabla -> "EXISTS (SELECT 1 FROM " + tabla + ")")
+                    .collect(Collectors.joining(" OR "));
+            Number resultado = (Number) em.createNativeQuery(consulta).getSingleResult();
+            return resultado.intValue() != 0;
+        } finally {
+            em.close();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         new CargadorDatosPrueba().cargarDatosTotales();
     }
@@ -124,14 +151,9 @@ public class CargadorDatosPrueba {
     private void limpiarDatosEdext() {
         EntityManager em = entityManagerProvider.get();
         EntityTransaction transaccion = em.getTransaction();
-        List<String> tablasEnOrden = List.of(
-                "Usuario_Seguimiento", "Docente_Instituto", "Docente_Participa_EdicionCurso",
-                "Curso_Categoria", "Curso_Precorrelativa", "programa_curso", "ValoracionCurso", "InscripcionEC",
-                "InscripcionPF", "EdicionCurso", "ProgramaFormacion", "Estudiante", "Docente",
-                "Usuario", "Curso", "Categoria", "Instituto");
         try {
             transaccion.begin();
-            for (String tabla : tablasEnOrden) {
+            for (String tabla : TABLAS_EN_ORDEN) {
                 em.createNativeQuery("DELETE FROM " + tabla).executeUpdate();
             }
             transaccion.commit();
@@ -294,6 +316,44 @@ public class CargadorDatosPrueba {
                 LocalDate.of(2026, 3, 13), List.of(), List.of("Industrial", "Educativo"), IMAGEN_CURSO_MICROBIT);
     }
 
+    private void cargarVisitasCursos() {
+        Map<String, Integer> visitasPorCurso = Map.of(
+                "Talleres plenarios", 150,
+                "Seminarios de Resolución de Problemas", 120,
+                "Dalavuelta", 132,
+                "Extensionismo Industrial", 103,
+                "Inclusión Energética", 98,
+                "Flor del Ceibo", 430,
+                "Taller de robótica educativa", 318,
+                CURSO_KOMIKAN, 267,
+                CURSO_INGLES, 169,
+                "MicroBit", 212);
+        EntityManager em = entityManagerProvider.get();
+        EntityTransaction transaccion = em.getTransaction();
+        try {
+            transaccion.begin();
+            for (Map.Entry<String, Integer> entrada : visitasPorCurso.entrySet()) {
+                int actualizados = em.createQuery(
+                        "UPDATE Curso c SET c.visitas = :visitas WHERE c.nombre = :nombre")
+                        .setParameter("visitas", entrada.getValue())
+                        .setParameter("nombre", entrada.getKey())
+                        .executeUpdate();
+                if (actualizados != 1) {
+                    throw new IllegalStateException(
+                            "No se pudo cargar el contador inicial del curso '" + entrada.getKey() + "'.");
+                }
+            }
+            transaccion.commit();
+        } catch (RuntimeException e) {
+            if (transaccion.isActive()) {
+                transaccion.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
     private void cargarEdiciones(IControladorEdicion controlador) throws Exception {
         altaEdicion(controlador, "Flor del Ceibo", "Flor del Ceibo - 2010", "2010-03-15", "2010-07-07", -1, "2010-02-16", "bruces");
         altaEdicion(controlador, "Flor del Ceibo", "Flor del Ceibo - 2012", "2012-08-01", "2012-11-20", -1, "2012-07-10", "bruces", "adri");
@@ -331,102 +391,93 @@ public class CargadorDatosPrueba {
     }
 
     private void cargarInscripcionesEdiciones(IControladorEdicion controlador) throws Exception {
-        inscribir(controlador, "eleven11", "Flor del Ceibo - 2010", "2010-02-20", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "chechi", "Flor del Ceibo - 2010", "2010-02-25", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "costas", "Flor del Ceibo - 2012", "2012-07-12", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "roro", "Flor del Ceibo - 2012", "2012-07-15", EstadoInscripcion.RECHAZADA, "bruces");
-        inscribir(controlador, "weiss", "Flor del Ceibo - 2012", "2012-07-30", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "roro", "Flor del Ceibo - 2025", "2025-03-10", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "jeffw", "Flor del Ceibo - 2025", "2025-03-15", EstadoInscripcion.ACEPTADA, "bruces");
-        inscribir(controlador, "chechi", "Dalavuelta - 2025", "2024-07-25", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "eleven11", "Dalavuelta - 2025", "2024-07-28", EstadoInscripcion.RECHAZADA, "phils");
-        inscribir(controlador, "roro", "Dalavuelta - 2025", "2024-08-02", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "costas", "Dalavuelta - 2025", "2024-08-10", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "jeffw", "Dalavuelta - 2025", "2024-08-15", EstadoInscripcion.RECHAZADA, "phils");
-        inscribir(controlador, "costas", "Extensionismo Industrial - 2025", "2025-07-18", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "chechi", "Extensionismo Industrial - 2025", "2025-07-20", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "eleven11", "Extensionismo Industrial - 2025", "2025-07-29", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "weiss", "Extensionismo Industrial - 2025", "2025-08-05", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "roro", "Inclusión Energética - 2026", "2026-02-23", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "weiss", "Inclusión Energética - 2026", "2026-02-25", EstadoInscripcion.RECHAZADA, "phils");
-        inscribir(controlador, "chechi", "Inclusión Energética - 2026", "2026-02-28", EstadoInscripcion.ACEPTADA, "phils");
-        inscribir(controlador, "eleven11", "Inclusión Energética - 2026", "2026-03-03", EstadoInscripcion.RECHAZADA, "phils");
-        inscribir(controlador, "weiss", "Taller de robótica educativa - 2024", "2024-02-18", EstadoInscripcion.RECHAZADA, "heisenberg");
-        inscribir(controlador, "roro", "Taller de robótica educativa - 2024", "2024-02-20", EstadoInscripcion.RECHAZADA, "heisenberg");
-        inscribir(controlador, "eleven11", "Taller de robótica educativa - 2024", "2024-03-03", EstadoInscripcion.ACEPTADA, "heisenberg");
-        inscribir(controlador, "chechi", "Taller de robótica educativa - 2024", "2024-03-05", EstadoInscripcion.ACEPTADA, "heisenberg");
-        inscribir(controlador, "jeffw", "Taller de robótica educativa - 2026", "2026-02-18", EstadoInscripcion.ACEPTADA, "heisenberg");
-        inscribir(controlador, "costas", "Taller de robótica educativa - 2026", "2026-02-22", EstadoInscripcion.ACEPTADA, "heisenberg");
-        inscribir(controlador, "roro", "Taller de robótica educativa - 2026", "2026-02-23", EstadoInscripcion.RECHAZADA, "heisenberg");
-        inscribir(controlador, "weiss", "Taller de robótica educativa - 2026-2", "2026-08-18", EstadoInscripcion.INSCRIPTO, "benkenobi");
-        inscribir(controlador, "chechi", "Taller de robótica educativa - 2026-2", "2026-08-22", EstadoInscripcion.INSCRIPTO, "benkenobi");
-        inscribir(controlador, "roro", "Taller de robótica educativa - 2026-2", "2026-09-03", EstadoInscripcion.INSCRIPTO, "benkenobi");
-        inscribir(controlador, "chechi", EDICION_KOMIKAN_2026, "2026-07-13", EstadoInscripcion.ACEPTADA, "waston");
-        inscribir(controlador, "weiss", EDICION_KOMIKAN_2026, "2026-07-20", EstadoInscripcion.ACEPTADA, "waston");
-        inscribir(controlador, "roro", EDICION_KOMIKAN_2026, "2026-07-22", EstadoInscripcion.ACEPTADA, "waston");
-        inscribir(controlador, "weiss", EDICION_INGLES_2026, "2026-06-04", EstadoInscripcion.INSCRIPTO, "heisenberg");
-        inscribir(controlador, "eleven11", EDICION_INGLES_2026, "2026-07-18", EstadoInscripcion.INSCRIPTO, "heisenberg");
-        inscribir(controlador, "jeffw", EDICION_INGLES_2026, "2026-08-20", EstadoInscripcion.INSCRIPTO, "heisenberg");
-        inscribir(controlador, "chechi", "MicroBit - 2026", "2026-07-12", EstadoInscripcion.INSCRIPTO, "house");
-        inscribir(controlador, "roro", "MicroBit - 2026", "2026-07-14", EstadoInscripcion.INSCRIPTO, "house");
-        inscribir(controlador, "eleven11", "MicroBit - 2026", "2026-07-25", EstadoInscripcion.INSCRIPTO, "house");
-        inscribir(controlador, "jeffw", "MicroBit - 2026", "2026-08-05", EstadoInscripcion.INSCRIPTO, "house");
-        inscribir(controlador, "costas", "Talleres plenarios - 2026", "2026-03-05", EstadoInscripcion.RECHAZADA, "timmy");
-        inscribir(controlador, "weiss", "Talleres plenarios - 2026", "2026-03-04", EstadoInscripcion.ACEPTADA, "timmy");
-        inscribir(controlador, "roro", "Talleres plenarios - 2026", "2026-03-07", EstadoInscripcion.ACEPTADA, "timmy");
-        inscribir(controlador, "weiss", "Seminarios de Resolución de Problemas - 2026", "2026-07-15", EstadoInscripcion.ACEPTADA, "timmy");
-        inscribir(controlador, "costas", "Seminarios de Resolución de Problemas - 2026", "2026-07-20", EstadoInscripcion.RECHAZADA, "timmy");
-        inscribir(controlador, "roro", "Seminarios de Resolución de Problemas - 2026", "2026-08-06", EstadoInscripcion.ACEPTADA, "timmy");
-        inscribir(controlador, "chechi", "Seminarios de Resolución de Problemas - 2026", "2026-08-30", EstadoInscripcion.RECHAZADA, "timmy");
+        inscribir(controlador, "eleven11", "Flor del Ceibo - 2010", "2010-02-20", EstadoInscripcion.ACEPTADA, 6, null, "bruces");
+        inscribir(controlador, "chechi", "Flor del Ceibo - 2010", "2010-02-25", EstadoInscripcion.ACEPTADA, 8, "https://www.youtube.com/watch?v=c4ZoticPW1s", "bruces");
+        inscribir(controlador, "costas", "Flor del Ceibo - 2012", "2012-07-12", EstadoInscripcion.ACEPTADA, 9, "https://www.youtube.com/watch?v=1qfw6Rd_-ic", "bruces");
+        inscribir(controlador, "roro", "Flor del Ceibo - 2012", "2012-07-15", EstadoInscripcion.RECHAZADA, null, "https://www.youtube.com/watch?v=Ov4usZlSieM", "bruces");
+        inscribir(controlador, "weiss", "Flor del Ceibo - 2012", "2012-07-30", EstadoInscripcion.ACEPTADA, 0, null, "bruces");
+        inscribir(controlador, "roro", "Flor del Ceibo - 2025", "2025-03-10", EstadoInscripcion.ACEPTADA, 9, "https://www.youtube.com/watch?v=eIvqPPcMepU", "bruces");
+        inscribir(controlador, "jeffw", "Flor del Ceibo - 2025", "2025-03-15", EstadoInscripcion.ACEPTADA, 6, null, "bruces");
+        inscribir(controlador, "chechi", "Dalavuelta - 2025", "2024-07-25", EstadoInscripcion.ACEPTADA, 7, "https://www.youtube.com/watch?v=vfc42Pb5RA8", "phils");
+        inscribir(controlador, "eleven11", "Dalavuelta - 2025", "2024-07-28", EstadoInscripcion.RECHAZADA, null, null, "phils");
+        inscribir(controlador, "roro", "Dalavuelta - 2025", "2024-08-02", EstadoInscripcion.ACEPTADA, 7, "https://www.youtube.com/watch?v=Hg469wSrZhI", "phils");
+        inscribir(controlador, "costas", "Dalavuelta - 2025", "2024-08-10", EstadoInscripcion.ACEPTADA, 6, null, "phils");
+        inscribir(controlador, "jeffw", "Dalavuelta - 2025", "2024-08-15", EstadoInscripcion.RECHAZADA, null, null, "phils");
+        inscribir(controlador, "costas", "Extensionismo Industrial - 2025", "2025-07-18", EstadoInscripcion.ACEPTADA, 9, null, "phils");
+        inscribir(controlador, "chechi", "Extensionismo Industrial - 2025", "2025-07-20", EstadoInscripcion.ACEPTADA, 9, null, "phils");
+        inscribir(controlador, "eleven11", "Extensionismo Industrial - 2025", "2025-07-29", EstadoInscripcion.ACEPTADA, 1, null, "phils");
+        inscribir(controlador, "weiss", "Extensionismo Industrial - 2025", "2025-08-05", EstadoInscripcion.ACEPTADA, 11, null, "phils");
+        inscribir(controlador, "roro", "Inclusión Energética - 2026", "2026-02-23", EstadoInscripcion.ACEPTADA, 7, "https://www.youtube.com/watch?v=dG3niF2GgHM", "phils");
+        inscribir(controlador, "weiss", "Inclusión Energética - 2026", "2026-02-25", EstadoInscripcion.RECHAZADA, null, null, "phils");
+        inscribir(controlador, "chechi", "Inclusión Energética - 2026", "2026-02-28", EstadoInscripcion.ACEPTADA, 11, null, "phils");
+        inscribir(controlador, "eleven11", "Inclusión Energética - 2026", "2026-03-03", EstadoInscripcion.RECHAZADA, null, null, "phils");
+        inscribir(controlador, "weiss", "Taller de robótica educativa - 2024", "2024-02-18", EstadoInscripcion.RECHAZADA, null, null, "heisenberg");
+        inscribir(controlador, "roro", "Taller de robótica educativa - 2024", "2024-02-20", EstadoInscripcion.RECHAZADA, null, null, "heisenberg");
+        inscribir(controlador, "eleven11", "Taller de robótica educativa - 2024", "2024-03-03", EstadoInscripcion.ACEPTADA, 0, null, "heisenberg");
+        inscribir(controlador, "jeffw", "Taller de robótica educativa - 2026", "2026-02-18", EstadoInscripcion.ACEPTADA, 8, null, "heisenberg");
+        inscribir(controlador, "costas", "Taller de robótica educativa - 2026", "2026-02-22", EstadoInscripcion.ACEPTADA, 10, null, "heisenberg");
+        inscribir(controlador, "roro", "Taller de robótica educativa - 2026", "2026-02-23", EstadoInscripcion.RECHAZADA, null, "https://www.youtube.com/watch?v=qYEWtIBmscA", "heisenberg");
+        inscribir(controlador, "weiss", "Taller de robótica educativa - 2026-2", "2026-08-18", EstadoInscripcion.INSCRIPTO, null, "https://www.youtube.com/watch?v=sJq7EE0cuVE", "benkenobi");
+        inscribir(controlador, "chechi", "Taller de robótica educativa - 2026-2", "2026-08-22", EstadoInscripcion.INSCRIPTO, null, "https://www.youtube.com/watch?v=QUYKSWQmkrg", "benkenobi");
+        inscribir(controlador, "roro", "Taller de robótica educativa - 2026-2", "2026-09-03", EstadoInscripcion.INSCRIPTO, null, null, "benkenobi");
+        inscribir(controlador, "chechi", EDICION_KOMIKAN_2026, "2026-07-13", EstadoInscripcion.ACEPTADA, 0, "https://www.youtube.com/watch?v=AHZw09PoIU0", "waston");
+        inscribir(controlador, "weiss", EDICION_KOMIKAN_2026, "2026-07-20", EstadoInscripcion.ACEPTADA, 0, null, "waston");
+        inscribir(controlador, "roro", EDICION_KOMIKAN_2026, "2026-07-22", EstadoInscripcion.ACEPTADA, 0, null, "waston");
+        inscribir(controlador, "weiss", EDICION_INGLES_2026, "2026-06-04", EstadoInscripcion.INSCRIPTO, null, null, "heisenberg");
+        inscribir(controlador, "chechi", "MicroBit - 2026", "2026-07-12", EstadoInscripcion.INSCRIPTO, null, "https://www.youtube.com/watch?v=lSm4QZqN8cA", "house");
+        inscribir(controlador, "roro", "MicroBit - 2026", "2026-07-14", EstadoInscripcion.INSCRIPTO, null, "https://www.youtube.com/watch?v=SWOz-kIwDuU", "house");
+        inscribir(controlador, "eleven11", "MicroBit - 2026", "2026-07-25", EstadoInscripcion.INSCRIPTO, null, "https://www.youtube.com/watch?v=AfqdNJ75544", "house");
+        inscribir(controlador, "jeffw", "MicroBit - 2026", "2026-08-05", EstadoInscripcion.INSCRIPTO, null, null, "house");
+        inscribir(controlador, "costas", "Talleres plenarios - 2026", "2026-03-05", EstadoInscripcion.RECHAZADA, null, null, "timmy");
+        inscribir(controlador, "weiss", "Talleres plenarios - 2026", "2026-03-04", EstadoInscripcion.ACEPTADA, 6, null, "timmy");
+        inscribir(controlador, "roro", "Talleres plenarios - 2026", "2026-03-07", EstadoInscripcion.ACEPTADA, 7, null, "timmy");
+        inscribir(controlador, "weiss", "Seminarios de Resolución de Problemas - 2026", "2026-07-15", EstadoInscripcion.ACEPTADA, 10, null, "timmy");
+        inscribir(controlador, "costas", "Seminarios de Resolución de Problemas - 2026", "2026-07-20", EstadoInscripcion.RECHAZADA, null, null, "timmy");
+        inscribir(controlador, "roro", "Seminarios de Resolución de Problemas - 2026", "2026-08-06", EstadoInscripcion.ACEPTADA, 2, null, "timmy");
+        inscribir(controlador, "chechi", "Seminarios de Resolución de Problemas - 2026", "2026-08-30", EstadoInscripcion.RECHAZADA, null, null, "timmy");
     }
 
     private void inscribir(IControladorEdicion controlador, String estudiante, String edicion, String fecha,
-            EstadoInscripcion estado, String docente) throws Exception {
-        controlador.inscribirEstudianteAEdicion(estudiante, edicion, LocalDate.parse(fecha));
+            EstadoInscripcion estado, Integer evaluacion, String enlaceVideo, String docente) throws Exception {
+        controlador.inscribirEstudianteAEdicion(estudiante, edicion, LocalDate.parse(fecha), enlaceVideo);
         if (estado != EstadoInscripcion.INSCRIPTO) {
             controlador.cambiarEstadoInscripcion(docente, edicion, estudiante, estado);
+        }
+        if (evaluacion != null) {
+            controlador.evaluarInscripcion(docente, edicion, estudiante, evaluacion);
         }
     }
 
     private void cargarEvaluacionesEdiciones(IControladorEdicion controlador) throws Exception {
-        evaluarYcerrar(controlador, "bruces", "Flor del Ceibo - 2012",
-                new String[][]{{"costas", "10"}, {"weiss", "8"}});
-        evaluarYcerrar(controlador, "phils", "Dalavuelta - 2025",
-                new String[][]{{"chechi", "11"}, {"roro", "9"}, {"costas", "7"}});
-        evaluarYcerrar(controlador, "heisenberg", "Taller de robótica educativa - 2024",
-                new String[][]{{"eleven11", "10"}, {"chechi", "12"}});
-        evaluarYcerrar(controlador, "phils", "Inclusión Energética - 2026",
-                new String[][]{{"roro", "9"}, {"chechi", "11"}});
-    }
-
-    private void evaluarYcerrar(IControladorEdicion controlador, String docente, String edicion,
-            String[][] evaluaciones) throws Exception {
-        for (String[] evaluacion : evaluaciones) {
-            controlador.evaluarInscripcion(docente, edicion, evaluacion[0], Integer.parseInt(evaluacion[1]));
-        }
-        controlador.cerrarEdicion(docente, edicion);
+        controlador.cerrarEdicion("bruces", "Flor del Ceibo - 2012");
+        controlador.cerrarEdicion("phils", "Dalavuelta - 2025");
+        controlador.cerrarEdicion("heisenberg", "Taller de robótica educativa - 2024");
+        controlador.cerrarEdicion("phils", "Inclusión Energética - 2026");
     }
 
     private void cargarValoracionesCursos(IControladorCurso controlador) throws Exception {
-        valorar(controlador, "Flor del Ceibo", "eleven11", 5);
+        valorar(controlador, "Flor del Ceibo", "eleven11", 3);
         valorar(controlador, "Flor del Ceibo", "chechi", 4);
         valorar(controlador, "Flor del Ceibo", "costas", 5);
-        valorar(controlador, "Flor del Ceibo", "weiss", 3);
-
-        valorar(controlador, "Dalavuelta", "chechi", 5);
-        valorar(controlador, "Dalavuelta", "roro", 4);
-        valorar(controlador, "Dalavuelta", "costas", 3);
-
-        valorar(controlador, "Extensionismo Industrial", "eleven11", 4);
-        valorar(controlador, "Extensionismo Industrial", "chechi", 5);
-        valorar(controlador, "Extensionismo Industrial", "costas", 4);
-        valorar(controlador, "Extensionismo Industrial", "weiss", 5);
-
+        valorar(controlador, "Flor del Ceibo", "weiss", 4);
+        valorar(controlador, "Flor del Ceibo", "roro", 3);
+        valorar(controlador, "Flor del Ceibo", "jeffw", 3);
+        valorar(controlador, "Dalavuelta", "chechi", 2);
+        valorar(controlador, "Dalavuelta", "roro", 5);
+        valorar(controlador, "Dalavuelta", "costas", 4);
+        valorar(controlador, "Extensionismo Industrial", "costas", 1);
+        valorar(controlador, "Extensionismo Industrial", "chechi", 2);
+        valorar(controlador, "Extensionismo Industrial", "eleven11", 3);
+        valorar(controlador, "Extensionismo Industrial", "weiss", 1);
+        valorar(controlador, "Inclusión Energética", "roro", 5);
+        valorar(controlador, "Inclusión Energética", "chechi", 5);
         valorar(controlador, "Taller de robótica educativa", "eleven11", 4);
-        valorar(controlador, "Taller de robótica educativa", "chechi", 5);
-
-        valorar(controlador, "Inclusión Energética", "roro", 4);
-        valorar(controlador, "Inclusión Energética", "chechi", 4);
+        valorar(controlador, "Taller de robótica educativa", "jeffw", 5);
+        valorar(controlador, CURSO_KOMIKAN, "chechi", 4);
+        valorar(controlador, CURSO_KOMIKAN, "weiss", 4);
+        valorar(controlador, CURSO_KOMIKAN, "roro", 4);
+        valorar(controlador, "Talleres plenarios", "weiss", 1);
+        valorar(controlador, "Seminarios de Resolución de Problemas", "roro", 2);
     }
 
     private void valorar(IControladorCurso controlador, String curso, String estudiante, int puntaje)

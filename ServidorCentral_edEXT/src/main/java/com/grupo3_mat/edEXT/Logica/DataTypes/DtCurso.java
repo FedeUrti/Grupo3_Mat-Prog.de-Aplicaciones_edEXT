@@ -21,6 +21,7 @@ public class DtCurso {
     private String imagenPath;
     private BigDecimal promedioValoracion = BigDecimal.ZERO.setScale(2);
     private int cantidadValoraciones;
+    private int visitas;
     // Las relaciones se comparten como nombres, no como entidades de base de datos.
     private List<String> previas;
     private List<String> ediciones;
@@ -76,6 +77,8 @@ public class DtCurso {
     public void setCantidadValoraciones(int cantidadValoraciones) {
         this.cantidadValoraciones = cantidadValoraciones;
     }
+    public int getVisitas() { return visitas; }
+    public void setVisitas(int visitas) { this.visitas = visitas; }
     public List<String> getPrevias() { return previas; }
     public List<String> getEdiciones() { return ediciones; }
     public List<String> getProgramas() { return programas; }

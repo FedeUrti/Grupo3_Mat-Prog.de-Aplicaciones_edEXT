@@ -16,8 +16,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @WebServlet("/inicio")
 public class InicioServlet extends HttpServlet {
@@ -47,7 +49,11 @@ public class InicioServlet extends HttpServlet {
                 nombres = cursos.listarCursos();
             }
 
-            List<DtCurso> cursosCandidatos = SoapValues.consultarCursos(cursos, nombres);
+            Set<String> nombresCandidatos = new HashSet<>(nombres);
+            List<String> nombresEnTendencia = cursos.listarCursosPorVisitas().stream()
+                    .filter(nombresCandidatos::contains)
+                    .toList();
+            List<DtCurso> cursosCandidatos = SoapValues.consultarCursos(cursos, nombresEnTendencia);
             List<DtCurso> cursosPortada = new ArrayList<>();
             for (DtCurso curso : cursosCandidatos) {
                 boolean coincideInstituto = institutoSeleccionado.isEmpty()

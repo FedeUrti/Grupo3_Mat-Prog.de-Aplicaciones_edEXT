@@ -157,6 +157,7 @@ public class ControladorCurso implements IControladorCurso {
         datosCurso.setPromedioValoracion(curso.obtenerPuntajePromedio());
         datosCurso.setCantidadValoraciones(curso.obtenerConteoValoraciones().values().stream()
                 .mapToInt(Integer::intValue).sum());
+        datosCurso.setVisitas(curso.getVisitas());
         return datosCurso;
     }
 
@@ -194,6 +195,16 @@ public class ControladorCurso implements IControladorCurso {
             }
         }
         return nombres;
+    }
+
+    @Override
+    public List<String> listarCursosPorVisitas() {
+        return ManejadorCurso.getInstancia().listarCursosPorVisitas();
+    }
+
+    @Override
+    public void registrarVisitaCurso(String nombreCurso) {
+        ManejadorCurso.getInstancia().registrarVisitaCurso(nombreCurso);
     }
 
     @Override

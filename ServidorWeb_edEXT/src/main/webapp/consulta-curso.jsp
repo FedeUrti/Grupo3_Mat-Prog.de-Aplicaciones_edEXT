@@ -111,6 +111,8 @@
                                     <dd class="col-sm-8"><c:out value="${curso.cantHoras}"/></dd>
                                     <dt class="col-sm-4">Créditos</dt>
                                     <dd class="col-sm-8"><c:out value="${curso.creditos}"/></dd>
+                                    <dt class="col-sm-4">Visitas</dt>
+                                    <dd class="col-sm-8"><c:out value="${curso.visitas}"/></dd>
                                     <dt class="col-sm-4">Fecha de alta</dt>
                                     <dd class="col-sm-8"><c:out value="${curso.fecha}"/></dd>
                                     <dt class="col-sm-4">Categorías</dt>

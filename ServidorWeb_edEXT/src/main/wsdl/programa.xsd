@@ -159,6 +159,7 @@
 <xs:element name="imagenPath" type="xs:string" minOccurs="0"/>
 <xs:element name="promedioValoracion" type="xs:decimal" minOccurs="0"/>
 <xs:element name="cantidadValoraciones" type="xs:int" minOccurs="0"/>
+<xs:element name="visitas" type="xs:int" minOccurs="0"/>
 <xs:element name="previas" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="ediciones" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="programas" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>

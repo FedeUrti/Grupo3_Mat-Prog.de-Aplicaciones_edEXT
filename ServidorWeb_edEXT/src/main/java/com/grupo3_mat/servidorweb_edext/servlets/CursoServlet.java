@@ -75,6 +75,7 @@ public class CursoServlet extends HttpServlet {
         try {
             request.setAttribute("institutos", institutos.listarInstitutos());
             request.setAttribute("categorias", categorias.listarCategorias());
+            cursos.registrarVisitaCurso(nombre);
             DtCurso curso = cursos.consultarCurso(nombre);
             request.setAttribute("curso", curso);
             try {
