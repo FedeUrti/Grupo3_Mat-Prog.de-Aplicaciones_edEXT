@@ -24,10 +24,12 @@ public class MobileServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(MobileServlet.class.getName());
     private static final String SESSION_NICKNAME = "mobile.nickname";
     private static final String SESSION_NAME = "mobile.nombre";
+    private static final String IMAGE_ENDPOINT = getImageEndpoint();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setAttribute("imageEndpoint", IMAGE_ENDPOINT);
         String path = request.getServletPath();
         if (path.isEmpty() || "/".equals(path)) {
             response.sendRedirect(request.getContextPath() + "/app");
@@ -182,6 +184,20 @@ public class MobileServlet extends HttpServlet {
     private String nickname(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         return session == null ? null : (String) session.getAttribute(SESSION_NICKNAME);
+    }
+
+    private static String getImageEndpoint() {
+        String configured = System.getenv("EDEXT_WEB_IMAGE_ENDPOINT");
+        if (configured == null || configured.isBlank()) {
+            return "/web/imagenes-curso";
+        }
+        String endpoint = configured.trim();
+        if (!endpoint.startsWith("/") || endpoint.startsWith("//")
+                || endpoint.contains("?") || endpoint.contains("#")) {
+            throw new IllegalStateException(
+                    "EDEXT_WEB_IMAGE_ENDPOINT debe ser una ruta local, por ejemplo /web/imagenes-curso.");
+        }
+        return endpoint;
     }
 
     private void cerrarSesion(HttpServletRequest request, HttpServletResponse response) throws IOException {

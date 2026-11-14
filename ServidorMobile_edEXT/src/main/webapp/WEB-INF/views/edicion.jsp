@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="es">
 <head>
@@ -31,10 +32,11 @@
     </c:if>
     <article class="detail-card edition-card">
         <c:if test="${not empty edicion.imagenPath}">
-            <c:url var="imagenUrl" value="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}/imagenes-curso">
+            <c:url var="imagenUrl" value="${imageEndpoint}">
                 <c:param name="nombre" value="${edicion.imagenPath}"/>
             </c:url>
-            <img class="detail-art detail-photo" src="<c:out value='${imagenUrl}'/>"
+            <img class="detail-art detail-photo"
+                 src="<c:out value='${fn:substringAfter(imagenUrl, pageContext.request.contextPath)}'/>"
                  alt="Imagen de <c:out value='${edicion.nombre}'/>">
         </c:if>
         <div class="detail-content">

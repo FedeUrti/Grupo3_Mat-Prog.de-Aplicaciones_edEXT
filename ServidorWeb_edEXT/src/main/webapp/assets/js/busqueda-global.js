@@ -62,6 +62,12 @@
         indiceActivo = -1;
     };
 
+    const mostrarOpcionesOrden = () => {
+        if (opcionesOrden) {
+            opcionesOrden.hidden = false;
+        }
+    };
+
     // Los mensajes se agregan como texto plano para evitar interpretar como HTML lo que llega del servidor.
     const mostrarMensaje = (mensaje) => {
         if (resultadosInicio) {
@@ -590,6 +596,9 @@
         temporizador = window.setTimeout(buscar, 300);
     });
 
+    entrada.addEventListener("focus", mostrarOpcionesOrden);
+    entrada.addEventListener("click", mostrarOpcionesOrden);
+
     filtro?.addEventListener("change", () => {
         window.clearTimeout(temporizador);
         buscar();
@@ -631,6 +640,9 @@
         // Al hacer clic fuera del buscador se cierra el panel, como en un menú desplegable.
         if (!resultadosInicio && !contenedor.contains(evento.target)) {
             cerrar();
+        }
+        if (!contenedor.contains(evento.target) && opcionesOrden) {
+            opcionesOrden.hidden = true;
         }
     });
 

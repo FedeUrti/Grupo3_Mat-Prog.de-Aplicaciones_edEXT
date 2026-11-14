@@ -109,7 +109,7 @@
             <h2 class="h5 fw-bold mb-1" id="relaciones-curso">Relaciones del curso</h2>
             <p class="text-muted small mb-4">Seleccioná al menos una categoría. Las previas son opcionales.</p>
             <fieldset class="mb-4">
-                <legend class="form-label fs-6">Categorías <span class="required-mark">*</span></legend>
+                <legend class="form-label fs-6">Categor&iacute;as <span class="required-mark">*</span></legend>
                 <div class="row g-2">
                     <c:forEach items="${categorias}" var="categoria" varStatus="estado">
                         <div class="col-sm-6 col-lg-3">

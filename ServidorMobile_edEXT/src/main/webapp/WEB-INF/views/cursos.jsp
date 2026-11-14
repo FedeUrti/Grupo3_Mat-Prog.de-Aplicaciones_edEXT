@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="es">
 <head>
@@ -36,13 +37,14 @@
                     <c:url var="cursoUrl" value="/curso">
                         <c:param name="nombre" value="${curso.nombre}"/>
                     </c:url>
-                    <c:url var="imagenUrl" value="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}/imagenes-curso">
+                    <c:url var="imagenUrl" value="${imageEndpoint}">
                         <c:param name="nombre" value="${curso.imagenPath}"/>
                     </c:url>
                     <a class="course-card" href="<c:out value='${cursoUrl}'/>">
                         <c:choose>
                             <c:when test="${not empty curso.imagenPath}">
-                                <img class="course-art course-photo" src="<c:out value='${imagenUrl}'/>"
+                                <img class="course-art course-photo"
+                                     src="<c:out value='${fn:substringAfter(imagenUrl, pageContext.request.contextPath)}'/>"
                                      alt="Imagen de <c:out value='${curso.nombre}'/>">
                             </c:when>
                             <c:otherwise><span class="course-art" aria-hidden="true"><span>edEXT</span></span></c:otherwise>

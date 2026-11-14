@@ -2,7 +2,8 @@
 
 Aplicación web independiente y optimizada para teléfonos y tabletas. Maven
 genera `target/mobile.war`; Tomcat la publica en `/mobile`, junto al Web de
-escritorio desplegado como ROOT.
+escritorio desplegado como `/web` en una instalación nativa. Mobile obtiene
+las imágenes de cursos y ediciones desde `/web/imagenes-curso`.
 
 ## Casos de uso
 
@@ -55,8 +56,11 @@ docker compose up --build -d
 
 El Dockerfile genera el WAR de escritorio y el WAR móvil y los instala en el
 mismo Tomcat. Ambos usan el puerto del host `8081`: el escritorio en `/` y
-Mobile en `/mobile/`. Al entrar por `/`, el filtro redirige según el
-dispositivo; la cookie permite seguir en Mobile aunque se active el modo
+Mobile en `/mobile/`. En este modo, la ruta de imágenes se ajusta a `/imagenes-curso`
+mediante `EDEXT_WEB_IMAGE_ENDPOINT`; en la instalación nativa el valor
+predeterminado es `/web/imagenes-curso`. `EDEXT_WEB_CONTEXT_PATH=/` hace que un
+usuario de escritorio que entra en Mobile vuelva al contexto Web raíz. Al entrar
+por `/`, el filtro redirige según el dispositivo; la cookie permite seguir en Mobile aunque se active el modo
 “sitio de escritorio” del navegador. No se agrega otro contenedor ni se
 publica otro puerto.
 

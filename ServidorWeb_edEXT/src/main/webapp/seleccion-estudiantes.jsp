@@ -39,7 +39,7 @@
                     </a>
                 </c:otherwise>
             </c:choose>
-            <p class="text-uppercase fw-bold small text-muted mb-1">Gestión Docente</p>
+            <p class="text-uppercase fw-bold small text-muted mb-1">Gesti&oacute;n Docente</p>
             <h1 class="page-heading fw-bold mb-1">Selección de Estudiantes</h1>
             <p class="text-muted mb-0">Seleccioná un instituto y curso para gestionar las inscripciones y evaluaciones de sus ediciones.</p>
         </div>
