@@ -13,12 +13,18 @@ import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -26,28 +32,22 @@ import javax.swing.event.ListSelectionEvent;
  */
 public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
     private boolean filtrosVisibles = false;
+    private List<String> nicknamesUsuarios = List.of();
+    private Set<String> nicknamesDocentes = Set.of();
+    private Set<String> nicknamesEstudiantes = Set.of();
+    private SwingWorker<DatosUsuarioConsulta, Void> cargaUsuarioActual;
+    private SwingWorker<DtCurso, Void> cargaCursoActual;
+
+    private record DatosUsuarioConsulta(DtUsuario usuario, List<String> cursos,
+            List<String> ediciones, List<String> programas) {
+    }
+
     /**
      * Creates new form ConsultaUsuarioFrame
      */
     public ConsultaUsuarioFrame() {
         initComponents();
         cargarUsuarios();
-        lstSeleccioneUsuario.addListSelectionListener((ListSelectionEvent e) -> {
-            if (!e.getValueIsAdjusting()) {
-                String usuarioSeleccionado = lstSeleccioneUsuario.getSelectedValue();
-                if (usuarioSeleccionado != null) {
-                    mostrarDatosUsuario(usuarioSeleccionado);
-                }
-            }
-        });
-        lstCursos.addListSelectionListener((ListSelectionEvent e) -> {
-            if (!e.getValueIsAdjusting()) {
-                String cursoSeleccionado = lstCursos.getSelectedValue();
-                if (cursoSeleccionado != null) {
-                    cargarDetallesCursoDocente(cursoSeleccionado);
-                }
-            }
-        });
         
         filtroBtn.setText(filtrosVisibles ? "▲ Ocultar filtros" : "▼ Filtros avanzados");
         if (panelFiltros != null) {
@@ -61,175 +61,191 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
      * Carga la lista inicial de todos los nicknames de usuarios registrados.
      */
     private void cargarUsuarios() {
-        aplicarFiltros();
-        DefaultListModel<String> model = new DefaultListModel<>();
         try {
             IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
-            List<String> usuarios = icu.listarNicknamesUsuarios();
-            if (usuarios != null) {
-                for (String nick : usuarios) {
-                    model.addElement(nick);
-                }
-            }
-            lstSeleccioneUsuario.setModel(model);
+            nicknamesUsuarios = icu.listarNicknamesUsuarios();
+            nicknamesDocentes = new HashSet<>(icu.listarDocentes());
+            nicknamesEstudiantes = new HashSet<>(icu.listarEstudiantes());
+            aplicarFiltros();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al cargar la lista de usuarios: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        
-        
     }
     /**
      * Obtiene los datos del usuario seleccionado y actualiza los componentes de
      * la interfaz.
      */
     private void mostrarDatosUsuario(String nombreUsuario) {
-        try {
-            IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
-            DtUsuario dt = icu.obtenerInfoUsuario(nombreUsuario);
-
-            if (dt == null) {
-                return;
-            }
-
-            // 1. Cargar Datos Básicos de Texto
-            lblValorNickname.setText(dt.getNickname());
-            lblValorNombre.setText(dt.getNombre());
-            lblValorApellido.setText(dt.getApellido());
-            lblValorCorreo.setText(dt.getCorreo());
-            lblValorFechaNac.setText(dt.getFechaNacimiento() != null ? dt.getFechaNacimiento().toString() : "");
-
-            // 2. Determinar tipo de usuario
-            boolean esDocente = (dt instanceof DtDocente);
-
-            // 3. Cargar la imagen utilizando GestorImagenes
-            com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes.cargarImagenEnLabel(
-                    dt.getImagenPath(),
-                    lblImg,
-                    esDocente
-            );
-
-            DefaultListModel<String> modCursos = new DefaultListModel<>();
-            DefaultListModel<String> modEdiciones = new DefaultListModel<>();
-            DefaultListModel<String> modProgramas = new DefaultListModel<>();
-
-            IControladorEdicion ice = Fabrica.getInstance().getIControladorEdicion();
-            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-
-            if (esDocente) {
-                DtDocente docente = (DtDocente) dt;
-                lblValorTipoUsuario.setText("Docente(" + String.join("/", docente.getInstitutos()) + ")");
-
-                // Habilitar la pestaña de Cursos y seleccionarla por defecto
-                jTabbedPane1.setEnabledAt(0, true);
-                jTabbedPane1.setSelectedIndex(0);
-
-                List<String> edicionesDocente = ice.listarEdicionesDeDocente(docente.getNickname());
-
-                if (edicionesDocente != null) {
-                    for (String edicion : edicionesDocente) {
-                        modEdiciones.addElement(edicion);
-
-                        String nombreCurso = ice.obtenerCursoDeEdicion(edicion);
-                        if (nombreCurso != null && !modCursos.contains(nombreCurso)) {
-                            modCursos.addElement(nombreCurso);
-
-                            DtCurso dtCurso = icc.consultarCurso(nombreCurso);
-                            if (dtCurso != null && dtCurso.getProgramas() != null) {
-                                for (String prog : dtCurso.getProgramas()) {
-                                    if (!modProgramas.contains(prog)) {
-                                        modProgramas.addElement(prog);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                lstCursos.setModel(modCursos);
-                lstEdiciones1.setModel(modEdiciones);
-                lstEdiciones.setModel(modProgramas);
-
-            } else if (dt instanceof DtEstudiante) {
-                DtEstudiante estudiante = (DtEstudiante) dt;
-                lblValorTipoUsuario.setText("Estudiante");
-
-                // Desactivar pestaña Cursos y forzar ir a la pestaña Ediciones (índice 1)
-                jTabbedPane1.setEnabledAt(0, false);
-                jTabbedPane1.setSelectedIndex(1);
-
-                // 1. Obtener las inscripciones a ediciones del estudiante desde el DTO
-                List<DTInscripcionEdicion> edicionesEstudiante = estudiante.getInscripcionesEdicion();
-
-                // 2. Cargar ediciones y obtener sus programas asociados a través del curso
-                if (edicionesEstudiante != null) {
-                    for (DTInscripcionEdicion inscripcion : edicionesEstudiante) {
-                        String edicion = inscripcion.getNombreEdicion();
-                        modEdiciones.addElement(edicion);
-
-                        String nombreCurso = ice.obtenerCursoDeEdicion(edicion);
-                        if (nombreCurso != null) {
-                            DtCurso dtCurso = icc.consultarCurso(nombreCurso);
-                            if (dtCurso != null && dtCurso.getProgramas() != null) {
-                                for (String prog : dtCurso.getProgramas()) {
-                                    if (!modProgramas.contains(prog)) {
-                                        modProgramas.addElement(prog);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 3. Cargar programas en los que el estudiante esté inscripto directamente
-                if (estudiante.getProgramasInscripto() != null) {
-                    for (String prog : estudiante.getProgramasInscripto()) {
-                        if (!modProgramas.contains(prog)) {
-                            modProgramas.addElement(prog);
-                        }
-                    }
-                }
-
-                // Asignación a los componentes Swing
-                lstCursos.setModel(modCursos);
-                lstEdiciones1.setModel(modEdiciones); // lstEdiciones1 es la lista de la pestaña Ediciones
-                lstEdiciones.setModel(modProgramas);  // lstEdiciones es la lista de la pestaña Programas
-            }
-
-            // Refrescar el componente para evitar artefactos visuales
-            jTabbedPane1.revalidate();
-            jTabbedPane1.repaint();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al consultar usuario: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (cargaUsuarioActual != null) {
+            cargaUsuarioActual.cancel(true);
         }
+        if (cargaCursoActual != null) {
+            cargaCursoActual.cancel(true);
+        }
+        limpiarDatosMostrados();
+        lblValorTipoUsuario.setText("Cargando...");
+        SwingWorker<DatosUsuarioConsulta, Void> worker = new SwingWorker<>() {
+            @Override
+            protected DatosUsuarioConsulta doInBackground() throws Exception {
+                IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
+                DtUsuario usuario = icu.obtenerInfoUsuario(nombreUsuario);
+                if (usuario == null) {
+                    return null;
+                }
+
+                List<String> ediciones = new ArrayList<>();
+                List<String> programas = new ArrayList<>();
+                if (usuario instanceof DtDocente docente) {
+                    if (docente.getEdicionesAsociadas() != null) {
+                        ediciones.addAll(docente.getEdicionesAsociadas());
+                    }
+                } else if (usuario instanceof DtEstudiante estudiante) {
+                    if (estudiante.getInscripcionesEdicion() != null) {
+                        for (DTInscripcionEdicion inscripcion : estudiante.getInscripcionesEdicion()) {
+                            ediciones.add(inscripcion.getNombreEdicion());
+                        }
+                    }
+                    if (estudiante.getProgramasInscripto() != null) {
+                        programas.addAll(estudiante.getProgramasInscripto());
+                    }
+                }
+
+                IControladorEdicion ice = Fabrica.getInstance().getIControladorEdicion();
+                IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
+                List<String> cursos = ice.listarCursosDeEdiciones(ediciones);
+                for (int inicio = 0; inicio < cursos.size(); inicio += 100) {
+                    List<String> lote = cursos.subList(inicio, Math.min(inicio + 100, cursos.size()));
+                    for (DtCurso curso : icc.consultarCursos(lote)) {
+                        if (curso.getProgramas() != null) {
+                            programas.addAll(curso.getProgramas());
+                        }
+                    }
+                }
+                return new DatosUsuarioConsulta(usuario, cursos, ediciones,
+                        new ArrayList<>(new LinkedHashSet<>(programas)));
+            }
+
+            @Override
+            protected void done() {
+                if (isCancelled() || !nombreUsuario.equals(lstSeleccioneUsuario.getSelectedValue())) {
+                    return;
+                }
+                try {
+                    mostrarDatosUsuario(get());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    mostrarErrorConsultaUsuario(e);
+                } catch (ExecutionException e) {
+                    mostrarErrorConsultaUsuario(e.getCause());
+                }
+            }
+        };
+        cargaUsuarioActual = worker;
+        worker.execute();
     }
-    /* Consulta el curso seleccionado por el Docente y carga sus ediciones y programas asociado
-     */
-    private void cargarDetallesCursoDocente(String nombreCurso) {
-        try {
-            IControladorCurso icc = Fabrica.getInstance().getIControladorCurso();
-            DtCurso dtCurso = icc.consultarCurso(nombreCurso);
 
-            if (dtCurso != null) {
-                DefaultListModel<String> modEdiciones = new DefaultListModel<>();
-                if (dtCurso.getEdiciones() != null) {
-                    for (String ed : dtCurso.getEdiciones()) {
-                        modEdiciones.addElement(ed);
-                    }
-                }
-                lstEdiciones1.setModel(modEdiciones);
+    private void limpiarDatosMostrados() {
+        lblValorNickname.setText("");
+        lblValorNombre.setText("");
+        lblValorApellido.setText("");
+        lblValorCorreo.setText("");
+        lblValorFechaNac.setText("");
+        lblValorTipoUsuario.setText("");
+        lblImg.setIcon(null);
+        lblImg.setText("");
+        lstCursos.setModel(new DefaultListModel<>());
+        lstEdiciones1.setModel(new DefaultListModel<>());
+        lstEdiciones.setModel(new DefaultListModel<>());
+    }
 
-                DefaultListModel<String> modProgramas = new DefaultListModel<>();
-                if (dtCurso.getProgramas() != null) {
-                    for (String prog : dtCurso.getProgramas()) {
-                        modProgramas.addElement(prog);
-                    }
-                }
-                lstEdiciones.setModel(modProgramas);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al consultar detalles del curso: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    private void mostrarDatosUsuario(DatosUsuarioConsulta datos) {
+        if (datos == null) {
+            return;
         }
+        DtUsuario dt = datos.usuario();
+        boolean esDocente = dt instanceof DtDocente;
+        lblValorNickname.setText(dt.getNickname());
+        lblValorNombre.setText(dt.getNombre());
+        lblValorApellido.setText(dt.getApellido());
+        lblValorCorreo.setText(dt.getCorreo());
+        lblValorFechaNac.setText(dt.getFechaNacimiento() != null ? dt.getFechaNacimiento().toString() : "");
+        com.grupo3_mat.edEXT.Presentacion.Utils.GestorImagenes.cargarImagenEnLabel(
+                dt.getImagenPath(), lblImg, esDocente);
+
+        DefaultListModel<String> modCursos = new DefaultListModel<>();
+        datos.cursos().forEach(modCursos::addElement);
+        DefaultListModel<String> modEdiciones = new DefaultListModel<>();
+        datos.ediciones().forEach(modEdiciones::addElement);
+        DefaultListModel<String> modProgramas = new DefaultListModel<>();
+        datos.programas().forEach(modProgramas::addElement);
+
+        if (dt instanceof DtDocente docente) {
+            lblValorTipoUsuario.setText("Docente(" + String.join("/", docente.getInstitutos()) + ")");
+            jTabbedPane1.setEnabledAt(0, true);
+            jTabbedPane1.setSelectedIndex(0);
+        } else {
+            lblValorTipoUsuario.setText("Estudiante");
+            jTabbedPane1.setEnabledAt(0, false);
+            jTabbedPane1.setSelectedIndex(1);
+        }
+        lstCursos.setModel(modCursos);
+        lstEdiciones1.setModel(modEdiciones);
+        lstEdiciones.setModel(modProgramas);
+        jTabbedPane1.revalidate();
+        jTabbedPane1.repaint();
+    }
+
+    private void mostrarErrorConsultaUsuario(Throwable error) {
+        JOptionPane.showMessageDialog(this, "Error al consultar usuario: " + error.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void cargarDetallesCursoDocente(String nombreCurso) {
+        if (cargaCursoActual != null) {
+            cargaCursoActual.cancel(true);
+        }
+        String nicknameUsuario = lstSeleccioneUsuario.getSelectedValue();
+        SwingWorker<DtCurso, Void> worker = new SwingWorker<>() {
+            @Override
+            protected DtCurso doInBackground() throws Exception {
+                return Fabrica.getInstance().getIControladorCurso().consultarCurso(nombreCurso);
+            }
+
+            @Override
+            protected void done() {
+                if (isCancelled() || !nombreCurso.equals(lstCursos.getSelectedValue())
+                        || !java.util.Objects.equals(nicknameUsuario, lstSeleccioneUsuario.getSelectedValue())) {
+                    return;
+                }
+                try {
+                    DtCurso dtCurso = get();
+                    if (dtCurso != null) {
+                        DefaultListModel<String> modEdiciones = new DefaultListModel<>();
+                        if (dtCurso.getEdiciones() != null) {
+                            dtCurso.getEdiciones().forEach(modEdiciones::addElement);
+                        }
+                        lstEdiciones1.setModel(modEdiciones);
+                        DefaultListModel<String> modProgramas = new DefaultListModel<>();
+                        if (dtCurso.getProgramas() != null) {
+                            dtCurso.getProgramas().forEach(modProgramas::addElement);
+                        }
+                        lstEdiciones.setModel(modProgramas);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    mostrarErrorDetalleCurso(e);
+                } catch (ExecutionException e) {
+                    mostrarErrorDetalleCurso(e.getCause());
+                }
+            }
+        };
+        cargaCursoActual = worker;
+        worker.execute();
+    }
+
+    private void mostrarErrorDetalleCurso(Throwable error) {
+        JOptionPane.showMessageDialog(this, "Error al consultar detalles del curso: " + error.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
     }
     private void configurarListeners() {
         // Listener de texto para filtrado en tiempo real
@@ -258,6 +274,14 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
                 String usuarioSeleccionado = lstSeleccioneUsuario.getSelectedValue();
                 if (usuarioSeleccionado != null) {
                     mostrarDatosUsuario(usuarioSeleccionado);
+                } else {
+                    if (cargaUsuarioActual != null) {
+                        cargaUsuarioActual.cancel(true);
+                    }
+                    if (cargaCursoActual != null) {
+                        cargaCursoActual.cancel(true);
+                    }
+                    limpiarDatosMostrados();
                 }
             }
         });
@@ -281,47 +305,20 @@ public class ConsultaUsuarioFrame extends javax.swing.JInternalFrame {
         boolean soloDocentes = (rbDocentes != null) && rbDocentes.isSelected();
 
         DefaultListModel<String> model = new DefaultListModel<>();
-
-        try {
-            IControladorUsuario icu = Fabrica.getInstance().getIControladorUsuario();
-            List<String> nicknames = icu.listarNicknamesUsuarios();
-
-            if (nicknames != null) {
-                for (String nick : nicknames) {
-                    DtUsuario dt = icu.obtenerInfoUsuario(nick);
-                    if (dt == null) {
-                        continue;
-                    }
-
-                    boolean esDocente = (dt instanceof DtDocente);
-                    boolean esEstudiante = (dt instanceof DtEstudiante);
-
-                    // 1. Filtrado por Tipo (RadioButtons)
-                    boolean coincideTipo = true;
-                    if (soloEstudiantes) {
-                        coincideTipo = esEstudiante;
-                    } else if (soloDocentes) {
-                        coincideTipo = esDocente;
-                    }
-
-                    // 2. Filtrado por Texto (Nickname, Nombre o Apellido)
-                    String nickStr = (dt.getNickname() != null) ? dt.getNickname().toLowerCase() : "";
-                    
-                    boolean coincideTexto = texto.isEmpty()
-                            || nickStr.contains(texto);
-                        
-
-                    if (coincideTipo && coincideTexto) {
-                        model.addElement(dt.getNickname());
-                    }
+        if (nicknamesUsuarios != null) {
+            for (String nick : nicknamesUsuarios) {
+                boolean esDocente = nicknamesDocentes.contains(nick);
+                boolean esEstudiante = nicknamesEstudiantes.contains(nick);
+                boolean coincideTipo = (!soloEstudiantes || esEstudiante)
+                        && (!soloDocentes || esDocente);
+                String nickname = nick != null ? nick.toLowerCase() : "";
+                boolean coincideTexto = texto.isEmpty() || nickname.contains(texto);
+                if (coincideTipo && coincideTexto) {
+                    model.addElement(nick);
                 }
             }
-
-            lstSeleccioneUsuario.setModel(model);
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        lstSeleccioneUsuario.setModel(model);
     }
     /**
      * This method is called from within the constructor to initialize the form.

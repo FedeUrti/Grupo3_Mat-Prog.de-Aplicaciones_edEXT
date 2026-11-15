@@ -33,7 +33,9 @@
 
                 <%-- El servlet valida los campos, almacena la imagen y delega el alta al controlador central. --%>
                 <c:url var="altaUsuarioUrl" value="/alta-usuario"/>
-                <form action="<c:out value='${altaUsuarioUrl}'/>" method="post" enctype="multipart/form-data">
+                <c:url var="disponibilidadUrl" value="/disponibilidad-usuario"/>
+                <form action="<c:out value='${altaUsuarioUrl}'/>" method="post" enctype="multipart/form-data"
+                      data-disponibilidad-url="<c:out value='${disponibilidadUrl}'/>">
                     <div class="mb-3">
                         <label for="tipoUsuario" class="form-label">Tipo de usuario <span class="required-mark">*</span></label>
                         <select class="form-select" id="tipoUsuario" name="tipoUsuario" required>
@@ -53,13 +55,19 @@
                             <label for="nickname" class="form-label">Nickname <span class="required-mark">*</span></label>
                             <input class="form-control" id="nickname" name="nickname" type="text"
                                    autocomplete="username" maxlength="60"
+                                   pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-z0-9_.-]*"
+                                   title="Debe comenzar con una letra y contener solo letras, números, punto, guion o guion bajo."
                                    value="<c:out value='${form_nickname}'/>" required>
+                            <div class="form-text" id="estadoNickname" aria-live="polite"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="correo" class="form-label">Correo electrónico <span class="required-mark">*</span></label>
                             <input class="form-control" id="correo" name="correo" type="email"
                                    autocomplete="email" maxlength="254"
+                                   pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"
+                                   title="Ingresá un correo válido, por ejemplo nombre@dominio.com."
                                    value="<c:out value='${form_correo}'/>" required>
+                            <div class="form-text" id="estadoCorreo" aria-live="polite"></div>
                         </div>
                     </div>
 
@@ -67,11 +75,15 @@
                         <div class="col-md-6">
                             <label for="nombre" class="form-label">Nombre <span class="required-mark">*</span></label>
                             <input class="form-control" id="nombre" name="nombre" type="text" maxlength="100"
+                                   pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ]+[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]*"
+                                   title="Debe comenzar con letras; después puede incluir letras, números o espacios."
                                    value="<c:out value='${form_nombre}'/>" required>
                         </div>
                         <div class="col-md-6">
                             <label for="apellido" class="form-label">Apellido <span class="required-mark">*</span></label>
                             <input class="form-control" id="apellido" name="apellido" type="text" maxlength="100"
+                                   pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ]+[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]*"
+                                   title="Debe comenzar con letras; después puede incluir letras, números o espacios."
                                    value="<c:out value='${form_apellido}'/>" required>
                         </div>
                     </div>
@@ -86,6 +98,7 @@
                             <label for="confirmarPassword" class="form-label">Confirmar contraseña <span class="required-mark">*</span></label>
                             <input class="form-control" id="confirmarPassword" name="confirmarPassword" type="password"
                                    autocomplete="new-password" required>
+                            <div class="form-text" id="estadoConfirmarPassword" aria-live="polite"></div>
                         </div>
                     </div>
 
@@ -118,6 +131,7 @@
                             </c:otherwise>
                         </c:choose>
                         <div class="form-text">Podés seleccionar más de un instituto si sos docente.</div>
+                        <div class="form-text" id="estadoInstitutos" aria-live="polite"></div>
                     </fieldset>
 
                     <div class="mb-4">
@@ -125,6 +139,7 @@
                         <input class="form-control" id="imagen" name="imagen" type="file"
                                accept="image/png,image/jpeg,image/gif,image/webp">
                         <div class="form-text">PNG, JPEG, GIF o WebP; tamaño máximo de 5 MB.</div>
+                        <div class="form-text" id="estadoImagen" aria-live="polite"></div>
                     </div>
 
                     <div class="d-flex flex-wrap justify-content-between gap-2 pt-3 border-top">
@@ -138,16 +153,10 @@
     </div>
 </main>
 
-<script>
-    // La selección de institutos se muestra solo para docentes; la obligatoriedad se valida también en el servlet.
-    const selectorTipo = document.getElementById("tipoUsuario");
-    const bloqueInstitutos = document.getElementById("bloqueInstitutos");
-    const actualizarInstitutos = () => {
-        bloqueInstitutos.hidden = selectorTipo.value !== "docente";
-    };
-    selectorTipo.addEventListener("change", actualizarInstitutos);
-    actualizarInstitutos();
-</script>
+<c:url var="validacionAltaUsuarioUrl" value="/assets/js/validacion-alta-usuario.js">
+    <c:param name="v" value="20261110-1"/>
+</c:url>
+<script src="<c:out value='${validacionAltaUsuarioUrl}'/>" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

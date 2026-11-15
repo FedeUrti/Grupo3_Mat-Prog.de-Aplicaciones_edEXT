@@ -43,6 +43,12 @@
 <message name="obtenerInfoUsuarioResponse">
 <part name="parameters" element="tns:obtenerInfoUsuarioResponse"/>
 </message>
+<message name="obtenerInfoUsuarios">
+<part name="parameters" element="tns:obtenerInfoUsuarios"/>
+</message>
+<message name="obtenerInfoUsuariosResponse">
+<part name="parameters" element="tns:obtenerInfoUsuariosResponse"/>
+</message>
 <message name="listarEstudiantes">
 <part name="parameters" element="tns:listarEstudiantes"/>
 </message>
@@ -60,6 +66,12 @@
 </message>
 <message name="iniciarSesionResponse">
 <part name="parameters" element="tns:iniciarSesionResponse"/>
+</message>
+<message name="iniciarSesionConDatos">
+<part name="parameters" element="tns:iniciarSesionConDatos"/>
+</message>
+<message name="iniciarSesionConDatosResponse">
+<part name="parameters" element="tns:iniciarSesionConDatosResponse"/>
 </message>
 <message name="seguirUsuario">
 <part name="parameters" element="tns:seguirUsuario"/>
@@ -108,6 +120,10 @@
 <input wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/obtenerInfoUsuarioRequest" message="tns:obtenerInfoUsuario"/>
 <output wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/obtenerInfoUsuarioResponse" message="tns:obtenerInfoUsuarioResponse"/>
 </operation>
+<operation name="obtenerInfoUsuarios">
+<input wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/obtenerInfoUsuariosRequest" message="tns:obtenerInfoUsuarios"/>
+<output wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/obtenerInfoUsuariosResponse" message="tns:obtenerInfoUsuariosResponse"/>
+</operation>
 <operation name="listarEstudiantes">
 <input wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/listarEstudiantesRequest" message="tns:listarEstudiantes"/>
 <output wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/listarEstudiantesResponse" message="tns:listarEstudiantesResponse"/>
@@ -120,6 +136,11 @@
 <input wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/iniciarSesionRequest" message="tns:iniciarSesion"/>
 <output wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/iniciarSesionResponse" message="tns:iniciarSesionResponse"/>
 <fault message="tns:Exception" name="Exception" wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/iniciarSesion/Fault/Exception"/>
+</operation>
+<operation name="iniciarSesionConDatos">
+<input wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/iniciarSesionConDatosRequest" message="tns:iniciarSesionConDatos"/>
+<output wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/iniciarSesionConDatosResponse" message="tns:iniciarSesionConDatosResponse"/>
+<fault message="tns:Exception" name="Exception" wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/iniciarSesionConDatos/Fault/Exception"/>
 </operation>
 <operation name="seguirUsuario">
 <input wsam:Action="http://soap.edext.grupo3_mat.com/UsuarioSoap/seguirUsuarioRequest" message="tns:seguirUsuario"/>
@@ -203,6 +224,15 @@
 <soap:body use="literal"/>
 </output>
 </operation>
+<operation name="obtenerInfoUsuarios">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
 <operation name="listarEstudiantes">
 <soap:operation soapAction=""/>
 <input>
@@ -222,6 +252,18 @@
 </output>
 </operation>
 <operation name="iniciarSesion">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="Exception">
+<soap:fault name="Exception" use="literal"/>
+</fault>
+</operation>
+<operation name="iniciarSesionConDatos">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>

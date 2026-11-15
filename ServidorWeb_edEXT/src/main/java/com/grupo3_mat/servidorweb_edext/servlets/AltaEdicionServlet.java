@@ -4,6 +4,7 @@
  */
 package com.grupo3_mat.servidorweb_edext.servlets;
 
+import com.grupo3_mat.servidorweb_edext.configuracion.ConfiguracionWeb;
 import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
@@ -27,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
@@ -348,12 +348,7 @@ public class AltaEdicionServlet extends HttpServlet {
     }
 
     private Path carpetaImagenes() {
-        String configurada = System.getenv("EDEXT_UPLOAD_DIR");
-        if (configurada != null && !configurada.isBlank()) {
-            return Paths.get(configurada).toAbsolutePath().normalize();
-        }
-        return Paths.get(System.getProperty("user.home"), ".edext", "uploads")
-                .toAbsolutePath().normalize();
+        return ConfiguracionWeb.get().getUploadDirectory();
     }
 
     private void borrarImagenSiExiste(String nombre) {

@@ -2,14 +2,18 @@
 
 Aplicación web independiente y optimizada para teléfonos y tabletas. Maven
 genera `target/mobile.war`; Tomcat la publica en `/mobile`, junto al Web de
-escritorio desplegado como ROOT.
+escritorio desplegado como `/web` en una instalación nativa. Mobile obtiene
+las imágenes de cursos y ediciones desde `/web/imagenes-curso`.
 
 ## Casos de uso
 
 - **Inicio de sesión y cierre:** solo cuentas existentes de tipo estudiante.
   El login admite nickname o correo y reutiliza la autenticación SOAP central.
   Un docente autenticado correctamente recibe HTTP 403 en Mobile; no se crean
-  cuentas desde esta aplicación.
+  cuentas desde esta aplicación. El login Mobile usa una tarjeta translúcida,
+  iconografía y fondo luminoso; su formulario conserva los mensajes y el
+  flujo de autenticación actuales. Login, catálogo, curso y edición incluyen
+  un selector claro/oscuro que persiste en el navegador y solo afecta a Mobile.
 - **Consulta de curso:** catálogo y detalle con instituto, descripción,
   duración, horas, créditos, categorías, programas y ediciones.
 - **Consulta de edición:** fechas, disponibilidad de cupos, estado y docentes.
@@ -34,6 +38,10 @@ seguridad contra suplantación.
   `scripts/exportar-contrato.sh` en el Web y luego compilá Mobile.
 - Los WSDL/XSD se empaquetan en el WAR. El servicio se invoca por
   `EDEXT_SOAP_BASE_URL`, que en Compose apunta a `http://central:9128/edext/soap`.
+- Fuera de Compose, el valor predeterminado es
+  `http://localhost:9128/edext/soap`, adecuado cuando Mobile y el Central
+  corren en la misma máquina. Si están en máquinas distintas, configure
+  `EDEXT_SOAP_BASE_URL` con una URL alcanzable desde Tomcat.
 - No tiene dependencias de código del Web/Central ni configuración de JDBC o
   credenciales de base de datos.
 
@@ -48,8 +56,11 @@ docker compose up --build -d
 
 El Dockerfile genera el WAR de escritorio y el WAR móvil y los instala en el
 mismo Tomcat. Ambos usan el puerto del host `8081`: el escritorio en `/` y
-Mobile en `/mobile/`. Al entrar por `/`, el filtro redirige según el
-dispositivo; la cookie permite seguir en Mobile aunque se active el modo
+Mobile en `/mobile/`. En este modo, la ruta de imágenes se ajusta a `/imagenes-curso`
+mediante `EDEXT_WEB_IMAGE_ENDPOINT`; en la instalación nativa el valor
+predeterminado es `/web/imagenes-curso`. `EDEXT_WEB_CONTEXT_PATH=/` hace que un
+usuario de escritorio que entra en Mobile vuelva al contexto Web raíz. Al entrar
+por `/`, el filtro redirige según el dispositivo; la cookie permite seguir en Mobile aunque se active el modo
 “sitio de escritorio” del navegador. No se agrega otro contenedor ni se
 publica otro puerto.
 

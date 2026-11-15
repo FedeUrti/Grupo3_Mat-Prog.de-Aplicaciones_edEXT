@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="es">
 <head>
@@ -7,19 +8,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#f4f6fb">
     <title><c:out value="${curso.nombre}"/> · edEXT Mobile</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/mobile.css">
+    <script>
+        try {
+            if (localStorage.getItem("edext-mobile-theme") === "dark") {
+                document.documentElement.dataset.theme = "dark";
+            }
+        } catch (error) {
+            // Si el navegador bloquea el almacenamiento, se conserva el tema claro.
+        }
+    </script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/mobile.css?v=20261110-2">
 </head>
 <body>
 <%@ include file="fragments/header.jspf" %>
 <main class="page">
     <a class="back-link" href="${pageContext.request.contextPath}/app">← Todos los cursos</a>
     <article class="detail-card">
-        <c:url var="imagenUrl" value="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}/imagenes-curso">
+        <c:url var="imagenUrl" value="${imageEndpoint}">
             <c:param name="nombre" value="${curso.imagenPath}"/>
         </c:url>
         <c:choose>
             <c:when test="${not empty curso.imagenPath}">
-                <img class="detail-art detail-photo" src="<c:out value='${imagenUrl}'/>"
+                <img class="detail-art detail-photo"
+                     src="<c:out value='${fn:substringAfter(imagenUrl, pageContext.request.contextPath)}'/>"
                      alt="Imagen de <c:out value='${curso.nombre}'/>">
             </c:when>
             <c:otherwise><div class="detail-art" aria-hidden="true"><span>edEXT</span></div></c:otherwise>
@@ -67,5 +78,6 @@
         </div>
     </article>
 </main>
+<script src="${pageContext.request.contextPath}/assets/theme.js?v=20261110-1" defer></script>
 </body>
 </html>

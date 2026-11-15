@@ -49,6 +49,18 @@
 <message name="listarCursosResponse">
 <part name="parameters" element="tns:listarCursosResponse"/>
 </message>
+<message name="listarCursosPorVisitas">
+<part name="parameters" element="tns:listarCursosPorVisitas"/>
+</message>
+<message name="listarCursosPorVisitasResponse">
+<part name="parameters" element="tns:listarCursosPorVisitasResponse"/>
+</message>
+<message name="registrarVisitaCurso">
+<part name="parameters" element="tns:registrarVisitaCurso"/>
+</message>
+<message name="registrarVisitaCursoResponse">
+<part name="parameters" element="tns:registrarVisitaCursoResponse"/>
+</message>
 <message name="consultarCurso">
 <part name="parameters" element="tns:consultarCurso"/>
 </message>
@@ -116,6 +128,14 @@
 <operation name="listarCursos">
 <input wsam:Action="http://soap.edext.grupo3_mat.com/CursoSoap/listarCursosRequest" message="tns:listarCursos"/>
 <output wsam:Action="http://soap.edext.grupo3_mat.com/CursoSoap/listarCursosResponse" message="tns:listarCursosResponse"/>
+</operation>
+<operation name="listarCursosPorVisitas">
+<input wsam:Action="http://soap.edext.grupo3_mat.com/CursoSoap/listarCursosPorVisitasRequest" message="tns:listarCursosPorVisitas"/>
+<output wsam:Action="http://soap.edext.grupo3_mat.com/CursoSoap/listarCursosPorVisitasResponse" message="tns:listarCursosPorVisitasResponse"/>
+</operation>
+<operation name="registrarVisitaCurso">
+<input wsam:Action="http://soap.edext.grupo3_mat.com/CursoSoap/registrarVisitaCursoRequest" message="tns:registrarVisitaCurso"/>
+<output wsam:Action="http://soap.edext.grupo3_mat.com/CursoSoap/registrarVisitaCursoResponse" message="tns:registrarVisitaCursoResponse"/>
 </operation>
 <operation name="consultarCurso">
 <input wsam:Action="http://soap.edext.grupo3_mat.com/CursoSoap/consultarCursoRequest" message="tns:consultarCurso"/>
@@ -213,6 +233,24 @@
 </fault>
 </operation>
 <operation name="listarCursos">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="listarCursosPorVisitas">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="registrarVisitaCurso">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>

@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "Usuario")
+@Table(name = "Usuario", indexes = {
+    @Index(name = "idx_usuario_correo", columnList = "correo")
+})
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Usuario {
 

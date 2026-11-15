@@ -68,6 +68,20 @@ public class ManejadorCurso {
         }
     }
 
+    public List<Curso> buscarCursosPorNombres(List<String> nombres) {
+        if (nombres == null || nombres.isEmpty()) {
+            return List.of();
+        }
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            return em.createQuery("SELECT c FROM Curso c WHERE c.nombre IN :nombres", Curso.class)
+                    .setParameter("nombres", nombres)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Curso> listarCursosPorInstituto(String nomInstituto) {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
@@ -94,6 +108,40 @@ public class ManejadorCurso {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {
             return em.createQuery("SELECT c FROM Curso c", Curso.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<String> listarCursosPorVisitas() {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT c.nombre FROM Curso c ORDER BY COALESCE(c.visitas, 0) DESC, c.nombre ASC",
+                    String.class)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void registrarVisitaCurso(String nombreCurso) {
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            em.getTransaction().begin();
+            int actualizados = em.createQuery(
+                    "UPDATE Curso c SET c.visitas = COALESCE(c.visitas, 0) + 1 WHERE c.nombre = :nombre")
+                    .setParameter("nombre", nombreCurso)
+                    .executeUpdate();
+            if (actualizados != 1) {
+                throw new IllegalArgumentException("No existe el curso especificado.");
+            }
+            em.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
         } finally {
             em.close();
         }

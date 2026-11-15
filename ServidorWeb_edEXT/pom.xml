@@ -47,9 +47,16 @@
             <artifactId>jaxws-rt</artifactId>
             <version>4.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>
+        <finalName>web</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -74,6 +81,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
             </plugin>
@@ -94,6 +106,7 @@
                             <wsdlDirectory>${project.basedir}/src/main/wsdl</wsdlDirectory>
                             <wsdlFiles>
                                 <wsdlFile>categoria.wsdl</wsdlFile>
+                                <wsdlFile>busqueda.wsdl</wsdlFile>
                                 <wsdlFile>curso.wsdl</wsdlFile>
                                 <wsdlFile>edicion.wsdl</wsdlFile>
                                 <wsdlFile>instituto.wsdl</wsdlFile>

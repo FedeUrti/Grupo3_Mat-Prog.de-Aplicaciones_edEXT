@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 @WebFilter("/*")
 public class MobileAccessFilter implements Filter {
     private static final String DEVICE_COOKIE = "edext_device";
+    private static final String WEB_CONTEXT_PATH = getWebContextPath();
     private static final Pattern MOBILE_USER_AGENT =
             Pattern.compile("(?i)(android|iphone|ipod|ipad|mobile|windows phone)");
 
@@ -25,12 +26,8 @@ public class MobileAccessFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         if (!isMobileDevice(httpRequest)) {
-            String contextPath = httpRequest.getContextPath();
-            String desktopContext = contextPath.endsWith("/mobile")
-                    ? contextPath.substring(0, contextPath.length() - "/mobile".length())
-                    : "";
             httpResponse.setHeader("Cache-Control", "no-store");
-            httpResponse.sendRedirect(desktopContext + "/");
+            httpResponse.sendRedirect(WEB_CONTEXT_PATH + ("/".equals(WEB_CONTEXT_PATH) ? "" : "/"));
             return;
         }
 
@@ -60,5 +57,22 @@ public class MobileAccessFilter implements Filter {
     private static boolean hasMobileUserAgent(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
         return userAgent != null && MOBILE_USER_AGENT.matcher(userAgent).find();
+    }
+
+    private static String getWebContextPath() {
+        String configured = System.getenv("EDEXT_WEB_CONTEXT_PATH");
+        if (configured == null || configured.isBlank()) {
+            return "/web";
+        }
+        String contextPath = configured.trim();
+        if (!contextPath.startsWith("/") || contextPath.startsWith("//")
+                || contextPath.contains("?") || contextPath.contains("#")) {
+            throw new IllegalStateException(
+                    "EDEXT_WEB_CONTEXT_PATH debe ser una ruta local, por ejemplo /web o /.");
+        }
+        while (contextPath.length() > 1 && contextPath.endsWith("/")) {
+            contextPath = contextPath.substring(0, contextPath.length() - 1);
+        }
+        return contextPath;
     }
 }

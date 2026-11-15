@@ -134,8 +134,8 @@ public class InscripcionEC {
     }
 
     public void setEvaluacion(Integer evaluacion) {
-        if (evaluacion != null && (evaluacion < 1 || evaluacion > 12)) {
-            throw new IllegalArgumentException("La evaluación debe estar entre 1 y 12.");
+        if (evaluacion != null && (evaluacion < 0 || evaluacion > 12)) {
+            throw new IllegalArgumentException("La evaluación debe estar entre 0 y 12.");
         }
         fechaEvaluacion = evaluacion == null ? null : LocalDate.now();
         this.evaluacion = evaluacion;
