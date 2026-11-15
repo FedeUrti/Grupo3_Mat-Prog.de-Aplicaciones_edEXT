@@ -27,11 +27,8 @@
 
             <%@ include file="/WEB-INF/views/sidebar-principal.jspf" %>
 
-            <!-- El buscador actualiza esta sección con AJAX; los filtros del inicio permanecen debajo. -->
+            <!-- El autocompletado no reemplaza el contenido principal; Enter navega a los resultados completos. -->
             <div class="col main-content-column">
-                <section class="home-search-results mb-4" data-home-search-results hidden
-                         aria-live="polite" aria-label="Resultados de la búsqueda"></section>
-
                 <div data-home-course-list>
                     <c:if test="${param.acceso eq 'docente'}">
                         <div class="alert alert-warning" role="alert">Solo los docentes pueden dar de alta cursos.</div>
@@ -80,6 +77,10 @@
                                     <div class="col-md-8">
                                         <span class="badge text-bg-primary mb-2"><c:out value="${curso.nomInstituto}"/></span>
                                         <h2 class="h5 fw-bold"><c:out value="${curso.nombre}"/></h2>
+                                        <p class="small text-muted mb-2">
+                                            <i class="bi bi-eye me-1" aria-hidden="true"></i>
+                                            <c:out value="${curso.visitas}"/> visitas
+                                        </p>
                                         <p class="card-text text-dark mb-2"><c:out value="${curso.descripcion}"/></p>
                                         <c:url var="valorarCursoUrl" value="/consulta-curso">
                                             <c:param name="nombre" value="${curso.nombre}"/>

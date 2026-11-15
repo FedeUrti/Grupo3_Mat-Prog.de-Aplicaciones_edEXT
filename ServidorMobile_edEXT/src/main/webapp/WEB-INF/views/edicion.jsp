@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="es">
 <head>
@@ -7,7 +8,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#f4f6fb">
     <title><c:out value="${edicion.nombre}"/> · edEXT Mobile</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/mobile.css">
+    <script>
+        try {
+            if (localStorage.getItem("edext-mobile-theme") === "dark") {
+                document.documentElement.dataset.theme = "dark";
+            }
+        } catch (error) {
+            // Si el navegador bloquea el almacenamiento, se conserva el tema claro.
+        }
+    </script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/mobile.css?v=20261110-2">
 </head>
 <body>
 <%@ include file="fragments/header.jspf" %>
@@ -22,10 +32,11 @@
     </c:if>
     <article class="detail-card edition-card">
         <c:if test="${not empty edicion.imagenPath}">
-            <c:url var="imagenUrl" value="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}/imagenes-curso">
+            <c:url var="imagenUrl" value="${imageEndpoint}">
                 <c:param name="nombre" value="${edicion.imagenPath}"/>
             </c:url>
-            <img class="detail-art detail-photo" src="<c:out value='${imagenUrl}'/>"
+            <img class="detail-art detail-photo"
+                 src="<c:out value='${fn:substringAfter(imagenUrl, pageContext.request.contextPath)}'/>"
                  alt="Imagen de <c:out value='${edicion.nombre}'/>">
         </c:if>
         <div class="detail-content">
@@ -54,5 +65,6 @@
         </div>
     </article>
 </main>
+<script src="${pageContext.request.contextPath}/assets/theme.js?v=20261110-1" defer></script>
 </body>
 </html>

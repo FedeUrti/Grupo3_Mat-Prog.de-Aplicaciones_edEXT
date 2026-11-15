@@ -3,7 +3,9 @@ package com.grupo3_mat.servidorweb_edext.soap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.Entrada;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CursoSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtCurso;
+import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
 import com.grupo3_mat.servidorweb_edext.soap.generated.Exception_Exception;
+import com.grupo3_mat.servidorweb_edext.soap.generated.UsuarioSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.ValoracionesXml;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -49,5 +51,17 @@ public final class SoapValues {
             cursos.addAll(servicio.consultarCursos(nombres.subList(inicio, fin)));
         }
         return cursos;
+    }
+
+    public static List<DtUsuario> obtenerInfoUsuarios(UsuarioSoap servicio, List<String> nicknames) {
+        List<DtUsuario> usuarios = new ArrayList<>();
+        if (nicknames == null) {
+            return usuarios;
+        }
+        for (int inicio = 0; inicio < nicknames.size(); inicio += 100) {
+            int fin = Math.min(inicio + 100, nicknames.size());
+            usuarios.addAll(servicio.obtenerInfoUsuarios(nicknames.subList(inicio, fin)));
+        }
+        return usuarios;
     }
 }

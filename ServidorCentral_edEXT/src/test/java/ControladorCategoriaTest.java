@@ -1,11 +1,14 @@
 import com.grupo3_mat.edEXT.Logica.Controladores.ControladorCategoria;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
+import com.grupo3_mat.edEXT.Persistencia.TestDatabaseExtension;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(TestDatabaseExtension.class)
 class ControladorCategoriaTest {
 
     @Test

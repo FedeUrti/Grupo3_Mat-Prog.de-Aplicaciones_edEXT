@@ -46,16 +46,40 @@ class CargadorDatosPruebaTest {
         assertTrue(persistencia.cerrada().get());
         assertTrue(llamadas.getOrDefault("altaInstituto", 0) > 0);
         assertTrue(llamadas.getOrDefault("altaCategoria", 0) > 0);
-        assertTrue(llamadas.getOrDefault("altaUsuario", 0) > 0);
+        assertEquals(6, llamadas.getOrDefault("altaUsuario", 0));
+        assertEquals(9, llamadas.getOrDefault("altaUsuarioConInstitutos", 0));
         assertTrue(llamadas.getOrDefault("seguirUsuario", 0) > 0);
         assertTrue(llamadas.getOrDefault("altaCurso", 0) > 0);
+        assertEquals(10, persistencia.actualizacionesVisitas().size());
+        Map<String, Integer> visitas = new HashMap<>();
+        for (Map<String, Object> actualizacion : persistencia.actualizacionesVisitas()) {
+            visitas.put((String) actualizacion.get("nombre"), (Integer) actualizacion.get("visitas"));
+        }
+        assertEquals(430, visitas.get("Flor del Ceibo"));
+        assertEquals(318, visitas.get("Taller de robótica educativa"));
+        assertEquals(98, visitas.get("Inclusión Energética"));
         assertTrue(llamadas.getOrDefault("altaEdicionCurso", 0) > 0);
-        assertTrue(llamadas.getOrDefault("inscribirEstudianteAEdicion", 0) > 0);
-        assertEquals(9, llamadas.getOrDefault("evaluarInscripcion", 0));
+        assertEquals(44, llamadas.getOrDefault("inscribirEstudianteAEdicion", 0));
+        assertEquals(25, llamadas.getOrDefault("evaluarInscripcion", 0));
         assertEquals(4, llamadas.getOrDefault("cerrarEdicion", 0));
-        assertEquals(15, llamadas.getOrDefault("ingresarValoracion", 0));
+        assertEquals(22, llamadas.getOrDefault("ingresarValoracion", 0));
         assertTrue(llamadas.getOrDefault("crearProgramaFormacion", 0) > 0);
         assertTrue(llamadas.getOrDefault("inscribirEstudianteAPrograma", 0) > 0);
+    }
+
+    @Test
+    void noLimpiaNiCargaCuandoYaHayDatosEnLaBase() {
+        Map<String, Integer> llamadas = new HashMap<>();
+        FakePersistence persistencia = fakePersistence(null, true);
+        CargadorDatosPrueba cargador = crearCargador(llamadas, persistencia, null);
+
+        Exception error = assertThrows(Exception.class, cargador::cargarDatosTotales);
+
+        assertTrue(error.getMessage().contains("Ya existen datos"));
+        assertTrue(persistencia.sentencias().isEmpty());
+        assertTrue(llamadas.isEmpty());
+        assertFalse(persistencia.confirmada().get());
+        assertTrue(persistencia.cerrada().get());
     }
 
     @Test
@@ -114,7 +138,12 @@ class CargadorDatosPruebaTest {
     }
 
     private static FakePersistence fakePersistence(String sentenciaQueFalla) {
+        return fakePersistence(sentenciaQueFalla, false);
+    }
+
+    private static FakePersistence fakePersistence(String sentenciaQueFalla, boolean hayDatos) {
         List<String> sentencias = new ArrayList<>();
+        List<Map<String, Object>> actualizacionesVisitas = new ArrayList<>();
         AtomicBoolean activa = new AtomicBoolean();
         AtomicBoolean confirmada = new AtomicBoolean();
         AtomicBoolean revertida = new AtomicBoolean();
@@ -149,6 +178,15 @@ class CargadorDatosPruebaTest {
                     }
                     if (metodo.getName().equals("createNativeQuery")) {
                         String sentencia = (String) args[0];
+                        if (sentencia.startsWith("SELECT ")) {
+                            return Proxy.newProxyInstance(Query.class.getClassLoader(), new Class<?>[]{Query.class},
+                                    (query, metodoQuery, argsQuery) -> {
+                                        if (metodoQuery.getName().equals("getSingleResult")) {
+                                            return hayDatos ? 1 : 0;
+                                        }
+                                        return valorPredeterminado(metodoQuery.getReturnType());
+                                    });
+                        }
                         sentencias.add(sentencia);
                         return Proxy.newProxyInstance(Query.class.getClassLoader(), new Class<?>[]{Query.class},
                                 (query, metodoQuery, argsQuery) -> {
@@ -161,13 +199,29 @@ class CargadorDatosPruebaTest {
                                     return valorPredeterminado(metodoQuery.getReturnType());
                                 });
                     }
+                    if (metodo.getName().equals("createQuery")) {
+                        Map<String, Object> parametros = new HashMap<>();
+                        return Proxy.newProxyInstance(Query.class.getClassLoader(), new Class<?>[]{Query.class},
+                                (query, metodoQuery, argsQuery) -> {
+                                    if (metodoQuery.getName().equals("setParameter")) {
+                                        parametros.put((String) argsQuery[0], argsQuery[1]);
+                                        return query;
+                                    }
+                                    if (metodoQuery.getName().equals("executeUpdate")) {
+                                        actualizacionesVisitas.add(new HashMap<>(parametros));
+                                        return 1;
+                                    }
+                                    return valorPredeterminado(metodoQuery.getReturnType());
+                                });
+                    }
                     if (metodo.getName().equals("close")) {
                         cerrada.set(true);
                     }
                     return valorPredeterminado(metodo.getReturnType());
                 });
 
-        return new FakePersistence(entityManager, sentencias, confirmada, revertida, cerrada);
+        return new FakePersistence(entityManager, sentencias, actualizacionesVisitas,
+                confirmada, revertida, cerrada);
     }
 
     private static Object valorPredeterminado(Class<?> tipo) {
@@ -184,6 +238,7 @@ class CargadorDatosPruebaTest {
     }
 
     private record FakePersistence(EntityManager entityManager, List<String> sentencias,
+            List<Map<String, Object>> actualizacionesVisitas,
             AtomicBoolean confirmada, AtomicBoolean revertida, AtomicBoolean cerrada) {
     }
 }

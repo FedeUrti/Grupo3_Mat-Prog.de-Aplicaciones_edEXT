@@ -45,6 +45,7 @@ public interface IControladorEdicion {
     String obtenerCursoDeEdicion(@WebParam(name = "nombreEdicion") String nombreEdicion);
     List<String> listarEdicionesDeDocente(@WebParam(name = "nicknameDocente") String nicknameDocente);
     List<String> listarEdicionesDeEstudiante(@WebParam(name = "nicknameEstudiante") String nicknameEstudiante);
+    List<String> listarCursosDeEdiciones(@WebParam(name = "nombresEdiciones") List<String> nombresEdiciones);
     
     // Métodos faltantes para selección de estudiantes
     List<DTInscripcionEdicion> listarInscripcionesAEdicion(

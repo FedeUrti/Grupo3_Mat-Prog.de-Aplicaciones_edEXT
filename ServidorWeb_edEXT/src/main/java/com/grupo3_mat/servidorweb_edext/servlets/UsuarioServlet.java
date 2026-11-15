@@ -1,5 +1,6 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
+import com.grupo3_mat.servidorweb_edext.configuracion.ConfiguracionWeb;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtDocente;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtEstudiante;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtEdicionCurso;
@@ -7,6 +8,7 @@ import com.grupo3_mat.servidorweb_edext.soap.generated.DtUsuario;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtInscripcionEdicion;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtProgramaFormacion;
 import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
+import com.grupo3_mat.servidorweb_edext.soap.SoapValues;
 import com.grupo3_mat.servidorweb_edext.soap.generated.EdicionSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
 import com.grupo3_mat.servidorweb_edext.soap.generated.InstitutoSoap;
@@ -31,13 +33,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = {
-    "/alta-usuario", "/consulta-usuario", "/modificar-usuario",
+    "/alta-usuario", "/disponibilidad-usuario", "/consulta-usuario", "/modificar-usuario",
     "/seguir-usuario", "/dejar-de-seguir-usuario"
 })
 // El contenedor limita el tamaño total y por archivo de las imágenes de perfil recibidas.
@@ -70,6 +73,9 @@ public class UsuarioServlet extends HttpServlet {
             case "/alta-usuario":
                 mostrarAlta(request, response);
                 break;
+            case "/disponibilidad-usuario":
+                verificarDisponibilidad(request, response);
+                break;
             case "/consulta-usuario":
                 mostrarConsulta(request, response);
                 break;
@@ -83,6 +89,49 @@ public class UsuarioServlet extends HttpServlet {
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
+    }
+
+    private void verificarDisponibilidad(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Cache-Control", "no-store");
+
+        String campo = request.getParameter("campo");
+        String valor = limpiar(request.getParameter("valor"));
+        try {
+            if (valor.isEmpty()) {
+                throw new IllegalArgumentException("Ingresá un valor para verificar.");
+            }
+
+            boolean disponible;
+            if ("nickname".equals(campo)) {
+                validarNickname(valor);
+                disponible = usuarios.listarNicknamesUsuarios().stream()
+                        .noneMatch(nickname -> nickname != null && nickname.equalsIgnoreCase(valor));
+            } else if ("correo".equals(campo)) {
+                validarCorreo(valor);
+                // Un correo válido no puede coincidir con un nickname según las reglas del alta.
+                disponible = usuarios.resolverNickname(valor) == null;
+            } else {
+                throw new IllegalArgumentException("El campo a verificar no es válido.");
+            }
+
+            response.getWriter().write("{\"disponible\":" + disponible + "}");
+        } catch (IllegalArgumentException error) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            escribirErrorJson(response, error.getMessage());
+        } catch (Exception error) {
+            getServletContext().log("No se pudo verificar la disponibilidad de un usuario.", error);
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            escribirErrorJson(response, "No se pudo verificar la disponibilidad. Intentá nuevamente.");
+        }
+    }
+
+    private static void escribirErrorJson(HttpServletResponse response, String mensaje) throws IOException {
+        String escapado = mensaje.replace("\\", "\\\\").replace("\"", "\\\"")
+                .replace("\r", "\\r").replace("\n", "\\n");
+        response.getWriter().write("{\"error\":\"" + escapado + "\"}");
     }
 
     @Override
@@ -207,19 +256,20 @@ public class UsuarioServlet extends HttpServlet {
                     request.setAttribute("tipoUsuario", usuario instanceof DtDocente ? "Docente" : "Estudiante");
                     prepararRelacionesUsuario(request, usuario);
                     request.setAttribute("imagenPerfil", imagenPerfil(usuario));
-                    Map<String, DtUsuario> perfilesRelacionados = prepararPerfilesRelacionados(usuario);
+                    HttpSession sesion = request.getSession(false);
+                    String nicknameSesion = sesion == null ? null
+                            : (String) sesion.getAttribute(CLAVE_USUARIO);
+                    Map<String, DtUsuario> perfilesRelacionados =
+                            prepararPerfilesRelacionados(usuario, nicknameSesion);
                     request.setAttribute("perfilesRelacionados", perfilesRelacionados);
                     Map<String, String> imagenesRelacionadas = new HashMap<>();
                     for (Map.Entry<String, DtUsuario> perfil : perfilesRelacionados.entrySet()) {
                         imagenesRelacionadas.put(perfil.getKey(), imagenPerfil(perfil.getValue()));
                     }
                     request.setAttribute("imagenesRelacionadas", imagenesRelacionadas);
-                    HttpSession sesion = request.getSession(false);
-                    String nicknameSesion = sesion == null ? null
-                            : (String) sesion.getAttribute(CLAVE_USUARIO);
                     Map<String, Boolean> siguiendoRelacionados = new HashMap<>();
                     if (nicknameSesion != null) {
-                        DtUsuario usuarioSesion = usuarios.obtenerInfoUsuario(nicknameSesion);
+                        DtUsuario usuarioSesion = perfilesRelacionados.get(nicknameSesion);
                         if (usuarioSesion != null) {
                             for (String nicknameRelacionado : perfilesRelacionados.keySet()) {
                                 siguiendoRelacionados.put(nicknameRelacionado,
@@ -298,20 +348,15 @@ public class UsuarioServlet extends HttpServlet {
         request.setAttribute("detallesProgramasUsuario", detallesProgramas);
     }
 
-    private Map<String, DtUsuario> prepararPerfilesRelacionados(DtUsuario usuario) {
-        // Se combinan seguidos y seguidores sin duplicados para preparar los datos de ambas subpestañas.
+    private Map<String, DtUsuario> prepararPerfilesRelacionados(DtUsuario usuario, String nicknameSesion) {
         Map<String, DtUsuario> perfiles = new HashMap<>();
-        List<String> nicknamesRelacionados = new ArrayList<>(usuario.getSeguidos());
-        for (String nickname : usuario.getSeguidores()) {
-            if (!nicknamesRelacionados.contains(nickname)) {
-                nicknamesRelacionados.add(nickname);
-            }
+        LinkedHashSet<String> nicknames = new LinkedHashSet<>(usuario.getSeguidos());
+        nicknames.addAll(usuario.getSeguidores());
+        if (nicknameSesion != null) {
+            nicknames.add(nicknameSesion);
         }
-        for (String nickname : nicknamesRelacionados) {
-            DtUsuario perfil = usuarios.obtenerInfoUsuario(nickname);
-            if (perfil != null) {
-                perfiles.put(nickname, perfil);
-            }
+        for (DtUsuario perfil : SoapValues.obtenerInfoUsuarios(usuarios, new ArrayList<>(nicknames))) {
+            perfiles.put(perfil.getNickname(), perfil);
         }
         return perfiles;
     }
@@ -320,7 +365,7 @@ public class UsuarioServlet extends HttpServlet {
         return imagenPerfil(usuario.getImagenPath(), usuario instanceof DtDocente);
     }
 
-    private static String imagenPerfil(String imagen, boolean esDocente) {
+    static String imagenPerfil(String imagen, boolean esDocente) {
         if (imagen != null && (imagen.matches("[a-f0-9-]{36}\\.(png|jpg|gif|webp)")
                 || imagen.matches("Presentacion/Recursos/datos_prueba/usuario_[a-z0-9_-]+\\.(png|jpg|jpeg)")
                 || imagen.endsWith("docente_placeholder.png")
@@ -628,13 +673,7 @@ public class UsuarioServlet extends HttpServlet {
     }
 
     private Path carpetaImagenes() {
-        // La variable de entorno permite compartir el mismo directorio con el despliegue en contenedor.
-        String configurada = System.getenv("EDEXT_UPLOAD_DIR");
-        if (configurada != null && !configurada.isBlank()) {
-            return Paths.get(configurada).toAbsolutePath().normalize();
-        }
-        return Paths.get(System.getProperty("user.home"), ".edext", "uploads")
-                .toAbsolutePath().normalize();
+        return ConfiguracionWeb.get().getUploadDirectory();
     }
 
     private void borrarImagenSiExiste(String nombre) {

@@ -114,7 +114,7 @@ public class DeviceRoutingFilter implements Filter {
     private static void redirectToMobile(
             HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setHeader("Cache-Control", "no-store");
-        response.sendRedirect(request.getContextPath() + "/mobile/");
+        response.sendRedirect("/mobile/");
     }
 
     private static void sendDeviceDetectionPage(HttpServletResponse response) throws IOException {

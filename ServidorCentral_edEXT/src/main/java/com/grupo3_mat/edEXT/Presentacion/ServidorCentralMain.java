@@ -1,15 +1,19 @@
 package com.grupo3_mat.edEXT.Presentacion;
 
+import com.grupo3_mat.edEXT.Configuracion.ConfiguracionServidor;
 import com.grupo3_mat.edEXT.Logica.Fabrica;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCategoria;
+import com.grupo3_mat.edEXT.Logica.Controladores.ControladorBusqueda;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorCurso;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorEdicion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorInstituto;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorProgramaFormacion;
 import com.grupo3_mat.edEXT.Logica.Interfaces.IControladorUsuario;
+import com.grupo3_mat.edEXT.Persistencia.Conexion;
 import com.sun.xml.ws.api.BindingID;
 import com.sun.xml.ws.transport.http.server.EndpointImpl;
 import jakarta.xml.ws.Endpoint;
+import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -20,21 +24,17 @@ import java.util.concurrent.CountDownLatch;
  * como 0.0.0.0; al ejecutar localmente, el valor predeterminado solo escucha en loopback.
  */
 public final class ServidorCentralMain {
-    private static final String DIRECCION_PREDETERMINADA = "http://127.0.0.1:9128/edext/soap";
     private static final List<Endpoint> ENDPOINTS = new ArrayList<>();
 
     private ServidorCentralMain() {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        String base = System.getenv("EDEXT_SOAP_BIND_ADDRESS");
-        if (base == null || base.isBlank()) {
-            base = DIRECCION_PREDETERMINADA;
-        }
-        base = quitarBarraFinal(base.trim());
+        String base = quitarBarraFinal(ConfiguracionServidor.get().getSoapBindUrl());
 
         CountDownLatch cierre = new CountDownLatch(1);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Cierre limpio del servidor central SOAP.");
             detenerServicios();
             cierre.countDown();
         }, "cierre-servidor-central"));
@@ -42,6 +42,7 @@ public final class ServidorCentralMain {
         try {
             Fabrica fabrica = Fabrica.getInstance();
             publicar(base, "/categoria", fabrica.getIControladorCategoria());
+            publicar(base, "/busqueda", new ControladorBusqueda());
             publicar(base, "/curso", fabrica.getIControladorCurso());
             publicar(base, "/edicion", fabrica.getIControladorEdicion());
             publicar(base, "/instituto", fabrica.getIControladorInstituto());
@@ -51,6 +52,11 @@ public final class ServidorCentralMain {
             cierre.await();
         } catch (RuntimeException error) {
             detenerServicios();
+            if (esPuertoOcupado(error)) {
+                System.err.println("No se pudo publicar el servicio SOAP en " + base
+                        + ": el puerto está ocupado. Cierre el otro proceso o cambie soap.bind.url.");
+                System.exit(1);
+            }
             throw error;
         }
     }
@@ -66,6 +72,17 @@ public final class ServidorCentralMain {
         System.out.println("Servicio SOAP publicado: " + direccion + "?wsdl");
     }
 
+    private static boolean esPuertoOcupado(Throwable error) {
+        for (Throwable causa = error; causa != null; causa = causa.getCause()) {
+            if (causa instanceof BindException
+                    || (causa.getMessage() != null
+                    && causa.getMessage().toLowerCase(java.util.Locale.ROOT).contains("address already in use"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static String quitarBarraFinal(String direccion) {
         int fin = direccion.length();
         while (fin > 0 && direccion.charAt(fin - 1) == '/') {
@@ -79,5 +96,6 @@ public final class ServidorCentralMain {
             ENDPOINTS.get(indice).stop();
         }
         ENDPOINTS.clear();
+        Conexion.cerrar();
     }
 }

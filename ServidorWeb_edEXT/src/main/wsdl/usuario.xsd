@@ -42,9 +42,17 @@
 
 <xs:element name="obtenerInfoUsuarioResponse" type="tns:obtenerInfoUsuarioResponse"/>
 
+<xs:element name="obtenerInfoUsuarios" type="tns:obtenerInfoUsuarios"/>
+
+<xs:element name="obtenerInfoUsuariosResponse" type="tns:obtenerInfoUsuariosResponse"/>
+
 <xs:element name="resolverNickname" type="tns:resolverNickname"/>
 
 <xs:element name="resolverNicknameResponse" type="tns:resolverNicknameResponse"/>
+
+<xs:element name="iniciarSesionConDatos" type="tns:iniciarSesionConDatos"/>
+
+<xs:element name="iniciarSesionConDatosResponse" type="tns:iniciarSesionConDatosResponse"/>
 
 <xs:element name="seguirUsuario" type="tns:seguirUsuario"/>
 
@@ -170,6 +178,18 @@
 </xs:sequence>
 </xs:complexType>
 
+<xs:complexType name="obtenerInfoUsuarios">
+<xs:sequence>
+<xs:element name="nicknames" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="obtenerInfoUsuariosResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtUsuario" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
 <xs:complexType name="dtUsuario">
 <xs:sequence>
 <xs:element name="nickname" type="xs:string" minOccurs="0"/>
@@ -245,6 +265,19 @@
 <xs:complexType name="iniciarSesionResponse">
 <xs:sequence>
 <xs:element name="return" type="xs:boolean"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="iniciarSesionConDatos">
+<xs:sequence>
+<xs:element name="identificador" type="xs:string" minOccurs="0"/>
+<xs:element name="password" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="iniciarSesionConDatosResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:dtUsuario" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 

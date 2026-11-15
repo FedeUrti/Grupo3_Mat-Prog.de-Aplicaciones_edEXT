@@ -66,17 +66,11 @@ public class AutenticacionServlet extends HttpServlet {
         String identificador = request.getParameter("identificador");
         String password = request.getParameter("password");
         try {
-            // 1. Delegar la verificación de credenciales y hashes al controlador central.
-            usuarios.iniciarSesion(identificador, password);
-            // 2. Resolver el nickname para asociar la cuenta a la sesión web.
-            String nickname = usuarios.resolverNickname(identificador);
-            if (nickname == null) {
+            DtUsuario usuario = usuarios.iniciarSesionConDatos(identificador, password);
+            if (usuario == null || usuario.getNickname() == null || usuario.getNickname().isBlank()) {
                 throw new IllegalStateException("La cuenta autenticada no se pudo identificar.");
             }
-            DtUsuario usuario = usuarios.obtenerInfoUsuario(nickname);
-            if (usuario == null) {
-                throw new IllegalStateException("La cuenta autenticada ya no existe.");
-            }
+            String nickname = usuario.getNickname();
 
             establecerSesionUsuario(request, nickname, usuario.getNombre(), usuario.getApellido(),
                     usuario instanceof DtDocente, UsuarioServlet.imagenPerfil(usuario));

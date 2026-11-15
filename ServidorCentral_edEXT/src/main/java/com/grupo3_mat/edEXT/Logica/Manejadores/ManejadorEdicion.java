@@ -73,6 +73,23 @@ public class ManejadorEdicion {
         }
     }
 
+    public List<String> listarCursosDeEdiciones(List<String> nombresEdiciones) {
+        if (nombresEdiciones == null || nombresEdiciones.isEmpty()) {
+            return List.of();
+        }
+        EntityManager em = Conexion.getInstancia().getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT e.curso.nombre FROM EdicionCurso e "
+                    + "WHERE e.nombre IN :nombresEdiciones AND e.curso IS NOT NULL",
+                    String.class)
+                    .setParameter("nombresEdiciones", nombresEdiciones)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<EdicionCurso> listarEdiciones() {
         EntityManager em = Conexion.getInstancia().getEntityManager();
         try {

@@ -54,7 +54,7 @@
                 <li>
                     <c:url var="loginUrl" value="/login"/>
                     <a class="dropdown-item" href="<c:out value='${loginUrl}'/>">
-                        <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Iniciar sesión
+                        <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Iniciar sesi&oacute;n
                     </a>
                 </li>
                 <li>

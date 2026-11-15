@@ -71,7 +71,7 @@
                                     <c:param name="instituto" value="${curso.nomInstituto}"/>
                                 </c:url>
                                 <a class="btn btn-outline-primary" href="<c:out value='${altaEdicionCursoUrl}'/>">
-                                    <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i> Crear edición
+                                    <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i> Crear edici&oacute;n
                                 </a>
                             </c:if>
                         </div>
@@ -111,9 +111,11 @@
                                     <dd class="col-sm-8"><c:out value="${curso.cantHoras}"/></dd>
                                     <dt class="col-sm-4">Créditos</dt>
                                     <dd class="col-sm-8"><c:out value="${curso.creditos}"/></dd>
+                                    <dt class="col-sm-4">Visitas</dt>
+                                    <dd class="col-sm-8"><c:out value="${curso.visitas}"/></dd>
                                     <dt class="col-sm-4">Fecha de alta</dt>
                                     <dd class="col-sm-8"><c:out value="${curso.fecha}"/></dd>
-                                    <dt class="col-sm-4">Categorías</dt>
+                                    <dt class="col-sm-4">Categor&iacute;as</dt>
                                     <dd class="col-sm-8">
                                         <c:choose>
                                             <c:when test="${not empty curso.categorias}">

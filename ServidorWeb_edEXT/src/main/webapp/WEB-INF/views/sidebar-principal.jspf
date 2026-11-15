@@ -60,7 +60,7 @@
 
         <c:if test="${sessionScope.usuarioDocente}">
             <section class="sidebar-group">
-                <h2 class="sidebar-title">Gestión docente</h2>
+                <h2 class="sidebar-title">Gesti&oacute;n docente</h2>
                 <c:url var="altaCursoUrl" value="/alta-curso"/>
                 <a href="<c:out value='${altaCursoUrl}'/>" class="custom-item">
                     <i class="bi bi-plus-circle" aria-hidden="true"></i>
@@ -69,7 +69,7 @@
                 <c:url var="altaEdicionUrl" value="/alta-edicion-curso"/>
                 <a href="<c:out value='${altaEdicionUrl}'/>" class="custom-item">
                     <i class="bi bi-calendar-plus" aria-hidden="true"></i>
-                    <span>Crear edición</span>
+                    <span>Crear edici&oacute;n</span>
                 </a>
                 <c:url var="inscripcionesDocenteUrl" value="/seleccion-estudiantes"/>
                 <a href="<c:out value='${inscripcionesDocenteUrl}'/>" class="custom-item">
@@ -107,7 +107,7 @@
         </section>
 
         <section class="sidebar-group">
-            <h2 class="sidebar-title">Categorías</h2>
+            <h2 class="sidebar-title">Categor&iacute;as</h2>
             <c:url var="todasCategoriasUrl" value="/inicio">
                 <c:if test="${not empty filtroInstituto}">
                     <c:param name="instituto" value="${filtroInstituto}"/>

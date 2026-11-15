@@ -1,5 +1,6 @@
 package com.grupo3_mat.servidorweb_edext.servlets;
 
+import com.grupo3_mat.servidorweb_edext.configuracion.ConfiguracionWeb;
 import com.grupo3_mat.servidorweb_edext.soap.generated.DtProgramaFormacion;
 import com.grupo3_mat.servidorweb_edext.soap.ControladoresRemotos;
 import com.grupo3_mat.servidorweb_edext.soap.generated.CategoriaSoap;
@@ -98,11 +99,7 @@ public class ProgramaServlet extends HttpServlet {
             if (filePart != null && filePart.getSize() > 0) {
                 String extension = extensionImagen(filePart);
                 nombreArchivoFinal = java.util.UUID.randomUUID() + extension;
-                String envDir = System.getenv("EDEXT_UPLOAD_DIR");
-                java.nio.file.Path carpetaUploads = envDir != null && !envDir.isBlank()
-                        ? java.nio.file.Paths.get(envDir).toAbsolutePath().normalize()
-                        : java.nio.file.Paths.get(System.getProperty("user.home"), ".edext", "uploads")
-                                .toAbsolutePath().normalize();
+                java.nio.file.Path carpetaUploads = ConfiguracionWeb.get().getUploadDirectory();
                 java.nio.file.Files.createDirectories(carpetaUploads);
                 filePart.write(carpetaUploads.resolve(nombreArchivoFinal).toString());
             }
@@ -189,11 +186,7 @@ public class ProgramaServlet extends HttpServlet {
 
     private void borrarImagen(String nombreArchivo) {
         try {
-            String envDir = System.getenv("EDEXT_UPLOAD_DIR");
-            java.nio.file.Path carpetaUploads = envDir != null && !envDir.isBlank()
-                    ? java.nio.file.Paths.get(envDir).toAbsolutePath().normalize()
-                    : java.nio.file.Paths.get(System.getProperty("user.home"), ".edext", "uploads")
-                            .toAbsolutePath().normalize();
+            java.nio.file.Path carpetaUploads = ConfiguracionWeb.get().getUploadDirectory();
             java.nio.file.Files.deleteIfExists(carpetaUploads.resolve(nombreArchivo));
         } catch (IOException e) {
             getServletContext().log("No se pudo limpiar la imagen del programa fallido.", e);
