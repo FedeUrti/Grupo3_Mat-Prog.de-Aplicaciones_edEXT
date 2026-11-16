@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1.7
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+WORKDIR /workspace
+COPY ServidorWeb_edEXT ./ServidorWeb_edEXT
+COPY ServidorMobile_edEXT ./ServidorMobile_edEXT
+# El módulo es autónomo: genera stubs con los WSDL/XSD locales y no compila ni descarga contratos centrales.
+RUN --mount=type=cache,target=/root/.m2 mvn -B -f ServidorWeb_edEXT/pom.xml clean -DskipTests package
+RUN --mount=type=cache,target=/root/.m2 mvn -B -f ServidorMobile_edEXT/pom.xml -DskipTests package
+
+FROM tomcat:10.1-jdk21
+COPY --from=build /workspace/ServidorWeb_edEXT/target/web.war /usr/local/tomcat/webapps/ROOT.war
+# Tomcat despliega esta segunda aplicación en /mobile; ambas comparten el puerto HTTP del contenedor.
+COPY --from=build /workspace/ServidorMobile_edEXT/target/mobile.war /usr/local/tomcat/webapps/mobile.war
+ENV EDEXT_WEB_IMAGE_ENDPOINT=/imagenes-curso
+ENV EDEXT_WEB_CONTEXT_PATH=/
+EXPOSE 8080

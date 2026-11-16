@@ -1,0 +1,8 @@
+**/target
+.git
+.venv
+.vscode
+**/nbproject
+.idea
+*.iml
+*.war
