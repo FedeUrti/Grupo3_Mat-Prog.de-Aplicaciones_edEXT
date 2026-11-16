@@ -82,7 +82,7 @@ programa. No es necesario haber aprobado los cursos.
 
 ## Importante
 
-- No abras el puerto de MySQL a toda la red: la Web habla con el Central, no
+- No abrir el puerto de MySQL a toda la red: la Web habla con el Central, no
   directamente con la base.
 - **Carga Total Automática** reemplaza los datos existentes. Usala solo en una
   base de pruebas.
