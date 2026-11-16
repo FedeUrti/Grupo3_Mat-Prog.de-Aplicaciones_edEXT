@@ -26,11 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
         "#seguidos-panel": "#seguidos-tab",
         "#seguidores-panel": "#seguidores-tab"
     };
-    const tabSelector = panelTabs[window.location.hash];
-    const tab = tabSelector && document.querySelector(tabSelector);
-    if (tab) {
-        bootstrap.Tab.getOrCreateInstance(tab).show();
-    }
+    const mostrarPestanaDelHash = () => {
+        const tabSelector = panelTabs[window.location.hash];
+        const tab = tabSelector && document.querySelector(tabSelector);
+        if (tab) {
+            bootstrap.Tab.getOrCreateInstance(tab).show();
+        }
+    };
+    mostrarPestanaDelHash();
+    window.addEventListener("hashchange", mostrarPestanaDelHash);
 });
 
 document.addEventListener("submit", async (event) => {

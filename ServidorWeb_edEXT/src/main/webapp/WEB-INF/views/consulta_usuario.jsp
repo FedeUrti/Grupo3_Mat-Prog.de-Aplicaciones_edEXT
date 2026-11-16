@@ -207,7 +207,7 @@
                                                         <form action="<c:out value='${seguirSeguidoUrl}'/>" method="post"
                                                               data-follow-form
                                                               data-following="${siguiendoRelacionados[nicknameSeguido]}"
-                                                              data-profile-remove-on-unfollow="${esPropietario}"
+                                                              data-profile-remove-on-unfollow="${esPropietario}">
                                                             <input type="hidden" name="nicknameASeguir"
                                                                    value="<c:out value='${nicknameSeguido}'/>">
                                                             <button class="btn btn-sm ${siguiendoRelacionados[nicknameSeguido] ? 'btn-siguiendo' : 'btn-primary'}"
@@ -259,7 +259,7 @@
                                                         <form action="<c:out value='${seguirSeguidorUrl}'/>" method="post"
                                                               data-follow-form
                                                               data-following="${siguiendoRelacionados[nicknameSeguidor]}"
-                                                              data-profile-owner="${esPropietario}"
+                                                              data-profile-owner="${esPropietario}">
                                                             <input type="hidden" name="nicknameASeguir"
                                                                    value="<c:out value='${nicknameSeguidor}'/>">
                                                             <button class="btn btn-sm ${siguiendoRelacionados[nicknameSeguidor] ? 'btn-siguiendo' : 'btn-primary'}"
@@ -440,7 +440,7 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <c:url var="perfilScriptUrl" value="/assets/js/perfil-usuario.js">
-    <c:param name="v" value="20261013-3"/>
+    <c:param name="v" value="20261115-1"/>
 </c:url>
 <script src="<c:out value='${perfilScriptUrl}'/>" defer></script>
 </body>

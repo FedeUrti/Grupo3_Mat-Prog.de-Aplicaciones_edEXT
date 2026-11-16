@@ -25,7 +25,10 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @WebServlet("/acta-estudio")
 public class ActaEstudioServlet extends HttpServlet {
@@ -60,6 +63,15 @@ public class ActaEstudioServlet extends HttpServlet {
             try {
                 List<DtResultadoEstudio> resultados =
                         controladorPrograma.consultarResultadosActa(estudiante.getNickname(), programa);
+                if (!todosLosCursosAprobados(resultados)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    request.setAttribute("error",
+                            "El acta estará disponible cuando apruebes todos los cursos del programa.");
+                    request.setAttribute("programasDisponibles", List.of());
+                    request.setAttribute("programasPendientes", List.of(programa));
+                    request.getRequestDispatcher("/acta-estudio.jsp").forward(request, response);
+                    return;
+                }
                 escribirPdf(estudiante, programa, resultados, response);
             } catch (SecurityException e) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
@@ -72,7 +84,44 @@ public class ActaEstudioServlet extends HttpServlet {
             }
             return;
         }
+        try {
+            List<String> disponibles = new ArrayList<>();
+            List<String> pendientes = new ArrayList<>();
+            for (String nombrePrograma : programasInscripto) {
+                List<DtResultadoEstudio> resultados =
+                        controladorPrograma.consultarResultadosActa(estudiante.getNickname(), nombrePrograma);
+                (todosLosCursosAprobados(resultados) ? disponibles : pendientes).add(nombrePrograma);
+            }
+            request.setAttribute("programasDisponibles", disponibles);
+            request.setAttribute("programasPendientes", pendientes);
+        } catch (Exception e) {
+            getServletContext().log("No se pudo verificar la disponibilidad de las actas.", e);
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+                    "No se pudo verificar si los programas están aprobados. Intentá nuevamente.");
+            return;
+        }
         request.getRequestDispatcher("/acta-estudio.jsp").forward(request, response);
+    }
+
+    static boolean todosLosCursosAprobados(List<DtResultadoEstudio> resultados) {
+        if (resultados == null || resultados.isEmpty()) {
+            return false;
+        }
+
+        Set<String> cursos = new HashSet<>();
+        Set<String> cursosAprobados = new HashSet<>();
+        for (DtResultadoEstudio resultado : resultados) {
+            if (resultado == null || resultado.getNombreCurso() == null
+                    || resultado.getNombreCurso().isBlank()) {
+                return false;
+            }
+            String curso = resultado.getNombreCurso();
+            cursos.add(curso);
+            if (resultado.isTieneResultado() && resultado.isAprobado()) {
+                cursosAprobados.add(curso);
+            }
+        }
+        return !cursos.isEmpty() && cursosAprobados.containsAll(cursos);
     }
 
     private DtEstudiante estudianteActual(HttpServletRequest request, HttpServletResponse response)

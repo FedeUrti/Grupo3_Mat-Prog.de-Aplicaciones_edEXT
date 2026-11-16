@@ -29,28 +29,52 @@
             </div>
 
             <section class="content-card p-4 p-md-5" style="max-width: 760px;">
+                <c:if test="${not empty error}">
+                    <div class="alert alert-warning" role="status"><c:out value="${error}"/></div>
+                </c:if>
                 <c:choose>
                     <c:when test="${not empty programas}">
-                        <form action="acta-estudio" method="get">
-                            <label for="programa" class="form-label fw-semibold">Programa de formación</label>
-                            <select class="form-select mb-3" id="programa" name="programa" required>
-                                <option value="">-- Seleccionar programa --</option>
-                                <c:forEach items="${programas}" var="programa">
-                                    <option value="<c:out value='${programa}'/>"
-                                            <c:if test="${programa eq programaSeleccionado}">selected</c:if>>
-                                        <c:out value="${programa}"/>
-                                    </option>
-                                </c:forEach>
-                            </select>
-                            <input type="hidden" name="descargar" value="1"/>
-                            <p class="form-text mb-4">
-                                El PDF incluye los cursos del programa y los resultados de ediciones cerradas con evaluación publicada.
-                                Se genera nuevamente cada vez que lo descargás.
-                            </p>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Generar y descargar PDF
-                            </button>
-                        </form>
+                        <c:choose>
+                            <c:when test="${not empty programasDisponibles}">
+                                <form action="acta-estudio" method="get">
+                                    <label for="programa" class="form-label fw-semibold">Programa aprobado</label>
+                                    <select class="form-select mb-3" id="programa" name="programa" required>
+                                        <c:forEach items="${programasDisponibles}" var="programa">
+                                            <option value="<c:out value='${programa}'/>"
+                                                    <c:if test="${programa eq programaSeleccionado}">selected</c:if>>
+                                                <c:out value="${programa}"/>
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                    <input type="hidden" name="descargar" value="1"/>
+                                    <p class="form-text mb-4">
+                                        El PDF se genera al descargarlo e incluye los resultados de las ediciones cerradas.
+                                    </p>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Generar y descargar PDF
+                                    </button>
+                                </form>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="text-center py-3">
+                                    <i class="bi bi-journal-x display-5 text-muted mb-3" aria-hidden="true"></i>
+                                    <h2 class="h5 fw-bold">Todavía no hay actas disponibles</h2>
+                                    <p class="text-muted mb-0">
+                                        Tenés que aprobar todos los cursos de un programa para generar su acta.
+                                    </p>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:if test="${not empty programasPendientes}">
+                            <div class="mt-4">
+                                <h2 class="h6 fw-bold">Programas con cursos pendientes</h2>
+                                <ul class="mb-0">
+                                    <c:forEach items="${programasPendientes}" var="programa">
+                                        <li><c:out value="${programa}"/></li>
+                                    </c:forEach>
+                                </ul>
+                            </div>
+                        </c:if>
                     </c:when>
                     <c:otherwise>
                         <div class="text-center py-3">
