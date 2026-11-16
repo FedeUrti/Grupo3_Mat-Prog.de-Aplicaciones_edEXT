@@ -43,7 +43,7 @@ public class ImagenCursoServlet extends HttpServlet {
         // 3. Los programas creados en la aplicación de escritorio guardan nombres acotados en su carpeta propia.
         boolean imagenProgramaEscritorio = nombre.matches(
                 "(?i)programa_[a-z0-9_-]+_\\d+\\.(png|jpg|jpeg|gif|webp)");
-        if (imagenProgramaEscritorio) {
+        if (imagenProgramaEscritorio || UsuarioServlet.esImagenPerfilDeEscritorio(nombre)) {
             Path carpetaProgramas = ConfiguracionWeb.get().getImageDirectory();
             servirArchivo(carpetaProgramas, nombre, response);
             return;

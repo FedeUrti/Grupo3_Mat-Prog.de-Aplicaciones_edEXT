@@ -37,7 +37,7 @@
                         <c:choose>
                             <c:when test="${not empty programasDisponibles}">
                                 <form action="acta-estudio" method="get">
-                                    <label for="programa" class="form-label fw-semibold">Programa aprobado</label>
+                                    <label for="programa" class="form-label fw-semibold">Programa de formación</label>
                                     <select class="form-select mb-3" id="programa" name="programa" required>
                                         <c:forEach items="${programasDisponibles}" var="programa">
                                             <option value="<c:out value='${programa}'/>"
@@ -48,7 +48,7 @@
                                     </select>
                                     <input type="hidden" name="descargar" value="1"/>
                                     <p class="form-text mb-4">
-                                        El PDF se genera al descargarlo e incluye los resultados de las ediciones cerradas.
+                                        El PDF incluye los resultados de las ediciones cerradas, estén aprobadas o no.
                                     </p>
                                     <button type="submit" class="btn btn-primary">
                                         <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Generar y descargar PDF
@@ -60,14 +60,14 @@
                                     <i class="bi bi-journal-x display-5 text-muted mb-3" aria-hidden="true"></i>
                                     <h2 class="h5 fw-bold">Todavía no hay actas disponibles</h2>
                                     <p class="text-muted mb-0">
-                                        Tenés que aprobar todos los cursos de un programa para generar su acta.
+                                        Tiene que haber una edición cerrada para cada curso del programa.
                                     </p>
                                 </div>
                             </c:otherwise>
                         </c:choose>
                         <c:if test="${not empty programasPendientes}">
                             <div class="mt-4">
-                                <h2 class="h6 fw-bold">Programas con cursos pendientes</h2>
+                                <h2 class="h6 fw-bold">Programas con ediciones pendientes de cierre</h2>
                                 <ul class="mb-0">
                                     <c:forEach items="${programasPendientes}" var="programa">
                                         <li><c:out value="${programa}"/></li>

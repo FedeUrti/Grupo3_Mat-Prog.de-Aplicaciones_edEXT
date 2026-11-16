@@ -63,10 +63,10 @@ public class ActaEstudioServlet extends HttpServlet {
             try {
                 List<DtResultadoEstudio> resultados =
                         controladorPrograma.consultarResultadosActa(estudiante.getNickname(), programa);
-                if (!todosLosCursosAprobados(resultados)) {
+                if (!todosLosCursosCerrados(resultados)) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     request.setAttribute("error",
-                            "El acta estará disponible cuando apruebes todos los cursos del programa.");
+                            "El acta estará disponible cuando haya una edición cerrada para cada curso del programa.");
                     request.setAttribute("programasDisponibles", List.of());
                     request.setAttribute("programasPendientes", List.of(programa));
                     request.getRequestDispatcher("/acta-estudio.jsp").forward(request, response);
@@ -90,26 +90,26 @@ public class ActaEstudioServlet extends HttpServlet {
             for (String nombrePrograma : programasInscripto) {
                 List<DtResultadoEstudio> resultados =
                         controladorPrograma.consultarResultadosActa(estudiante.getNickname(), nombrePrograma);
-                (todosLosCursosAprobados(resultados) ? disponibles : pendientes).add(nombrePrograma);
+                (todosLosCursosCerrados(resultados) ? disponibles : pendientes).add(nombrePrograma);
             }
             request.setAttribute("programasDisponibles", disponibles);
             request.setAttribute("programasPendientes", pendientes);
         } catch (Exception e) {
             getServletContext().log("No se pudo verificar la disponibilidad de las actas.", e);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
-                    "No se pudo verificar si los programas están aprobados. Intentá nuevamente.");
+                    "No se pudo verificar si las ediciones están cerradas. Intentá nuevamente.");
             return;
         }
         request.getRequestDispatcher("/acta-estudio.jsp").forward(request, response);
     }
 
-    static boolean todosLosCursosAprobados(List<DtResultadoEstudio> resultados) {
+    static boolean todosLosCursosCerrados(List<DtResultadoEstudio> resultados) {
         if (resultados == null || resultados.isEmpty()) {
             return false;
         }
 
         Set<String> cursos = new HashSet<>();
-        Set<String> cursosAprobados = new HashSet<>();
+        Set<String> cursosConEdicionCerrada = new HashSet<>();
         for (DtResultadoEstudio resultado : resultados) {
             if (resultado == null || resultado.getNombreCurso() == null
                     || resultado.getNombreCurso().isBlank()) {
@@ -117,11 +117,11 @@ public class ActaEstudioServlet extends HttpServlet {
             }
             String curso = resultado.getNombreCurso();
             cursos.add(curso);
-            if (resultado.isTieneResultado() && resultado.isAprobado()) {
-                cursosAprobados.add(curso);
+            if (resultado.getNombreEdicion() != null && !resultado.getNombreEdicion().isBlank()) {
+                cursosConEdicionCerrada.add(curso);
             }
         }
-        return !cursos.isEmpty() && cursosAprobados.containsAll(cursos);
+        return !cursos.isEmpty() && cursosConEdicionCerrada.containsAll(cursos);
     }
 
     private DtEstudiante estudianteActual(HttpServletRequest request, HttpServletResponse response)

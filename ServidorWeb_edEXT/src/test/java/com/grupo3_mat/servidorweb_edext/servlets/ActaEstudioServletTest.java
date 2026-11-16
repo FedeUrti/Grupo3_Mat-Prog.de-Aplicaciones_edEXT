@@ -10,30 +10,42 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ActaEstudioServletTest {
 
     @Test
-    void requiereAprobacionDeCadaCursoYPermiteReintentos() {
-        assertTrue(ActaEstudioServlet.todosLosCursosAprobados(List.of(
-                resultado("Curso A", 5),
-                resultado("Curso A", 8),
-                resultado("Curso B", 6))));
-        assertFalse(ActaEstudioServlet.todosLosCursosAprobados(List.of(
-                resultado("Curso A", 8),
-                resultadoSinResultado("Curso B"))));
-        assertFalse(ActaEstudioServlet.todosLosCursosAprobados(List.of(
-                resultado("Curso A", 8),
-                resultado("Curso B", 5))));
-        assertFalse(ActaEstudioServlet.todosLosCursosAprobados(List.of()));
+    void permiteElActaConEdicionesCerradasSinExigirAprobacion() {
+        assertTrue(ActaEstudioServlet.todosLosCursosCerrados(List.of(
+                resultado("Curso A", "Edición A1", 5),
+                resultado("Curso A", "Edición A2", 8),
+                resultado("Curso B", "Edición B1", 3))));
     }
 
-    private static DtResultadoEstudio resultado(String curso, int evaluacion) {
+    @Test
+    void requiereUnaEdicionCerradaParaCadaCursoPeroNoUnaEvaluacion() {
+        assertTrue(ActaEstudioServlet.todosLosCursosCerrados(List.of(
+                resultado("Curso A", "Edición A1", 5),
+                resultadoCerradoSinEvaluacion("Curso B", "Edición B1"))));
+        assertFalse(ActaEstudioServlet.todosLosCursosCerrados(List.of(
+                resultado("Curso A", "Edición A1", 8),
+                resultadoSinEdicion("Curso B"))));
+        assertFalse(ActaEstudioServlet.todosLosCursosCerrados(List.of()));
+    }
+
+    private static DtResultadoEstudio resultado(String curso, String edicion, int evaluacion) {
         DtResultadoEstudio resultado = new DtResultadoEstudio();
         resultado.setNombreCurso(curso);
+        resultado.setNombreEdicion(edicion);
         resultado.setEvaluacion(evaluacion);
         resultado.setTieneResultado(true);
         resultado.setAprobado(evaluacion >= 6);
         return resultado;
     }
 
-    private static DtResultadoEstudio resultadoSinResultado(String curso) {
+    private static DtResultadoEstudio resultadoCerradoSinEvaluacion(String curso, String edicion) {
+        DtResultadoEstudio resultado = new DtResultadoEstudio();
+        resultado.setNombreCurso(curso);
+        resultado.setNombreEdicion(edicion);
+        return resultado;
+    }
+
+    private static DtResultadoEstudio resultadoSinEdicion(String curso) {
         DtResultadoEstudio resultado = new DtResultadoEstudio();
         resultado.setNombreCurso(curso);
         return resultado;

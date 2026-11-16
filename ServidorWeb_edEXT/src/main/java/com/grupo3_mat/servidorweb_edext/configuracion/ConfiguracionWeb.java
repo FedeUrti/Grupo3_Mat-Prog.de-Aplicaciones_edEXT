@@ -31,7 +31,8 @@ public final class ConfiguracionWeb {
         Properties propiedades = leerOCrear(carpeta.resolve("web.properties"), valoresDefecto);
         Map<String, String> nombresEntorno = Map.of(
                 "central.soap.url", "EDEXT_SOAP_BASE_URL",
-                "upload.dir", "EDEXT_UPLOAD_DIR");
+                "upload.dir", "EDEXT_UPLOAD_DIR",
+                "imagenes.dir", "EDEXT_IMAGES_DIR");
         valores = new LinkedHashMap<>();
         valoresDefecto.forEach((clave, defecto) -> {
             String variable = nombresEntorno.get(clave);

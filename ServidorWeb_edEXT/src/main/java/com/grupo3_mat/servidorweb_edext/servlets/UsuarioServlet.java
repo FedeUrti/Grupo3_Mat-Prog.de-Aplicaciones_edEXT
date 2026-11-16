@@ -367,12 +367,18 @@ public class UsuarioServlet extends HttpServlet {
 
     static String imagenPerfil(String imagen, boolean esDocente) {
         if (imagen != null && (imagen.matches("[a-f0-9-]{36}\\.(png|jpg|gif|webp)")
+                || esImagenPerfilDeEscritorio(imagen)
                 || imagen.matches("Presentacion/Recursos/datos_prueba/usuario_[a-z0-9_-]+\\.(png|jpg|jpeg)")
                 || imagen.endsWith("docente_placeholder.png")
                 || imagen.endsWith("estudiante_placeholder.png"))) {
             return imagen;
         }
         return esDocente ? "docente_placeholder.png" : "estudiante_placeholder.png";
+    }
+
+    static boolean esImagenPerfilDeEscritorio(String imagen) {
+        return imagen != null
+                && imagen.matches("(?iu)\\p{L}[\\p{L}\\p{N}_.-]*_\\d+\\.(png|jpe?g|gif|webp)");
     }
 
     private void mostrarModificacion(HttpServletRequest request, HttpServletResponse response)

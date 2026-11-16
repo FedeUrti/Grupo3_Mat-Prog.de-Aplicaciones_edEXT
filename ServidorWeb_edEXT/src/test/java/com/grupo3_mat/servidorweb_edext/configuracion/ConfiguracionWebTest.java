@@ -57,4 +57,14 @@ class ConfiguracionWebTest {
         assertEquals(home.resolve("área de cargas").toAbsolutePath().normalize(),
                 configuracion.getUploadDirectory());
     }
+
+    @Test
+    void permiteConfigurarLaCarpetaCompartidaDeImagenesPorEntorno() {
+        Path carpetaCompartida = home.resolve("imagenes-compartidas");
+
+        ConfiguracionWeb configuracion = ConfiguracionWeb.cargar(home, Map.of(
+                "EDEXT_IMAGES_DIR", carpetaCompartida.toString()));
+
+        assertEquals(carpetaCompartida.toAbsolutePath().normalize(), configuracion.getImageDirectory());
+    }
 }
